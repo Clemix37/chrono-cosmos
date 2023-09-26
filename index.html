@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChronoCosmos</title>
+    <script>let exports = {};</script>
+    <link rel="stylesheet" href="./css/FlexIt.css">
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/components/components.css">
+</head>
+<body class="colonne">
+    <div class="ligne" id="gameStartScreen">
+        <div class="colonne">
+            <div class="ligne">
+                <h1>Welcome to ChronoCosmos !</h1>
+            </div>
+            <div class="ligne">
+                <span>This game has been developed to time travel and to explore space by gaming around an incremental game.</span>
+            </div>
+            <div class="ligne">
+                <button id="btnLaunchGame" class="btn btn-primary">
+                    I Want to play !
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="ligne" id="gameContent">
+        <div class="colonne">
+            <div class="ligne">
+                <div class="colonne">
+                    <div class="ligne">
+                        &nbsp;
+                    </div>
+                </div>
+                <div class="colonne">
+                    <div class="ligne">
+                        <h1 id="energyCounter">0⚡</h1>
+                    </div>
+                </div>
+                <div class="colonne">
+                    <div class="ligne justify-content-flexend">
+                        <button id="btnPauseGame" class="btn btn-secondary">Pause</button>
+                        <button id="btnResumeGame" class="btn btn-secondary">Resume</button>
+                    </div>
+                </div>
+            </div>
+            <div class="ligne">
+                <div class="colonne">
+                    <div class="ligne">
+                        <h3>Components</h3>
+                    </div>
+                </div>
+                <div class="colonne">
+                    <div class="ligne">
+                        <h3>Resources</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="ligne">
+                <div class="colonne" id="components-content"></div>
+                <div class="colonne" id="resources-content"></div>
+            </div>
+        </div>
+    </div>
+    <div class="ligne" id="gameEndScreen">
+        END SCREEN
+    </div>
+    <script src="./dist/bundle.js"></script>
+</body>
+</html>

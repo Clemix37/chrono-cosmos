@@ -1,0 +1,14 @@
+{
+    "components": [
+        {
+            "id": "comp-spoon",
+            "name": "Spoon",
+            "type": "component",
+            "gainPerSecond": 0.1,
+            "baseCost": 3,
+            "exponent": 1.2,
+            "level": 1,
+            "maxLevel": 10000
+        }
+    ]
+}

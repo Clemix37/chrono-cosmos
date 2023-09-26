@@ -1,0 +1,26 @@
+button {cursor: pointer;}
+
+.btn {
+    border-radius:8px;
+    min-height: 50px;
+    min-width: 70px;
+    padding: 5px;
+    border:none;
+}
+
+.btn:is(.btn-primary, .btn-tertiary) {
+    color:var(--texte);
+}
+
+.btn.btn-primary {
+    background-color: var(--primary);
+}
+
+.btn.btn-secondary {
+    background-color: var(--secondary);
+    color:var(--background);
+}
+
+.btn.btn-tertiary {
+    background-color: var(--tertiary);
+}
