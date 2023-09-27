@@ -1,9 +1,17 @@
+@import url("./FlexIt.css");
+@import url("./components/buttons.css");
+@import url("./components/components.css");
+@import url("./components/icons.css");
+@import url("./fontawesome/all.min.css");
+
 :root {
-    --background: #070707;
+    --background: #1c1c1c;
     --texte: #EFEFEF;
     --primary: #3E4ED6;
     --secondary: #34D1BF;
     --tertiary: #D1345B;
+    --success: #26c226;
+    --light-blue: #0f85e6;
 }
 
 body {

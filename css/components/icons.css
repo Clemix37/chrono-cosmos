@@ -1,0 +1,25 @@
+.icon.color-yellow{
+    color:yellow;
+}
+.icon.color-primary {
+    color:var(--primary);
+}
+.icon.color-secondary {
+    color:var(--secondary);
+}
+.icon.color-tertiary {
+    color:var(--tertiary);
+}
+.icon.color-success {
+    color:var(--success);
+}
+.icon.color-light-blue {
+    color:var(--light-blue);
+}
+
+.icon.margin-right {
+    margin-right:8px;
+}
+.icon.margin-left {
+    margin-left:8px;
+}

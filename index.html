@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChronoCosmos</title>
     <script>let exports = {};</script>
-    <link rel="stylesheet" href="./css/FlexIt.css">
     <link rel="stylesheet" href="./css/index.css">
-    <link rel="stylesheet" href="./css/components/components.css">
+    <script src="./js/fontawesome/all.min.js"></script>
 </head>
 <body class="colonne">
     <div class="ligne" id="gameStartScreen">
@@ -30,7 +29,7 @@
             <div class="ligne">
                 <div class="colonne">
                     <div class="ligne">
-                        &nbsp;
+                        <button id="btnClearData" class="btn btn-tertiary" title="Clear data"><i class="fa-solid fa-trash-alt fa-2x"></i></button>
                     </div>
                 </div>
                 <div class="colonne">
@@ -40,8 +39,8 @@
                 </div>
                 <div class="colonne">
                     <div class="ligne justify-content-flexend">
-                        <button id="btnPauseGame" class="btn btn-secondary">Pause</button>
-                        <button id="btnResumeGame" class="btn btn-secondary">Resume</button>
+                        <button id="btnPauseGame" class="btn btn-secondary" title="Pause"><i class="fa-solid fa-pause fa-2x"></i></button>
+                        <button id="btnResumeGame" class="btn btn-secondary" title="Resume"><i class="fa-solid fa-play fa-2x"></i></button>
                     </div>
                 </div>
             </div>

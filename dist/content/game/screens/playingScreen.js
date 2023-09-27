@@ -23,6 +23,7 @@ const displayPausedGame = (toDisplay) => {
 const attachEvents = () => {
     attachEventsPause();
     attachEventsResume();
+    attachEventClearData();
 };
 const attachEventsPause = () => {
     const btnGamePause = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.PAUSE);
@@ -38,5 +39,13 @@ const attachEventsResume = () => {
         return;
     btnResumeGame.addEventListener("click", () => {
         game_1.game.changeStatus("playing");
+    });
+};
+const attachEventClearData = () => {
+    const btnClearData = document.getElementById("btnClearData");
+    if (!btnClearData)
+        return;
+    btnClearData.addEventListener("click", () => {
+        game_1.game.clearDataFromLocalStorage();
     });
 };

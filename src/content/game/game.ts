@@ -7,12 +7,13 @@ import { GameContent, getNextGameContent, getOrCreateGameContent } from "./gameC
 import { launchGameScreen } from "./screens/playingScreen";
 import { launchGameStartScreen } from "./screens/startScreen";
 
-class Game implements IGame {
+export class Game implements IGame {
 
     energy: number;
     config: IGameConfig;
     components: GameContent[];
     resources: GameContent[];
+    timeTravelGames?: Game[];
     _intervalle: any;
 
     constructor(){
@@ -28,10 +29,20 @@ class Game implements IGame {
         this.launchGameScreen();
     }
 
+    // Save the energy, the config, and the contents in the localStorage
     saveGame(){
         localStorage.setItem("energyCounter", JSON.stringify(this.energy));
         localStorage.setItem("gameConfig", JSON.stringify(this.config))
         localStorage.setItem("gameContent", JSON.stringify({components:this.components, resources:this.resources}));
+    }
+
+    // remove every item in the local storage 
+    // So that when reloading, no game already exists
+    clearDataFromLocalStorage(){
+        localStorage.removeItem("energyCounter");
+        localStorage.removeItem("gameConfig")
+        localStorage.removeItem("gameContent");
+        window.location.reload();
     }
 
     launchGameScreen(){
@@ -83,16 +94,31 @@ class Game implements IGame {
         return `<div class="ligne">${content}</div>`;
     }
 
-    #getHtmlTemplateResource(res: GameContent){
+    #getHtmlTemplateGameContent(content: GameContent){
         const ligneBtn = this.config.status === "paused" ? "" : `
             <div class="ligne">
-                <button class="btn btn-tertiary" id="${res.idBtn}">${res.upgradeCost}</button>
+                <button class="btn btn-primary" id="${content.idBtn}">${content.upgradeCost}</button>
             </div>
         `;
         return `
-            <div class="colonne">
+            <div class="colonne game-content">
                 <div class="ligne">
-                    <h1>${res.name} (${res.level})</h1>
+                    <h1>Niveau ${content.level}</h1>
+                </div>
+                <div class="ligne">
+                    <span>${content.name}</span>
+                </div>
+                <div class="ligne">
+                    <div class="colonne">
+                        <div class="ligne">
+                            <span><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${content.gainPerSecond}</span>
+                        </div>
+                    </div>
+                    <div class="colonne">
+                        <div class="ligne">
+                            <span><i class="fa-solid fa-clock icon color-light-blue margin-right"></i>1s</span>
+                        </div>
+                    </div>
                 </div>
                 ${ligneBtn}
             </div>
@@ -108,6 +134,7 @@ class Game implements IGame {
         this.saveGame();
         this.#displayComponents();
         this.#displayResources();
+        this.#attachEvents();
         if(this.config.status === "playing") this.#countEverySecond();
     }
     
@@ -118,9 +145,8 @@ class Game implements IGame {
         div.innerHTML = "";
         for (let i = 0; i < this.components.length; i++) {
             const comp = this.components[i];
-            const contentHml = this.#getHtmlLine(``);
+            const contentHml = this.#getHtmlLine(this.#getHtmlTemplateGameContent(comp));
             div.innerHTML += contentHml;
-            this.#attachEvents(comp);
         }
     }
 
@@ -131,9 +157,8 @@ class Game implements IGame {
         div.innerHTML = "";
         for (let i = 0; i < this.resources.length; i++) {
             const res = this.resources[i];
-            const contentHml = this.#getHtmlLine(this.#getHtmlTemplateResource(res));
+            const contentHml = this.#getHtmlLine(this.#getHtmlTemplateGameContent(res));
             div.innerHTML += contentHml;
-            this.#attachEvents(res);
         }
     }
 
@@ -147,18 +172,22 @@ class Game implements IGame {
 
     //#region Events
 
-    #attachEvents(content:GameContent){
-        if(!content.idBtn) return;
-        const btn = document.getElementById(content.idBtn);
-        if(!btn) return;
-        btn.addEventListener("click", () => {
-            const cost = content.upgradeCost || content.baseCost;
-            if(cost > this.energy) return;
-            this.energy = toDecimal(this.energy - cost);
-            this.#displayEnergy();
-            content.upgrade();
-            this.#displayGameContents();
-        });
+    #attachEvents(){
+        const all:GameContent[] = [...this.components, ...this.resources];
+        for (let i = 0; i < all.length; i++) {
+            const content = all[i];
+            if(!content.idBtn) continue;
+            const btn = document.getElementById(content.idBtn);
+            if(!btn) continue;
+            btn.addEventListener("click", () => {
+                const cost = content.upgradeCost || content.baseCost;
+                if(cost > this.energy) return;
+                this.energy = toDecimal(this.energy - cost);
+                this.#displayEnergy();
+                content.upgrade();
+                this.#displayGameContents();
+            });
+        }
     }
 
     //#endregion

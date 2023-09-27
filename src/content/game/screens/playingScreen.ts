@@ -23,6 +23,7 @@ const displayPausedGame = (toDisplay:boolean):void => {
 const attachEvents = ():void => {
     attachEventsPause();
     attachEventsResume();
+    attachEventClearData();
 };
 
 const attachEventsPause = ():void => {
@@ -38,6 +39,14 @@ const attachEventsResume = ():void => {
     if(!btnResumeGame) return;
     btnResumeGame.addEventListener("click", () => {
         game.changeStatus("playing");
+    });
+};
+
+const attachEventClearData = () => {
+    const btnClearData = document.getElementById("btnClearData");
+    if(!btnClearData) return;
+    btnClearData.addEventListener("click", () => {
+        game.clearDataFromLocalStorage();
     });
 };
 

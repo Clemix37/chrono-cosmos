@@ -15,8 +15,9 @@ const getOrCreateGameContent = ():any => {
 
 const getDefaultGameContent = ():any => {
 	const waterResourceConfig: IGameContent = resourceFile.resources[0] as IGameContent;
+	const spoonCompConfig: IGameContent = componentFile.components[0] as IGameContent;
 	const content = {
-		components: [],
+		components: [new GameContent(spoonCompConfig)],
 		resources: [new GameContent(waterResourceConfig)],
 	};
 	return content;
@@ -56,7 +57,7 @@ class GameContent implements IGameContent {
 		this.maxLevel = config.maxLevel;
 		this.upgradeCost = config.upgradeCost ?? config.baseCost;
 		this.progressToNext = config.progressToNext;
-		this.idBtn = `btn-${this.type}-${this.name.toLowerCase()}`;
+		this.idBtn = `btn-${this.type}-${this.name.toLowerCase().split(" ").join("-")}`;
 		// if(!!this.idBtn) this.btn = document.getElementById(this.idBtn);
 	}
 	upgrade(){

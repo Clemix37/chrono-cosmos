@@ -26,8 +26,9 @@ const getOrCreateGameContent = () => {
 exports.getOrCreateGameContent = getOrCreateGameContent;
 const getDefaultGameContent = () => {
     const waterResourceConfig = resources_json_1.default.resources[0];
+    const spoonCompConfig = components_json_1.default.components[0];
     const content = {
-        components: [],
+        components: [new GameContent(spoonCompConfig)],
         resources: [new GameContent(waterResourceConfig)],
     };
     return content;
@@ -57,7 +58,7 @@ class GameContent {
         this.maxLevel = config.maxLevel;
         this.upgradeCost = (_a = config.upgradeCost) !== null && _a !== void 0 ? _a : config.baseCost;
         this.progressToNext = config.progressToNext;
-        this.idBtn = `btn-${this.type}-${this.name.toLowerCase()}`;
+        this.idBtn = `btn-${this.type}-${this.name.toLowerCase().split(" ").join("-")}`;
         // if(!!this.idBtn) this.btn = document.getElementById(this.idBtn);
     }
     upgrade() {
