@@ -7,7 +7,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _GameContent_instances, _GameContent_upgradeCostWithFormula;
+var _GameContent_instances, _GameContent_upgradeCostWithFormula, _GameContent_getHtmlLine;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getNextGameContent = exports.getOrCreateGameContent = exports.GameContent = void 0;
 const data_1 = require("../utils/data/data");
@@ -67,9 +67,41 @@ class GameContent {
         this.level++;
         this.upgradeCost = __classPrivateFieldGet(this, _GameContent_instances, "m", _GameContent_upgradeCostWithFormula).call(this);
     }
+    getHtmlTemplateGameContent(isPaused) {
+        const ligneBtn = isPaused ? "" : `
+            <div class="ligne">
+                <button class="btn btn-primary" id="${this.idBtn}">${this.upgradeCost}</button>
+            </div>
+        `;
+        return __classPrivateFieldGet(this, _GameContent_instances, "m", _GameContent_getHtmlLine).call(this, `
+            <div class="colonne game-content">
+                <div class="ligne">
+                    <h1>Niveau ${this.level}</h1>
+                </div>
+                <div class="ligne">
+                    <span>${this.name}</span>
+                </div>
+                <div class="ligne">
+                    <div class="colonne">
+                        <div class="ligne">
+                            <span><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${this.gainPerSecond}</span>
+                        </div>
+                    </div>
+                    <div class="colonne">
+                        <div class="ligne">
+                            <span><i class="fa-solid fa-clock icon color-light-blue margin-right"></i>1s</span>
+                        </div>
+                    </div>
+                </div>
+                ${ligneBtn}
+            </div>
+        `);
+    }
 }
 exports.GameContent = GameContent;
 _GameContent_instances = new WeakSet(), _GameContent_upgradeCostWithFormula = function _GameContent_upgradeCostWithFormula() {
     const formula = this.baseCost * (Math.pow(this.level, this.exponent));
     return Math.ceil(formula);
+}, _GameContent_getHtmlLine = function _GameContent_getHtmlLine(content) {
+    return `<div class="ligne">${content}</div>`;
 };

@@ -88,45 +88,6 @@ export class Game implements IGame {
         }, 1000);
     }
 
-    //#region Utils HTML
-
-    #getHtmlLine(content:string){
-        return `<div class="ligne">${content}</div>`;
-    }
-
-    #getHtmlTemplateGameContent(content: GameContent){
-        const ligneBtn = this.config.status === "paused" ? "" : `
-            <div class="ligne">
-                <button class="btn btn-primary" id="${content.idBtn}">${content.upgradeCost}</button>
-            </div>
-        `;
-        return `
-            <div class="colonne game-content">
-                <div class="ligne">
-                    <h1>Niveau ${content.level}</h1>
-                </div>
-                <div class="ligne">
-                    <span>${content.name}</span>
-                </div>
-                <div class="ligne">
-                    <div class="colonne">
-                        <div class="ligne">
-                            <span><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${content.gainPerSecond}</span>
-                        </div>
-                    </div>
-                    <div class="colonne">
-                        <div class="ligne">
-                            <span><i class="fa-solid fa-clock icon color-light-blue margin-right"></i>1s</span>
-                        </div>
-                    </div>
-                </div>
-                ${ligneBtn}
-            </div>
-        `;
-    }
-
-    //#endregion
-
     //#region Display
     
     #displayGameContents(){
@@ -145,7 +106,7 @@ export class Game implements IGame {
         div.innerHTML = "";
         for (let i = 0; i < this.components.length; i++) {
             const comp = this.components[i];
-            const contentHml = this.#getHtmlLine(this.#getHtmlTemplateGameContent(comp));
+            const contentHml = comp.getHtmlTemplateGameContent(this.config.status === "paused");
             div.innerHTML += contentHml;
         }
     }
@@ -157,7 +118,7 @@ export class Game implements IGame {
         div.innerHTML = "";
         for (let i = 0; i < this.resources.length; i++) {
             const res = this.resources[i];
-            const contentHml = this.#getHtmlLine(this.#getHtmlTemplateGameContent(res));
+            const contentHml = res.getHtmlTemplateGameContent(this.config.status === "paused");
             div.innerHTML += contentHml;
         }
     }

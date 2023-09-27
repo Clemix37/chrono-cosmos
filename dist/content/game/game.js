@@ -4,7 +4,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Game_instances, _Game_countEverySecond, _Game_getHtmlLine, _Game_getHtmlTemplateGameContent, _Game_displayGameContents, _Game_displayComponents, _Game_displayResources, _Game_displayEnergy, _Game_attachEvents;
+var _Game_instances, _Game_countEverySecond, _Game_displayGameContents, _Game_displayComponents, _Game_displayResources, _Game_displayEnergy, _Game_attachEvents;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
@@ -85,37 +85,6 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
         this.saveGame();
         this.checkForNewContent();
     }, 1000);
-}, _Game_getHtmlLine = function _Game_getHtmlLine(content) {
-    return `<div class="ligne">${content}</div>`;
-}, _Game_getHtmlTemplateGameContent = function _Game_getHtmlTemplateGameContent(content) {
-    const ligneBtn = this.config.status === "paused" ? "" : `
-            <div class="ligne">
-                <button class="btn btn-primary" id="${content.idBtn}">${content.upgradeCost}</button>
-            </div>
-        `;
-    return `
-            <div class="colonne game-content">
-                <div class="ligne">
-                    <h1>Niveau ${content.level}</h1>
-                </div>
-                <div class="ligne">
-                    <span>${content.name}</span>
-                </div>
-                <div class="ligne">
-                    <div class="colonne">
-                        <div class="ligne">
-                            <span><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${content.gainPerSecond}</span>
-                        </div>
-                    </div>
-                    <div class="colonne">
-                        <div class="ligne">
-                            <span><i class="fa-solid fa-clock icon color-light-blue margin-right"></i>1s</span>
-                        </div>
-                    </div>
-                </div>
-                ${ligneBtn}
-            </div>
-        `;
 }, _Game_displayGameContents = function _Game_displayGameContents() {
     if (!!this._intervalle)
         clearInterval(this._intervalle);
@@ -133,7 +102,7 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
     div.innerHTML = "";
     for (let i = 0; i < this.components.length; i++) {
         const comp = this.components[i];
-        const contentHml = __classPrivateFieldGet(this, _Game_instances, "m", _Game_getHtmlLine).call(this, __classPrivateFieldGet(this, _Game_instances, "m", _Game_getHtmlTemplateGameContent).call(this, comp));
+        const contentHml = comp.getHtmlTemplateGameContent(this.config.status === "paused");
         div.innerHTML += contentHml;
     }
 }, _Game_displayResources = function _Game_displayResources() {
@@ -144,7 +113,7 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
     div.innerHTML = "";
     for (let i = 0; i < this.resources.length; i++) {
         const res = this.resources[i];
-        const contentHml = __classPrivateFieldGet(this, _Game_instances, "m", _Game_getHtmlLine).call(this, __classPrivateFieldGet(this, _Game_instances, "m", _Game_getHtmlTemplateGameContent).call(this, res));
+        const contentHml = res.getHtmlTemplateGameContent(this.config.status === "paused");
         div.innerHTML += contentHml;
     }
 }, _Game_displayEnergy = function _Game_displayEnergy() {

@@ -69,6 +69,40 @@ class GameContent implements IGameContent {
 		const formula = this.baseCost * (this.level ** this.exponent);
 		return Math.ceil(formula);
 	}
+    #getHtmlLine(content:string){
+        return `<div class="ligne">${content}</div>`;
+    }
+
+    getHtmlTemplateGameContent(isPaused: boolean){
+        const ligneBtn = isPaused ? "" : `
+            <div class="ligne">
+                <button class="btn btn-primary" id="${this.idBtn}">${this.upgradeCost}</button>
+            </div>
+        `;
+        return this.#getHtmlLine(`
+            <div class="colonne game-content">
+                <div class="ligne">
+                    <h1>Niveau ${this.level}</h1>
+                </div>
+                <div class="ligne">
+                    <span>${this.name}</span>
+                </div>
+                <div class="ligne">
+                    <div class="colonne">
+                        <div class="ligne">
+                            <span><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${this.gainPerSecond}</span>
+                        </div>
+                    </div>
+                    <div class="colonne">
+                        <div class="ligne">
+                            <span><i class="fa-solid fa-clock icon color-light-blue margin-right"></i>1s</span>
+                        </div>
+                    </div>
+                </div>
+                ${ligneBtn}
+            </div>
+        `);
+    }
 }
 
 export {GameContent, getOrCreateGameContent,getNextGameContent};
