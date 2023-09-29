@@ -18,7 +18,7 @@ class Game {
     constructor() {
         var _a;
         _Game_instances.add(this);
-        this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 0;
+        this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 5;
         this.config = (0, utils_1.getOrCreateConfig)();
         const gameContent = (0, gameContent_1.getOrCreateGameContent)();
         this.components = gameContent.components;
@@ -219,7 +219,7 @@ class GameContent {
     getHtmlTemplateGameContent(isPaused) {
         const ligneBtn = isPaused ? "" : `
             <div class="ligne">
-                <button class="btn btn-primary" id="${this.idBtn}">${this.upgradeCost}</button>
+                <button class="btn btn-primary btn-game-content" id="${this.idBtn}">${this.upgradeCost}</button>
             </div>
         `;
         return __classPrivateFieldGet(this, _GameContent_instances, "m", _GameContent_getHtmlLine).call(this, `
@@ -233,12 +233,12 @@ class GameContent {
                 <div class="ligne">
                     <div class="colonne">
                         <div class="ligne">
-                            <span><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${this.gainPerSecond}</span>
+                            <span class="game-content-gain"><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${this.gainPerSecond}</span>
                         </div>
                     </div>
                     <div class="colonne">
                         <div class="ligne">
-                            <span><i class="fa-solid fa-clock icon color-light-blue margin-right"></i>1s</span>
+                            <span class="game-content-time"><i class="fa-solid fa-clock icon color-light-blue margin-right"></i>1s</span>
                         </div>
                     </div>
                 </div>
@@ -397,8 +397,8 @@ module.exports={
             "type": "component",
             "gainPerSecond": 0.1,
             "baseCost": 3,
-            "exponent": 1.2,
-            "level": 1,
+            "exponent": 2,
+            "level": 0,
             "maxLevel": 10000
         }
     ]
@@ -427,7 +427,7 @@ module.exports={
             "gainPerSecond": 0.1,
             "baseCost": 3,
             "exponent": 1.2,
-            "level": 1,
+            "level": 0,
             "maxLevel": 10000
         },
         {
@@ -437,7 +437,7 @@ module.exports={
             "gainPerSecond": 0.5,
             "baseCost": 30,
             "exponent": 1.2,
-            "level": 1,
+            "level": 0,
             "maxLevel": 10000
         },
         {
@@ -447,7 +447,7 @@ module.exports={
             "gainPerSecond": 1,
             "baseCost": 100,
             "exponent": 1.2,
-            "level": 1,
+            "level": 0,
             "maxLevel": 10000
         }
     ]

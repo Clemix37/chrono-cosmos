@@ -17,7 +17,7 @@ class Game {
     constructor() {
         var _a;
         _Game_instances.add(this);
-        this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 0;
+        this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 5;
         this.config = (0, utils_1.getOrCreateConfig)();
         const gameContent = (0, gameContent_1.getOrCreateGameContent)();
         this.components = gameContent.components;

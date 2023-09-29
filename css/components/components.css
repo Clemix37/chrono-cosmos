@@ -7,3 +7,11 @@
     padding: 5px;
     margin: 15px;
 }
+
+.btn-game-content {
+    font-size: 25px;
+}
+
+.game-content-gain, .game-content-time {
+    font-size: 20px;
+}

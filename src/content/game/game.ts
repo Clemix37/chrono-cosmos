@@ -17,7 +17,7 @@ export class Game implements IGame {
     _intervalle: any;
 
     constructor(){
-        this.energy = getDataFromLocalStorage("energyCounter") ?? 0;
+        this.energy = getDataFromLocalStorage("energyCounter") ?? 5;
         this.config = getOrCreateConfig();
         const gameContent = getOrCreateGameContent();
         this.components = gameContent.components;

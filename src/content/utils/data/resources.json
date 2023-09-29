@@ -7,7 +7,7 @@
             "gainPerSecond": 0.1,
             "baseCost": 3,
             "exponent": 1.2,
-            "level": 1,
+            "level": 0,
             "maxLevel": 10000
         },
         {
@@ -17,7 +17,7 @@
             "gainPerSecond": 0.5,
             "baseCost": 30,
             "exponent": 1.2,
-            "level": 1,
+            "level": 0,
             "maxLevel": 10000
         },
         {
@@ -27,7 +27,7 @@
             "gainPerSecond": 1,
             "baseCost": 100,
             "exponent": 1.2,
-            "level": 1,
+            "level": 0,
             "maxLevel": 10000
         }
     ]

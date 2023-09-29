@@ -18,3 +18,7 @@ body {
     background-color: var(--background);
     color: var(--texte);
 }
+
+h1 {
+    margin: 10px;
+}

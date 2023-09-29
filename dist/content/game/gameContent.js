@@ -70,7 +70,7 @@ class GameContent {
     getHtmlTemplateGameContent(isPaused) {
         const ligneBtn = isPaused ? "" : `
             <div class="ligne">
-                <button class="btn btn-primary" id="${this.idBtn}">${this.upgradeCost}</button>
+                <button class="btn btn-primary btn-game-content" id="${this.idBtn}">${this.upgradeCost}</button>
             </div>
         `;
         return __classPrivateFieldGet(this, _GameContent_instances, "m", _GameContent_getHtmlLine).call(this, `
@@ -84,12 +84,12 @@ class GameContent {
                 <div class="ligne">
                     <div class="colonne">
                         <div class="ligne">
-                            <span><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${this.gainPerSecond}</span>
+                            <span class="game-content-gain"><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${this.gainPerSecond}</span>
                         </div>
                     </div>
                     <div class="colonne">
                         <div class="ligne">
-                            <span><i class="fa-solid fa-clock icon color-light-blue margin-right"></i>1s</span>
+                            <span class="game-content-time"><i class="fa-solid fa-clock icon color-light-blue margin-right"></i>1s</span>
                         </div>
                     </div>
                 </div>
