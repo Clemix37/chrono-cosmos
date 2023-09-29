@@ -2,6 +2,7 @@ import IGameContent from "../../interfaces/IGameContent";
 import { getDataFromLocalStorage } from "../utils/data/data";
 import resourceFile from "../utils/data/resources.json";
 import componentFile from "../utils/data/components.json";
+import { toDecimal } from "../utils/formulas/formulas";
 
 const getOrCreateGameContent = ():any => {
 	let gameContent = getDataFromLocalStorage("gameContent");
@@ -90,7 +91,9 @@ class GameContent implements IGameContent {
                 <div class="ligne">
                     <div class="colonne">
                         <div class="ligne">
-                            <span class="game-content-gain"><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${this.gainPerSecond}</span>
+                            <span class="game-content-gain"><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${
+								toDecimal(this.level * this.gainPerSecond)
+							}</span>
                         </div>
                     </div>
                     <div class="colonne">

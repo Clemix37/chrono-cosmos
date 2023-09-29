@@ -13,6 +13,7 @@ exports.getNextGameContent = exports.getOrCreateGameContent = exports.GameConten
 const data_1 = require("../utils/data/data");
 const resources_json_1 = __importDefault(require("../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../utils/data/components.json"));
+const formulas_1 = require("../utils/formulas/formulas");
 const getOrCreateGameContent = () => {
     let gameContent = (0, data_1.getDataFromLocalStorage)("gameContent");
     if (!gameContent)
@@ -84,7 +85,7 @@ class GameContent {
                 <div class="ligne">
                     <div class="colonne">
                         <div class="ligne">
-                            <span class="game-content-gain"><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${this.gainPerSecond}</span>
+                            <span class="game-content-gain"><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${(0, formulas_1.toDecimal)(this.level * this.gainPerSecond)}</span>
                         </div>
                     </div>
                     <div class="colonne">
