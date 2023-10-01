@@ -1,8 +1,10 @@
 import IGame from "../../interfaces/IGame";
+import IGameCanvasConfig from "../../interfaces/IGameCanvasConfig";
 import IGameConfig from "../../interfaces/IGameConfig";
 import { getDataFromLocalStorage } from "../utils/data/data";
 import { toDecimal } from "../utils/formulas/formulas";
 import { getListOfGameStatus, getOrCreateConfig } from "../utils/utils";
+import GameCanvas from "./gameCanvas";
 import { GameContent, getNextGameContent, getOrCreateGameContent } from "./gameContent";
 import { launchGameScreen } from "./screens/playingScreen";
 import { launchGameStartScreen } from "./screens/startScreen";
@@ -14,6 +16,7 @@ export class Game implements IGame {
     components: GameContent[];
     resources: GameContent[];
     timeTravelGames?: Game[];
+    canvas: GameCanvas;
     _intervalle: any;
 
     constructor(){
@@ -23,6 +26,13 @@ export class Game implements IGame {
         this.components = gameContent.components;
         this.resources = gameContent.resources;
         this.#displayEnergy();
+        const configCanvas: IGameCanvasConfig = {
+            id: "canvas",
+            width: Math.floor(window.innerWidth - 200),
+            height: 300,
+            bgColor: "#00c4ff",
+        };
+        this.canvas = new GameCanvas(configCanvas);
     }
 
     init(){
@@ -97,6 +107,7 @@ export class Game implements IGame {
         this.#displayResources();
         this.#attachEvents();
         if(this.config.status === "playing") this.#countEverySecond();
+        this.canvas.init();
     }
     
     #displayComponents(){

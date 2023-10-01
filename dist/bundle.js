@@ -5,12 +5,16 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var _Game_instances, _Game_countEverySecond, _Game_displayGameContents, _Game_displayComponents, _Game_displayResources, _Game_displayEnergy, _Game_attachEvents;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
 const formulas_1 = require("../utils/formulas/formulas");
 const utils_1 = require("../utils/utils");
+const gameCanvas_1 = __importDefault(require("./gameCanvas"));
 const gameContent_1 = require("./gameContent");
 const playingScreen_1 = require("./screens/playingScreen");
 const startScreen_1 = require("./screens/startScreen");
@@ -24,6 +28,13 @@ class Game {
         this.components = gameContent.components;
         this.resources = gameContent.resources;
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this);
+        const configCanvas = {
+            id: "canvas",
+            width: Math.floor(window.innerWidth - 200),
+            height: 300,
+            bgColor: "#00c4ff",
+        };
+        this.canvas = new gameCanvas_1.default(configCanvas);
     }
     init() {
         this.launchGameScreen();
@@ -95,6 +106,7 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachEvents).call(this);
     if (this.config.status === "playing")
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_countEverySecond).call(this);
+    this.canvas.init();
 }, _Game_displayComponents = function _Game_displayComponents() {
     const ID_DIV_COMPS = "components-content";
     const div = document.getElementById(ID_DIV_COMPS);
@@ -146,7 +158,41 @@ const game = new Game();
 exports.game = game;
 game.init();
 
-},{"../utils/data/data":8,"../utils/formulas/formulas":10,"../utils/utils":11,"./gameContent":2,"./screens/playingScreen":3,"./screens/startScreen":4}],2:[function(require,module,exports){
+},{"../utils/data/data":9,"../utils/formulas/formulas":11,"../utils/utils":12,"./gameCanvas":2,"./gameContent":3,"./screens/playingScreen":4,"./screens/startScreen":5}],2:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class GameCanvas {
+    constructor(config) {
+        this.id = config.id;
+        this.width = config.width;
+        this.height = config.height;
+        this.bgColor = config.bgColor;
+        this.canvas = document.getElementById(this.id);
+        this.ctx = this.canvas.getContext("2d");
+    }
+    init() {
+        console.log("Game canvas init");
+        this.ctx.canvas.width = this.width;
+        this.ctx.canvas.height = this.height;
+        this.canvas.style.background = this.bgColor;
+        this.displayPlayer();
+    }
+    displayPlayer() {
+        const img = new Image();
+        const ctx = this.ctx;
+        img.onload = function () {
+            // draw background image
+            ctx.drawImage(img, 0, 0, 300, 300);
+            // draw a box over the top
+            // ctx.fillStyle = "rgba(200, 0, 0, 0.5)";
+            // ctx.fillRect(0, 0, 500, 500);
+        };
+        img.src = 'img/ninja.png';
+    }
+}
+exports.default = GameCanvas;
+
+},{}],3:[function(require,module,exports){
 "use strict";
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
@@ -256,7 +302,7 @@ _GameContent_instances = new WeakSet(), _GameContent_upgradeCostWithFormula = fu
     return `<div class="ligne">${content}</div>`;
 };
 
-},{"../utils/data/components.json":7,"../utils/data/data":8,"../utils/data/resources.json":9,"../utils/formulas/formulas":10}],3:[function(require,module,exports){
+},{"../utils/data/components.json":8,"../utils/data/data":9,"../utils/data/resources.json":10,"../utils/formulas/formulas":11}],4:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameScreen = void 0;
@@ -309,7 +355,7 @@ const attachEventClearData = () => {
     });
 };
 
-},{"../../utils/configs/buttons/buttons":5,"../../utils/utils":11,"../game":1}],4:[function(require,module,exports){
+},{"../../utils/configs/buttons/buttons":6,"../../utils/utils":12,"../game":1}],5:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameStartScreen = void 0;
@@ -334,7 +380,7 @@ const attachEventGameStart = () => {
     });
 };
 
-},{"../../utils/utils":11,"../game":1}],5:[function(require,module,exports){
+},{"../../utils/utils":12,"../game":1}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IDS_BTNS_SCREENS = void 0;
@@ -354,7 +400,7 @@ const IDS_BTNS_SCREENS = {
 };
 exports.IDS_BTNS_SCREENS = IDS_BTNS_SCREENS;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getListOfGameStatus = exports.getOrCreateConfig = void 0;
@@ -389,7 +435,7 @@ const saveConfigInLocalStorage = (gameConfig) => {
     localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
 };
 
-},{"../data/data":8}],7:[function(require,module,exports){
+},{"../data/data":9}],8:[function(require,module,exports){
 module.exports={
     "components": [
         {
@@ -405,7 +451,7 @@ module.exports={
     ]
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDataFromLocalStorage = void 0;
@@ -418,7 +464,7 @@ const getDataFromLocalStorage = (key) => {
 };
 exports.getDataFromLocalStorage = getDataFromLocalStorage;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 module.exports={
     "resources": [
         {
@@ -454,7 +500,7 @@ module.exports={
     ]
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.toDecimal = void 0;
@@ -463,7 +509,7 @@ const toDecimal = (nb, nbDecimal = 2) => {
 };
 exports.toDecimal = toDecimal;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -500,4 +546,4 @@ const hideOtherDivsThan = (divIdNotToHide) => {
 exports.hideOtherDivsThan = hideOtherDivsThan;
 __exportStar(require("./configs/configs"), exports);
 
-},{"./configs/configs":6}]},{},[1]);
+},{"./configs/configs":7}]},{},[1]);
