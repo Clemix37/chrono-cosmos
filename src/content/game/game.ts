@@ -11,6 +11,8 @@ import { launchGameStartScreen } from "./screens/startScreen";
 
 export class Game implements IGame {
 
+    //#region Properties
+
     energy: number;
     config: IGameConfig;
     components: GameContent[];
@@ -19,13 +21,17 @@ export class Game implements IGame {
     canvas: GameCanvas;
     _intervalle: any;
 
+    //#endregion
+
+    //#region Constructor
+
     constructor(){
         this.energy = getDataFromLocalStorage("energyCounter") ?? 5;
         this.config = getOrCreateConfig();
         const gameContent = getOrCreateGameContent();
         this.components = gameContent.components;
         this.resources = gameContent.resources;
-        this.#displayEnergy();
+        this.#displayEnergy(this.energy);
         const configCanvas: IGameCanvasConfig = {
             id: "canvas",
             width: Math.floor(window.innerWidth - 200),
@@ -33,7 +39,10 @@ export class Game implements IGame {
             bgColor: "#00c4ff",
         };
         this.canvas = new GameCanvas(configCanvas);
+        window.requestAnimationFrame(() => this.#displayOnEachFrame());
     }
+
+    //#endregion
 
     init(){
         this.launchGameScreen();
@@ -64,7 +73,7 @@ export class Game implements IGame {
             case listOfGameStatuses.playing:
             case listOfGameStatuses.paused:
                 launchGameScreen(this.config);
-                this.#displayGameContents();
+                this.#displayAndAttachGameContents();
                 break;
             case listOfGameStatuses.over:
                 //@todo
@@ -79,65 +88,65 @@ export class Game implements IGame {
 
     checkForNewContent(){ 
         const idsContentAlreadyDisplayed = [...this.resources.map(res => res.id), ...this.components.map(comp => comp.id)];
-        const nextContent:{components:GameContent[],resources:GameContent[]} = getNextGameContent(this.energy, idsContentAlreadyDisplayed);
-        if(nextContent.components.length>0) this.components.push(...nextContent.components);
-        if(nextContent.resources.length>0) this.resources.push(...nextContent.resources);
-        if(nextContent.components.length>0 || nextContent.resources.length>0) this.#displayGameContents();
+        const nextContent: {components: GameContent[], resources: GameContent[]} = getNextGameContent(this.energy, idsContentAlreadyDisplayed);
+        if(nextContent.components.length > 0) this.components.push(...nextContent.components);
+        if(nextContent.resources.length > 0) this.resources.push(...nextContent.resources);
+        if(nextContent.components.length > 0 || nextContent.resources.length > 0) this.#displayAndAttachGameContents();
     }
 
     #countEverySecond(){
         if(!!this._intervalle) clearInterval(this._intervalle);
-        this.#displayEnergy();
+        this.#displayEnergy(this.energy);
         this._intervalle = setInterval(() =>{
             const gainComponents = this.components.reduce((acc, comp) => acc + (comp.level * comp.gainPerSecond), 0);
             const gainResources = this.resources.reduce((acc, res) => acc + (res.level * res.gainPerSecond), 0);
             this.energy = toDecimal(this.energy + gainComponents + gainResources);
-            this.#displayEnergy();
+            this.#displayEnergy(this.energy);
             this.saveGame();
             this.checkForNewContent();
         }, 1000);
     }
 
     //#region Display
+
+    #displayOnEachFrame(): void{
+        // We display a random component
+        this.canvas.displayRandomContent(this.components);
+        // We display a random resource
+        this.canvas.displayRandomContent(this.resources);
+
+        window.requestAnimationFrame(() => this.#displayOnEachFrame());
+    }
     
-    #displayGameContents(){
+    #displayAndAttachGameContents(): void{
         if(!!this._intervalle) clearInterval(this._intervalle);
         this.saveGame();
-        this.#displayComponents();
-        this.#displayResources();
+        this.#displayGameContents("components-content", this.components);
+        this.#displayGameContents("resources-content", this.resources);
         this.#attachEvents();
         if(this.config.status === "playing") this.#countEverySecond();
         this.canvas.init();
     }
-    
-    #displayComponents(){
-        const ID_DIV_COMPS = "components-content";
-        const div = document.getElementById(ID_DIV_COMPS);
+
+    #displayGameContents(id: string, contens: GameContent[]): void{
+        const div = document.getElementById(id);
         if(!div) return;
         div.innerHTML = "";
-        for (let i = 0; i < this.components.length; i++) {
-            const comp = this.components[i];
+        for (let i = 0; i < contens.length; i++) {
+            const comp = contens[i];
             const contentHml = comp.getHtmlTemplateGameContent(this.config.status === "paused");
             div.innerHTML += contentHml;
         }
     }
 
-    #displayResources(){
-        const ID_DIV_RESOURCES = "resources-content";
-        const div = document.getElementById(ID_DIV_RESOURCES);
-        if(!div) return;
-        div.innerHTML = "";
-        for (let i = 0; i < this.resources.length; i++) {
-            const res = this.resources[i];
-            const contentHml = res.getHtmlTemplateGameContent(this.config.status === "paused");
-            div.innerHTML += contentHml;
-        }
-    }
-
-    #displayEnergy(){
+    /**
+     * Display the energy given
+     * @param ernegy number of energy
+     */
+    #displayEnergy(ernegy: number): void{
         const energyCounter = document.getElementById("energyCounter");
         if(!energyCounter) return;
-        energyCounter.textContent = `${this.energy}⚡`;
+        energyCounter.textContent = `${ernegy}⚡`;
     }
 
     //#endregion
@@ -155,9 +164,9 @@ export class Game implements IGame {
                 const cost = content.upgradeCost || content.baseCost;
                 if(cost > this.energy) return;
                 this.energy = toDecimal(this.energy - cost);
-                this.#displayEnergy();
+                this.#displayEnergy(this.energy);
                 content.upgrade();
-                this.#displayGameContents();
+                this.#displayAndAttachGameContents();
             });
         }
     }

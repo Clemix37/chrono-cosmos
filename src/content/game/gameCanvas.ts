@@ -1,7 +1,11 @@
 import IGameCanvas from "../../interfaces/IGameCanvas";
 import IGameCanvasConfig from "../../interfaces/IGameCanvasConfig";
+import { getRandomFromArray } from "../utils/data/data";
+import { GameContent } from "./gameContent";
 
 export default class GameCanvas implements IGameCanvas {
+
+    //#region Properties
 
     id:string;
     canvas:HTMLCanvasElement;
@@ -9,6 +13,10 @@ export default class GameCanvas implements IGameCanvas {
     width:number;
     height:number;
     bgColor:string;
+
+    //#endregion
+
+    //#region Constructor
     
     constructor(config: IGameCanvasConfig){
         this.id = config.id;
@@ -19,25 +27,32 @@ export default class GameCanvas implements IGameCanvas {
         this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
     }
 
+    //#endregion
+
     init(){
-        console.log("Game canvas init");
         this.ctx.canvas.width = this.width;
         this.ctx.canvas.height = this.height;
         this.canvas.style.background = this.bgColor;
-        this.displayPlayer();
     }
 
-    displayPlayer(){
+    /**
+     * Gets a random content
+     * Display it above the canvas, and make it fall
+     * @param contents 
+     */
+    displayRandomContent(contents: GameContent[]){
+        const everyContentWithProbabilities: GameContent[] = [];
+        contents.forEach(content => {
+            for (let i = 0; i < content.level; i++) {
+                everyContentWithProbabilities.push(content);   
+            }
+        });
+        const randomContent = getRandomFromArray(everyContentWithProbabilities);
+        if(!randomContent?.img) return;
+        this.ctx.clearRect(0, 0, this.width, this.height);
         const img = new Image();
-        const ctx = this.ctx;
-        img.onload = function () {
-            // draw background image
-            ctx.drawImage(img, 0, 0, 300, 300);
-            // draw a box over the top
-            // ctx.fillStyle = "rgba(200, 0, 0, 0.5)";
-            // ctx.fillRect(0, 0, 500, 500);
-        };
-
-        img.src = 'img/ninja.png';
+        img.src = `./img/${randomContent.type}s/${randomContent.img.url}`;
+        this.ctx.drawImage(img, Math.floor(Math.random() * this.width), Math.floor(Math.random() * this.height), randomContent.img.width, randomContent.img.height);
     }
+
 }

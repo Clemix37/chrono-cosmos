@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const data_1 = require("../utils/data/data");
 class GameCanvas {
+    //#endregion
+    //#region Constructor
     constructor(config) {
         this.id = config.id;
         this.width = config.width;
@@ -9,24 +12,31 @@ class GameCanvas {
         this.canvas = document.getElementById(this.id);
         this.ctx = this.canvas.getContext("2d");
     }
+    //#endregion
     init() {
-        console.log("Game canvas init");
         this.ctx.canvas.width = this.width;
         this.ctx.canvas.height = this.height;
         this.canvas.style.background = this.bgColor;
-        this.displayPlayer();
     }
-    displayPlayer() {
+    /**
+     * Gets a random content
+     * Display it above the canvas, and make it fall
+     * @param contents
+     */
+    displayRandomContent(contents) {
+        const everyContentWithProbabilities = [];
+        contents.forEach(content => {
+            for (let i = 0; i < content.level; i++) {
+                everyContentWithProbabilities.push(content);
+            }
+        });
+        const randomContent = (0, data_1.getRandomFromArray)(everyContentWithProbabilities);
+        if (!(randomContent === null || randomContent === void 0 ? void 0 : randomContent.img))
+            return;
+        this.ctx.clearRect(0, 0, this.width, this.height);
         const img = new Image();
-        const ctx = this.ctx;
-        img.onload = function () {
-            // draw background image
-            ctx.drawImage(img, 0, 0, 300, 300);
-            // draw a box over the top
-            // ctx.fillStyle = "rgba(200, 0, 0, 0.5)";
-            // ctx.fillRect(0, 0, 500, 500);
-        };
-        img.src = 'img/ninja.png';
+        img.src = `./img/${randomContent.type}s/${randomContent.img.url}`;
+        this.ctx.drawImage(img, Math.floor(Math.random() * this.width), Math.floor(Math.random() * this.height), randomContent.img.width, randomContent.img.height);
     }
 }
 exports.default = GameCanvas;

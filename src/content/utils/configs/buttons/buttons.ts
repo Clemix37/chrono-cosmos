@@ -7,10 +7,10 @@ const IDS_BTNS_SCREENS = {
         RESTART: "btnRestartGame",
     },
     GAME: {
-        PAUSE: "btnPauseGame",
+        PAUSE: "btn-pause-game",
     },
     GAME_PAUSED: {
-        RESUME: "btnResumeGame",
+        RESUME: "btn-resume-game",
     },
 };
 

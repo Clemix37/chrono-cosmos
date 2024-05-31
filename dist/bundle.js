@@ -8,7 +8,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _Game_instances, _Game_countEverySecond, _Game_displayGameContents, _Game_displayComponents, _Game_displayResources, _Game_displayEnergy, _Game_attachEvents;
+var _Game_instances, _Game_countEverySecond, _Game_displayOnEachFrame, _Game_displayAndAttachGameContents, _Game_displayGameContents, _Game_displayEnergy, _Game_attachEvents;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
@@ -19,6 +19,8 @@ const gameContent_1 = require("./gameContent");
 const playingScreen_1 = require("./screens/playingScreen");
 const startScreen_1 = require("./screens/startScreen");
 class Game {
+    //#endregion
+    //#region Constructor
     constructor() {
         var _a;
         _Game_instances.add(this);
@@ -27,7 +29,7 @@ class Game {
         const gameContent = (0, gameContent_1.getOrCreateGameContent)();
         this.components = gameContent.components;
         this.resources = gameContent.resources;
-        __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this);
+        __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
         const configCanvas = {
             id: "canvas",
             width: Math.floor(window.innerWidth - 200),
@@ -35,7 +37,9 @@ class Game {
             bgColor: "#00c4ff",
         };
         this.canvas = new gameCanvas_1.default(configCanvas);
+        window.requestAnimationFrame(() => __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayOnEachFrame).call(this));
     }
+    //#endregion
     init() {
         this.launchGameScreen();
     }
@@ -62,7 +66,7 @@ class Game {
             case listOfGameStatuses.playing:
             case listOfGameStatuses.paused:
                 (0, playingScreen_1.launchGameScreen)(this.config);
-                __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameContents).call(this);
+                __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
                 break;
             case listOfGameStatuses.over:
                 //@todo
@@ -81,59 +85,53 @@ class Game {
         if (nextContent.resources.length > 0)
             this.resources.push(...nextContent.resources);
         if (nextContent.components.length > 0 || nextContent.resources.length > 0)
-            __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameContents).call(this);
+            __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
     }
 }
 exports.Game = Game;
 _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEverySecond() {
     if (!!this._intervalle)
         clearInterval(this._intervalle);
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this);
+    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
     this._intervalle = setInterval(() => {
         const gainComponents = this.components.reduce((acc, comp) => acc + (comp.level * comp.gainPerSecond), 0);
         const gainResources = this.resources.reduce((acc, res) => acc + (res.level * res.gainPerSecond), 0);
         this.energy = (0, formulas_1.toDecimal)(this.energy + gainComponents + gainResources);
-        __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this);
+        __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
         this.saveGame();
         this.checkForNewContent();
     }, 1000);
-}, _Game_displayGameContents = function _Game_displayGameContents() {
+}, _Game_displayOnEachFrame = function _Game_displayOnEachFrame() {
+    // We display a random component
+    this.canvas.displayRandomContent(this.components);
+    // We display a random resource
+    this.canvas.displayRandomContent(this.resources);
+    window.requestAnimationFrame(() => __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayOnEachFrame).call(this));
+}, _Game_displayAndAttachGameContents = function _Game_displayAndAttachGameContents() {
     if (!!this._intervalle)
         clearInterval(this._intervalle);
     this.saveGame();
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayComponents).call(this);
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayResources).call(this);
+    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameContents).call(this, "components-content", this.components);
+    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameContents).call(this, "resources-content", this.resources);
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachEvents).call(this);
     if (this.config.status === "playing")
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_countEverySecond).call(this);
     this.canvas.init();
-}, _Game_displayComponents = function _Game_displayComponents() {
-    const ID_DIV_COMPS = "components-content";
-    const div = document.getElementById(ID_DIV_COMPS);
+}, _Game_displayGameContents = function _Game_displayGameContents(id, contens) {
+    const div = document.getElementById(id);
     if (!div)
         return;
     div.innerHTML = "";
-    for (let i = 0; i < this.components.length; i++) {
-        const comp = this.components[i];
+    for (let i = 0; i < contens.length; i++) {
+        const comp = contens[i];
         const contentHml = comp.getHtmlTemplateGameContent(this.config.status === "paused");
         div.innerHTML += contentHml;
     }
-}, _Game_displayResources = function _Game_displayResources() {
-    const ID_DIV_RESOURCES = "resources-content";
-    const div = document.getElementById(ID_DIV_RESOURCES);
-    if (!div)
-        return;
-    div.innerHTML = "";
-    for (let i = 0; i < this.resources.length; i++) {
-        const res = this.resources[i];
-        const contentHml = res.getHtmlTemplateGameContent(this.config.status === "paused");
-        div.innerHTML += contentHml;
-    }
-}, _Game_displayEnergy = function _Game_displayEnergy() {
+}, _Game_displayEnergy = function _Game_displayEnergy(ernegy) {
     const energyCounter = document.getElementById("energyCounter");
     if (!energyCounter)
         return;
-    energyCounter.textContent = `${this.energy}⚡`;
+    energyCounter.textContent = `${ernegy}⚡`;
 }, _Game_attachEvents = function _Game_attachEvents() {
     const all = [...this.components, ...this.resources];
     for (let i = 0; i < all.length; i++) {
@@ -148,9 +146,9 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
             if (cost > this.energy)
                 return;
             this.energy = (0, formulas_1.toDecimal)(this.energy - cost);
-            __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this);
+            __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
             content.upgrade();
-            __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameContents).call(this);
+            __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         });
     }
 };
@@ -161,7 +159,10 @@ game.init();
 },{"../utils/data/data":9,"../utils/formulas/formulas":11,"../utils/utils":12,"./gameCanvas":2,"./gameContent":3,"./screens/playingScreen":4,"./screens/startScreen":5}],2:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const data_1 = require("../utils/data/data");
 class GameCanvas {
+    //#endregion
+    //#region Constructor
     constructor(config) {
         this.id = config.id;
         this.width = config.width;
@@ -170,29 +171,36 @@ class GameCanvas {
         this.canvas = document.getElementById(this.id);
         this.ctx = this.canvas.getContext("2d");
     }
+    //#endregion
     init() {
-        console.log("Game canvas init");
         this.ctx.canvas.width = this.width;
         this.ctx.canvas.height = this.height;
         this.canvas.style.background = this.bgColor;
-        this.displayPlayer();
     }
-    displayPlayer() {
+    /**
+     * Gets a random content
+     * Display it above the canvas, and make it fall
+     * @param contents
+     */
+    displayRandomContent(contents) {
+        const everyContentWithProbabilities = [];
+        contents.forEach(content => {
+            for (let i = 0; i < content.level; i++) {
+                everyContentWithProbabilities.push(content);
+            }
+        });
+        const randomContent = (0, data_1.getRandomFromArray)(everyContentWithProbabilities);
+        if (!(randomContent === null || randomContent === void 0 ? void 0 : randomContent.img))
+            return;
+        this.ctx.clearRect(0, 0, this.width, this.height);
         const img = new Image();
-        const ctx = this.ctx;
-        img.onload = function () {
-            // draw background image
-            ctx.drawImage(img, 0, 0, 300, 300);
-            // draw a box over the top
-            // ctx.fillStyle = "rgba(200, 0, 0, 0.5)";
-            // ctx.fillRect(0, 0, 500, 500);
-        };
-        img.src = 'img/ninja.png';
+        img.src = `./img/${randomContent.type}s/${randomContent.img.url}`;
+        this.ctx.drawImage(img, Math.floor(Math.random() * this.width), Math.floor(Math.random() * this.height), randomContent.img.width, randomContent.img.height);
     }
 }
 exports.default = GameCanvas;
 
-},{}],3:[function(require,module,exports){
+},{"../utils/data/data":9}],3:[function(require,module,exports){
 "use strict";
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
@@ -212,20 +220,39 @@ const formulas_1 = require("../utils/formulas/formulas");
 const getOrCreateGameContent = () => {
     let gameContent = (0, data_1.getDataFromLocalStorage)("gameContent");
     if (!gameContent)
-        gameContent = getDefaultGameContent();
-    else {
-        gameContent.components = gameContent.components.map((comp) => new GameContent(comp));
-        gameContent.resources = gameContent.resources.map((res) => new GameContent(res));
-    }
-    return gameContent;
+        return getDefaultGameContent();
+    return {
+        components: gameContent.components.map((comp) => {
+            const compJson = components_json_1.default.components.find(compJson => compJson.id === comp.id);
+            if (!compJson)
+                return new GameContent(comp);
+            comp.baseCost = compJson.baseCost;
+            comp.exponent = compJson.exponent;
+            comp.gainPerSecond = compJson.gainPerSecond;
+            comp.img = compJson.img;
+            comp.maxLevel = compJson.maxLevel;
+            return new GameContent(comp);
+        }),
+        resources: gameContent.resources.map((res) => {
+            const resJson = components_json_1.default.components.find(resJson => resJson.id === res.id);
+            if (!resJson)
+                return new GameContent(res);
+            res.baseCost = resJson.baseCost;
+            res.exponent = resJson.exponent;
+            res.gainPerSecond = resJson.gainPerSecond;
+            res.img = resJson.img;
+            res.maxLevel = resJson.maxLevel;
+            return new GameContent(res);
+        }),
+    };
 };
 exports.getOrCreateGameContent = getOrCreateGameContent;
 const getDefaultGameContent = () => {
-    const waterResourceConfig = resources_json_1.default.resources[0];
-    const spoonCompConfig = components_json_1.default.components[0];
+    const firstResourceConfig = resources_json_1.default.resources[0];
+    const firstComponentConfig = components_json_1.default.components[0];
     const content = {
-        components: [new GameContent(spoonCompConfig)],
-        resources: [new GameContent(waterResourceConfig)],
+        components: [new GameContent(firstComponentConfig)],
+        resources: [new GameContent(firstResourceConfig)],
     };
     return content;
 };
@@ -241,6 +268,8 @@ const getNextGameContent = (energy, ids) => {
 exports.getNextGameContent = getNextGameContent;
 class GameContent {
     // btn: HTMLButtonElement | null;
+    //#endregion
+    //#region Constructor
     constructor(config) {
         var _a;
         _GameContent_instances.add(this);
@@ -252,11 +281,13 @@ class GameContent {
         this.gainPerSecond = config.gainPerSecond;
         this.level = config.level;
         this.maxLevel = config.maxLevel;
+        this.img = config.img;
         this.upgradeCost = (_a = config.upgradeCost) !== null && _a !== void 0 ? _a : config.baseCost;
         this.progressToNext = config.progressToNext;
         this.idBtn = `btn-${this.type}-${this.name.toLowerCase().split(" ").join("-")}`;
         // if(!!this.idBtn) this.btn = document.getElementById(this.idBtn);
     }
+    //#endregion
     upgrade() {
         if (this.level + 1 > this.maxLevel)
             return;
@@ -392,10 +423,10 @@ const IDS_BTNS_SCREENS = {
         RESTART: "btnRestartGame",
     },
     GAME: {
-        PAUSE: "btnPauseGame",
+        PAUSE: "btn-pause-game",
     },
     GAME_PAUSED: {
-        RESUME: "btnResumeGame",
+        RESUME: "btn-resume-game",
     },
 };
 exports.IDS_BTNS_SCREENS = IDS_BTNS_SCREENS;
@@ -446,7 +477,12 @@ module.exports={
             "baseCost": 3,
             "exponent": 2,
             "level": 0,
-            "maxLevel": 10000
+            "maxLevel": 10000,
+            "img": {
+                "url": "spoon.png",
+                "width": 50,
+                "height": 75
+            }
         }
     ]
 }
@@ -454,7 +490,12 @@ module.exports={
 },{}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDataFromLocalStorage = void 0;
+exports.getRandomFromArray = exports.getDataFromLocalStorage = void 0;
+/**
+ * Gets data from the localStorage based on key
+ * @param key key of the data in localStorage
+ * @returns {any}
+ */
 const getDataFromLocalStorage = (key) => {
     const data = localStorage.getItem(key);
     if (data)
@@ -463,6 +504,15 @@ const getDataFromLocalStorage = (key) => {
         return null;
 };
 exports.getDataFromLocalStorage = getDataFromLocalStorage;
+/**
+ * Get a random element from the array
+ * @param arr
+ * @returns {T}
+ */
+function getRandomFromArray(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+exports.getRandomFromArray = getRandomFromArray;
 
 },{}],10:[function(require,module,exports){
 module.exports={

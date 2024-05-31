@@ -4,10 +4,10 @@ import { GameContent } from "../content/game/gameContent";
 import IGameConfig from "./IGameConfig";
 
 export default interface IGame {
-    energy: number;
-    config: IGameConfig;
-    resources: GameContent[];
-    components: GameContent[];
-    canvas: GameCanvas;
-    timeTravelGames?: Game[];
+    energy: number; // Energy gained
+    config: IGameConfig; // Game configuration
+    resources: GameContent[]; // Resources collected
+    components: GameContent[]; // Components collected
+    canvas: GameCanvas; // Canvas to display game info
+    timeTravelGames?: Game[]; // Possible previous games before travel
 };

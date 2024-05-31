@@ -3,38 +3,59 @@ import { getDataFromLocalStorage } from "../utils/data/data";
 import resourceFile from "../utils/data/resources.json";
 import componentFile from "../utils/data/components.json";
 import { toDecimal } from "../utils/formulas/formulas";
+import IGameImage from "../../interfaces/IGameImage";
 
-const getOrCreateGameContent = ():any => {
+const getOrCreateGameContent = (): { components: GameContent[], resources: GameContent[] } => {
 	let gameContent = getDataFromLocalStorage("gameContent");
-	if(!gameContent) gameContent = getDefaultGameContent();
-	else {
-		gameContent.components = gameContent.components.map((comp:IGameContent) => new GameContent(comp));
-		gameContent.resources = gameContent.resources.map((res:IGameContent) => new GameContent(res));
-	}
-	return gameContent;
+	if(!gameContent) return getDefaultGameContent();
+	return {
+		components: gameContent.components.map((comp:IGameContent) => {
+			const compJson = componentFile.components.find(compJson => compJson.id === comp.id);
+			if(!compJson) return new GameContent(comp);
+			comp.baseCost = compJson.baseCost;
+			comp.exponent = compJson.exponent;
+			comp.gainPerSecond = compJson.gainPerSecond;
+			comp.img = compJson.img;
+			comp.maxLevel = compJson.maxLevel;
+			return new GameContent(comp);
+		}),
+		resources: gameContent.resources.map((res:IGameContent) => {
+			const resJson = componentFile.components.find(resJson => resJson.id === res.id);
+			if(!resJson) return new GameContent(res);
+			res.baseCost = resJson.baseCost;
+			res.exponent = resJson.exponent;
+			res.gainPerSecond = resJson.gainPerSecond;
+			res.img = resJson.img;
+			res.maxLevel = resJson.maxLevel;
+			return new GameContent(res);
+		}),
+	};
 };
 
-const getDefaultGameContent = ():any => {
-	const waterResourceConfig: IGameContent = resourceFile.resources[0] as IGameContent;
-	const spoonCompConfig: IGameContent = componentFile.components[0] as IGameContent;
+const getDefaultGameContent = (): { components: GameContent[], resources: GameContent[] } => {
+	const firstResourceConfig: IGameContent = resourceFile.resources[0] as IGameContent;
+	const firstComponentConfig: IGameContent = componentFile.components[0] as IGameContent;
 	const content = {
-		components: [new GameContent(spoonCompConfig)],
-		resources: [new GameContent(waterResourceConfig)],
+		components: [new GameContent(firstComponentConfig)],
+		resources: [new GameContent(firstResourceConfig)],
 	};
 	return content;
 };
 
-const getNextGameContent = (energy:number, ids:string[]):{components:GameContent[], resources:GameContent[]} => {
+const getNextGameContent = (energy: number, ids: string[]): { components: GameContent[], resources: GameContent[] } => {
 	const minEnergy = 1.2 * energy;
 	const comps = componentFile.components.filter(comp => comp.baseCost <= minEnergy && !ids.includes(comp.id)).map(comp => new GameContent(comp as IGameContent));
 	const res = resourceFile.resources.filter(res => res.baseCost <= minEnergy && !ids.includes(res.id)).map(res => new GameContent(res as IGameContent));
 	return {
 		components: comps,
 		resources: res,
-	}
+	};
 };
 
 class GameContent implements IGameContent {
+
+	//#region Properties
+
 	id: string;
 	name: string;
 	type: "component" | "resource";
@@ -43,10 +64,16 @@ class GameContent implements IGameContent {
 	exponent: number;
 	level: number;
 	maxLevel: number;
+	img?: IGameImage;
 	upgradeCost?: number;
 	progressToNext?: number;
 	idBtn?: string;
 	// btn: HTMLButtonElement | null;
+
+	//#endregion
+
+	//#region Constructor
+
 	constructor(config: IGameContent){
 		this.id = config.id;
 		this.name = config.name;
@@ -56,11 +83,15 @@ class GameContent implements IGameContent {
 		this.gainPerSecond = config.gainPerSecond;
 		this.level = config.level;
 		this.maxLevel = config.maxLevel;
+		this.img = config.img;
 		this.upgradeCost = config.upgradeCost ?? config.baseCost;
 		this.progressToNext = config.progressToNext;
 		this.idBtn = `btn-${this.type}-${this.name.toLowerCase().split(" ").join("-")}`;
 		// if(!!this.idBtn) this.btn = document.getElementById(this.idBtn);
 	}
+
+	//#endregion
+
 	upgrade(){
 		if(this.level +1 > this.maxLevel) return;
 		this.level++;

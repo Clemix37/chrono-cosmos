@@ -17,20 +17,39 @@ const formulas_1 = require("../utils/formulas/formulas");
 const getOrCreateGameContent = () => {
     let gameContent = (0, data_1.getDataFromLocalStorage)("gameContent");
     if (!gameContent)
-        gameContent = getDefaultGameContent();
-    else {
-        gameContent.components = gameContent.components.map((comp) => new GameContent(comp));
-        gameContent.resources = gameContent.resources.map((res) => new GameContent(res));
-    }
-    return gameContent;
+        return getDefaultGameContent();
+    return {
+        components: gameContent.components.map((comp) => {
+            const compJson = components_json_1.default.components.find(compJson => compJson.id === comp.id);
+            if (!compJson)
+                return new GameContent(comp);
+            comp.baseCost = compJson.baseCost;
+            comp.exponent = compJson.exponent;
+            comp.gainPerSecond = compJson.gainPerSecond;
+            comp.img = compJson.img;
+            comp.maxLevel = compJson.maxLevel;
+            return new GameContent(comp);
+        }),
+        resources: gameContent.resources.map((res) => {
+            const resJson = components_json_1.default.components.find(resJson => resJson.id === res.id);
+            if (!resJson)
+                return new GameContent(res);
+            res.baseCost = resJson.baseCost;
+            res.exponent = resJson.exponent;
+            res.gainPerSecond = resJson.gainPerSecond;
+            res.img = resJson.img;
+            res.maxLevel = resJson.maxLevel;
+            return new GameContent(res);
+        }),
+    };
 };
 exports.getOrCreateGameContent = getOrCreateGameContent;
 const getDefaultGameContent = () => {
-    const waterResourceConfig = resources_json_1.default.resources[0];
-    const spoonCompConfig = components_json_1.default.components[0];
+    const firstResourceConfig = resources_json_1.default.resources[0];
+    const firstComponentConfig = components_json_1.default.components[0];
     const content = {
-        components: [new GameContent(spoonCompConfig)],
-        resources: [new GameContent(waterResourceConfig)],
+        components: [new GameContent(firstComponentConfig)],
+        resources: [new GameContent(firstResourceConfig)],
     };
     return content;
 };
@@ -46,6 +65,8 @@ const getNextGameContent = (energy, ids) => {
 exports.getNextGameContent = getNextGameContent;
 class GameContent {
     // btn: HTMLButtonElement | null;
+    //#endregion
+    //#region Constructor
     constructor(config) {
         var _a;
         _GameContent_instances.add(this);
@@ -57,11 +78,13 @@ class GameContent {
         this.gainPerSecond = config.gainPerSecond;
         this.level = config.level;
         this.maxLevel = config.maxLevel;
+        this.img = config.img;
         this.upgradeCost = (_a = config.upgradeCost) !== null && _a !== void 0 ? _a : config.baseCost;
         this.progressToNext = config.progressToNext;
         this.idBtn = `btn-${this.type}-${this.name.toLowerCase().split(" ").join("-")}`;
         // if(!!this.idBtn) this.btn = document.getElementById(this.idBtn);
     }
+    //#endregion
     upgrade() {
         if (this.level + 1 > this.maxLevel)
             return;
