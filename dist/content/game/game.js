@@ -4,16 +4,12 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-var _Game_instances, _Game_countEverySecond, _Game_displayOnEachFrame, _Game_displayAndAttachGameContents, _Game_displayGameContents, _Game_displayEnergy, _Game_attachEvents;
+var _Game_instances, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameContents, _Game_displayEnergy, _Game_attachEvents;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
 const formulas_1 = require("../utils/formulas/formulas");
 const utils_1 = require("../utils/utils");
-const gameCanvas_1 = __importDefault(require("./gameCanvas"));
 const gameContent_1 = require("./gameContent");
 const playingScreen_1 = require("./screens/playingScreen");
 const startScreen_1 = require("./screens/startScreen");
@@ -29,14 +25,6 @@ class Game {
         this.components = gameContent.components;
         this.resources = gameContent.resources;
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
-        const configCanvas = {
-            id: "canvas",
-            width: Math.floor(window.innerWidth - 200),
-            height: 300,
-            bgColor: "#00c4ff",
-        };
-        this.canvas = new gameCanvas_1.default(configCanvas);
-        window.requestAnimationFrame(() => __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayOnEachFrame).call(this));
     }
     //#endregion
     init() {
@@ -100,12 +88,6 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
         this.saveGame();
         this.checkForNewContent();
     }, 1000);
-}, _Game_displayOnEachFrame = function _Game_displayOnEachFrame() {
-    // We display a random component
-    this.canvas.displayRandomContent(this.components);
-    // We display a random resource
-    this.canvas.displayRandomContent(this.resources);
-    window.requestAnimationFrame(() => __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayOnEachFrame).call(this));
 }, _Game_displayAndAttachGameContents = function _Game_displayAndAttachGameContents() {
     if (!!this._intervalle)
         clearInterval(this._intervalle);
@@ -115,7 +97,6 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachEvents).call(this);
     if (this.config.status === "playing")
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_countEverySecond).call(this);
-    this.canvas.init();
 }, _Game_displayGameContents = function _Game_displayGameContents(id, contens) {
     const div = document.getElementById(id);
     if (!div)
@@ -150,6 +131,11 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
             __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         });
     }
+    const buttonGame = document.getElementById("button-game");
+    buttonGame.addEventListener("click", () => {
+        this.energy += 1;
+        __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
+    });
 };
 const game = new Game();
 exports.game = game;

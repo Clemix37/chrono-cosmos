@@ -16,9 +16,9 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.hideOtherDivsThan = exports.IDS_DIVS = void 0;
 const IDS_DIVS = {
-    GAME_START: "gameStartScreen",
-    GAME_END: "gameEndScreen",
-    GAME: "gameContent",
+    GAME_START: "div-game-start-screen",
+    GAME_END: "div-game-end-screen",
+    GAME: "div-game-content",
 };
 exports.IDS_DIVS = IDS_DIVS;
 const hideOtherDivsThan = (divIdNotToHide) => {
@@ -28,7 +28,7 @@ const hideOtherDivsThan = (divIdNotToHide) => {
         const divId = document.getElementById(id);
         if (!divId)
             continue;
-        divId.style.display = id === divIdNotToHide ? "block" : "none";
+        divId.style.display = id === divIdNotToHide ? "flex" : "none";
     }
 };
 exports.hideOtherDivsThan = hideOtherDivsThan;

@@ -34,9 +34,9 @@ class GameCanvas {
         if (!(randomContent === null || randomContent === void 0 ? void 0 : randomContent.img))
             return;
         this.ctx.clearRect(0, 0, this.width, this.height);
-        const img = new Image();
-        img.src = `./img/${randomContent.type}s/${randomContent.img.url}`;
-        this.ctx.drawImage(img, Math.floor(Math.random() * this.width), Math.floor(Math.random() * this.height), randomContent.img.width, randomContent.img.height);
+        // const img = new Image();
+        // img.src = `./img/${randomContent.type}s/${randomContent.img.url}`;
+        // this.ctx.drawImage(img, Math.floor(Math.random() * this.width), Math.floor(Math.random() * this.height), randomContent.img.width, randomContent.img.height);
     }
 }
 exports.default = GameCanvas;

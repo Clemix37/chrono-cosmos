@@ -1,10 +1,8 @@
 import IGame from "../../interfaces/IGame";
-import IGameCanvasConfig from "../../interfaces/IGameCanvasConfig";
 import IGameConfig from "../../interfaces/IGameConfig";
 import { getDataFromLocalStorage } from "../utils/data/data";
 import { toDecimal } from "../utils/formulas/formulas";
 import { getListOfGameStatus, getOrCreateConfig } from "../utils/utils";
-import GameCanvas from "./gameCanvas";
 import { GameContent, getNextGameContent, getOrCreateGameContent } from "./gameContent";
 import { launchGameScreen } from "./screens/playingScreen";
 import { launchGameStartScreen } from "./screens/startScreen";
@@ -18,7 +16,6 @@ export class Game implements IGame {
     components: GameContent[];
     resources: GameContent[];
     timeTravelGames?: Game[];
-    canvas: GameCanvas;
     _intervalle: any;
 
     //#endregion
@@ -32,14 +29,6 @@ export class Game implements IGame {
         this.components = gameContent.components;
         this.resources = gameContent.resources;
         this.#displayEnergy(this.energy);
-        const configCanvas: IGameCanvasConfig = {
-            id: "canvas",
-            width: Math.floor(window.innerWidth - 200),
-            height: 300,
-            bgColor: "#00c4ff",
-        };
-        this.canvas = new GameCanvas(configCanvas);
-        window.requestAnimationFrame(() => this.#displayOnEachFrame());
     }
 
     //#endregion
@@ -108,15 +97,6 @@ export class Game implements IGame {
     }
 
     //#region Display
-
-    #displayOnEachFrame(): void{
-        // We display a random component
-        this.canvas.displayRandomContent(this.components);
-        // We display a random resource
-        this.canvas.displayRandomContent(this.resources);
-
-        window.requestAnimationFrame(() => this.#displayOnEachFrame());
-    }
     
     #displayAndAttachGameContents(): void{
         if(!!this._intervalle) clearInterval(this._intervalle);
@@ -125,7 +105,6 @@ export class Game implements IGame {
         this.#displayGameContents("resources-content", this.resources);
         this.#attachEvents();
         if(this.config.status === "playing") this.#countEverySecond();
-        this.canvas.init();
     }
 
     #displayGameContents(id: string, contens: GameContent[]): void{
@@ -169,6 +148,11 @@ export class Game implements IGame {
                 this.#displayAndAttachGameContents();
             });
         }
+        const buttonGame: HTMLButtonElement = document.getElementById("button-game") as HTMLButtonElement;
+        buttonGame.addEventListener("click", () => {
+            this.energy += 1;
+            this.#displayEnergy(this.energy);
+        });
     }
 
     //#endregion
