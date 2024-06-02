@@ -1,5 +1,14 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
@@ -12,15 +21,16 @@ const data_1 = require("../utils/data/data");
 const formulas_1 = require("../utils/formulas/formulas");
 const utils_1 = require("../utils/utils");
 const gameContent_1 = require("./gameContent");
-const playingScreen_1 = require("./screens/playingScreen");
-const startScreen_1 = require("./screens/startScreen");
+const playingScreen_1 = require("../screens/playingScreen");
+const startScreen_1 = require("../screens/startScreen");
+const endScreen_1 = require("../screens/endScreen");
 class Game {
     //#endregion
     //#region Constructor
     constructor() {
         var _a;
         _Game_instances.add(this);
-        this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 5;
+        this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
         const gameContent = (0, gameContent_1.getOrCreateGameContent)();
         this.components = gameContent.components;
@@ -46,20 +56,22 @@ class Game {
         window.location.reload();
     }
     launchGameScreen() {
-        const listOfGameStatuses = (0, utils_1.getListOfGameStatus)();
-        switch (this.config.status) {
-            case listOfGameStatuses.notStarted:
-                (0, startScreen_1.launchGameStartScreen)();
-                break;
-            case listOfGameStatuses.playing:
-            case listOfGameStatuses.paused:
-                (0, playingScreen_1.launchGameScreen)(this.config);
-                __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
-                break;
-            case listOfGameStatuses.over:
-                //@todo
-                break;
-        }
+        return __awaiter(this, void 0, void 0, function* () {
+            const listOfGameStatuses = (0, utils_1.getListOfGameStatus)();
+            switch (this.config.status) {
+                case listOfGameStatuses.notStarted:
+                    yield (0, startScreen_1.launchGameStartScreen)();
+                    break;
+                case listOfGameStatuses.playing:
+                case listOfGameStatuses.paused:
+                    yield (0, playingScreen_1.launchGameScreen)(this.config);
+                    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
+                    break;
+                case listOfGameStatuses.over:
+                    yield (0, endScreen_1.launchGameEndScreen)();
+                    break;
+            }
+        });
     }
     changeStatus(newStatus) {
         this.config.status = newStatus;
@@ -142,7 +154,7 @@ const game = new Game();
 exports.game = game;
 game.init();
 
-},{"../utils/data/data":8,"../utils/formulas/formulas":10,"../utils/utils":11,"./gameContent":2,"./screens/playingScreen":3,"./screens/startScreen":4}],2:[function(require,module,exports){
+},{"../screens/endScreen":3,"../screens/playingScreen":4,"../screens/startScreen":5,"../utils/data/data":9,"../utils/formulas/formulas":11,"../utils/utils":12,"./gameContent":2}],2:[function(require,module,exports){
 "use strict";
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
@@ -158,7 +170,6 @@ exports.getNextGameContent = exports.getOrCreateGameContent = exports.GameConten
 const data_1 = require("../utils/data/data");
 const resources_json_1 = __importDefault(require("../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../utils/data/components.json"));
-const formulas_1 = require("../utils/formulas/formulas");
 const getOrCreateGameContent = () => {
     let gameContent = (0, data_1.getDataFromLocalStorage)("gameContent");
     if (!gameContent)
@@ -227,7 +238,6 @@ class GameContent {
         this.upgradeCost = (_a = config.upgradeCost) !== null && _a !== void 0 ? _a : config.baseCost;
         this.progressToNext = config.progressToNext;
         this.idBtn = `btn-${this.type}-${this.name.toLowerCase().split(" ").join("-")}`;
-        // if(!!this.idBtn) this.btn = document.getElementById(this.idBtn);
     }
     //#endregion
     upgrade() {
@@ -238,31 +248,29 @@ class GameContent {
     }
     getHtmlTemplateGameContent(isPaused) {
         const ligneBtn = isPaused ? "" : `
-            <div class="ligne">
+            <div class="flex height-100 align-items-center">
                 <button class="btn btn-primary btn-game-content" id="${this.idBtn}">${this.upgradeCost}</button>
             </div>
         `;
+        const isNew = !this.level;
         return __classPrivateFieldGet(this, _GameContent_instances, "m", _GameContent_getHtmlLine).call(this, `
-            <div class="colonne game-content">
-                <div class="ligne">
-                    <h1>Niveau ${this.level}</h1>
+            <div class="flex colonne game-content width-100">
+                <div class="flex">
+					<div class="flex colonne width-100">
+						<div class="flex">
+                    		<h1>${isNew ? "<em style='color: var(--tertiary);'>New</em> - " : ""}${this.name} ${isNew ? "" : `(${this.level})`}</h1>
+						</div>
+						<div class="flex justify-content-center">
+							<h3>
+								<i class="fa-solid fa-coins icon color-yellow margin-right"></i>
+								${this.gainPerSecond}/s
+							</h3>
+						</div>
+					</div>
+					<div class="flex colonne width-100">
+						${ligneBtn}
+					</div>
                 </div>
-                <div class="ligne">
-                    <span>${this.name}</span>
-                </div>
-                <div class="ligne">
-                    <div class="colonne">
-                        <div class="ligne">
-                            <span class="game-content-gain"><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${(0, formulas_1.toDecimal)(this.level * this.gainPerSecond)}</span>
-                        </div>
-                    </div>
-                    <div class="colonne">
-                        <div class="ligne">
-                            <span class="game-content-time"><i class="fa-solid fa-clock icon color-light-blue margin-right"></i>1s</span>
-                        </div>
-                    </div>
-                </div>
-                ${ligneBtn}
             </div>
         `);
     }
@@ -272,22 +280,63 @@ _GameContent_instances = new WeakSet(), _GameContent_upgradeCostWithFormula = fu
     const formula = this.baseCost * (Math.pow(this.level, this.exponent));
     return Math.ceil(formula);
 }, _GameContent_getHtmlLine = function _GameContent_getHtmlLine(content) {
-    return `<div class="ligne">${content}</div>`;
+    return `<div class="flex justify-content-center">${content}</div>`;
 };
 
-},{"../utils/data/components.json":7,"../utils/data/data":8,"../utils/data/resources.json":9,"../utils/formulas/formulas":10}],3:[function(require,module,exports){
+},{"../utils/data/components.json":8,"../utils/data/data":9,"../utils/data/resources.json":10}],3:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.launchGameEndScreen = void 0;
+/**
+ * Gets the HTML file of the end screen and display it inside the DOM
+ */
+function launchGameEndScreen() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const res = yield fetch("../../../screens/end.html");
+        const htmlContent = yield res.text();
+        document.body.innerHTML = htmlContent;
+    });
+}
+exports.launchGameEndScreen = launchGameEndScreen;
+
+},{}],4:[function(require,module,exports){
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameScreen = void 0;
-const buttons_1 = require("../../utils/configs/buttons/buttons");
-const utils_1 = require("../../utils/utils");
-const game_1 = require("../game");
+const buttons_1 = require("../utils/configs/buttons/buttons");
+const game_1 = require("../game/game");
 // import { changeGameStatus, getGameConfig } from "../gameConfig";
-const launchGameScreen = (config) => {
-    (0, utils_1.hideOtherDivsThan)(utils_1.IDS_DIVS.GAME);
-    displayPausedGame(config.status === "paused");
-    attachEvents();
-};
+/**
+ * Gets the HTML file playing screen and display it in the DOM
+ * @param config
+ */
+function launchGameScreen(config) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const res = yield fetch("../../../screens/playing.html");
+        const htmlContent = yield res.text();
+        document.body.innerHTML = htmlContent;
+        displayPausedGame(config.status === "paused");
+        attachEvents();
+    });
+}
 exports.launchGameScreen = launchGameScreen;
 const displayPausedGame = (toDisplay) => {
     const btnGamePause = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.PAUSE);
@@ -320,7 +369,7 @@ const attachEventsResume = () => {
     });
 };
 const attachEventClearData = () => {
-    const btnClearData = document.getElementById("btnClearData");
+    const btnClearData = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.CLEAR_DATA);
     if (!btnClearData)
         return;
     btnClearData.addEventListener("click", () => {
@@ -328,24 +377,39 @@ const attachEventClearData = () => {
     });
 };
 
-},{"../../utils/configs/buttons/buttons":5,"../../utils/utils":11,"../game":1}],4:[function(require,module,exports){
+},{"../game/game":1,"../utils/configs/buttons/buttons":6}],5:[function(require,module,exports){
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameStartScreen = void 0;
-const utils_1 = require("../../utils/utils");
-const game_1 = require("../game");
-const CURRENT_DIV_ID = utils_1.IDS_DIVS.GAME_START;
-const launchGameStartScreen = () => {
-    (0, utils_1.hideOtherDivsThan)(CURRENT_DIV_ID);
-    attachEvents();
-};
+const buttons_1 = require("../utils/configs/buttons/buttons");
+const game_1 = require("../game/game");
+/**
+ * Gets the HTML file of the start screen and display it in the DOM
+ */
+function launchGameStartScreen() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const res = yield fetch("../../../screens/start.html");
+        const htmlContent = yield res.text();
+        document.body.innerHTML = htmlContent;
+        attachEvents();
+    });
+}
 exports.launchGameStartScreen = launchGameStartScreen;
 //#region Events
 const attachEvents = () => {
     attachEventGameStart();
 };
 const attachEventGameStart = () => {
-    const gameStartDiv = document.getElementById(CURRENT_DIV_ID);
+    const gameStartDiv = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_START.LAUNCH);
     if (!gameStartDiv)
         return;
     gameStartDiv.addEventListener("click", () => {
@@ -353,19 +417,20 @@ const attachEventGameStart = () => {
     });
 };
 
-},{"../../utils/utils":11,"../game":1}],5:[function(require,module,exports){
+},{"../game/game":1,"../utils/configs/buttons/buttons":6}],6:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IDS_BTNS_SCREENS = void 0;
 const IDS_BTNS_SCREENS = {
     GAME_START: {
-        LAUNCH: "btnLaunchGame",
+        LAUNCH: "btn-launch-game",
     },
     GAME_END: {
         RESTART: "btnRestartGame",
     },
     GAME: {
         PAUSE: "btn-pause-game",
+        CLEAR_DATA: "btn-clear-data",
     },
     GAME_PAUSED: {
         RESUME: "btn-resume-game",
@@ -373,7 +438,7 @@ const IDS_BTNS_SCREENS = {
 };
 exports.IDS_BTNS_SCREENS = IDS_BTNS_SCREENS;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getListOfGameStatus = exports.getOrCreateConfig = void 0;
@@ -408,7 +473,7 @@ const saveConfigInLocalStorage = (gameConfig) => {
     localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
 };
 
-},{"../data/data":8}],7:[function(require,module,exports){
+},{"../data/data":9}],8:[function(require,module,exports){
 module.exports={
     "components": [
         {
@@ -425,11 +490,111 @@ module.exports={
                 "width": 50,
                 "height": 75
             }
+        },
+        {
+            "id": "comp-cup",
+            "name": "Cup",
+            "type": "component",
+            "gainPerSecond": 0.2,
+            "baseCost": 5,
+            "exponent": 2.1,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-bowl",
+            "name": "Bowl",
+            "type": "component",
+            "gainPerSecond": 0.5,
+            "baseCost": 10,
+            "exponent": 2.2,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-plate",
+            "name": "Plate",
+            "type": "component",
+            "gainPerSecond": 1,
+            "baseCost": 15,
+            "exponent": 2.3,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-tray",
+            "name": "Tray",
+            "type": "component",
+            "gainPerSecond": 2,
+            "baseCost": 30,
+            "exponent": 2.4,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-pitcher",
+            "name": "Pitcher",
+            "type": "component",
+            "gainPerSecond": 5,
+            "baseCost": 50,
+            "exponent": 2.5,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-cooking-pot",
+            "name": "Cooking Pot",
+            "type": "component",
+            "gainPerSecond": 10,
+            "baseCost": 75,
+            "exponent": 2.6,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-oven",
+            "name": "Oven",
+            "type": "component",
+            "gainPerSecond": 20,
+            "baseCost": 100,
+            "exponent": 2.7,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-stove",
+            "name": "Stove",
+            "type": "component",
+            "gainPerSecond": 50,
+            "baseCost": 150,
+            "exponent": 2.8,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-microwave",
+            "name": "Microwave",
+            "type": "component",
+            "gainPerSecond": 100,
+            "baseCost": 200,
+            "exponent": 2.9,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-fridge",
+            "name": "Fridge",
+            "type": "component",
+            "gainPerSecond": 200,
+            "baseCost": 300,
+            "exponent": 3.0,
+            "level": 0,
+            "maxLevel": 10000
         }
     ]
 }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRandomFromArray = exports.getDataFromLocalStorage = void 0;
@@ -456,7 +621,7 @@ function getRandomFromArray(arr) {
 }
 exports.getRandomFromArray = getRandomFromArray;
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 module.exports={
     "resources": [
         {
@@ -488,11 +653,91 @@ module.exports={
             "exponent": 1.2,
             "level": 0,
             "maxLevel": 10000
+        },
+        {
+            "id": "res-cosmic-dust",
+            "name": "Cosmic Dust",
+            "type": "resource",
+            "gainPerSecond": 1.5,
+            "baseCost": 150,
+            "exponent": 1.3,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "res-star-fragments",
+            "name": "Star Fragments",
+            "type": "resource",
+            "gainPerSecond": 2,
+            "baseCost": 200,
+            "exponent": 1.3,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "res-asteroid-minerals",
+            "name": "Asteroid Minerals",
+            "type": "resource",
+            "gainPerSecond": 2.5,
+            "baseCost": 250,
+            "exponent": 1.4,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "res-dark-matter",
+            "name": "Dark Matter",
+            "type": "resource",
+            "gainPerSecond": 3,
+            "baseCost": 300,
+            "exponent": 1.4,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "res-quantum-particles",
+            "name": "Quantum Particles",
+            "type": "resource",
+            "gainPerSecond": 4,
+            "baseCost": 400,
+            "exponent": 1.5,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "res-alien-artifacts",
+            "name": "Alien Artifacts",
+            "type": "resource",
+            "gainPerSecond": 5,
+            "baseCost": 500,
+            "exponent": 1.5,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "res-temporal-energy",
+            "name": "Temporal Energy",
+            "type": "resource",
+            "gainPerSecond": 6,
+            "baseCost": 600,
+            "exponent": 1.6,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "res-stellar-energy",
+            "name": "Stellar Energy",
+            "type": "resource",
+            "gainPerSecond": 7,
+            "baseCost": 700,
+            "exponent": 1.6,
+            "level": 0,
+            "maxLevel": 10000
         }
     ]
 }
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.toDecimal = void 0;
@@ -501,7 +746,7 @@ const toDecimal = (nb, nbDecimal = 2) => {
 };
 exports.toDecimal = toDecimal;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -538,4 +783,4 @@ const hideOtherDivsThan = (divIdNotToHide) => {
 exports.hideOtherDivsThan = hideOtherDivsThan;
 __exportStar(require("./configs/configs"), exports);
 
-},{"./configs/configs":6}]},{},[1]);
+},{"./configs/configs":7}]},{},[1]);

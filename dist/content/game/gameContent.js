@@ -13,7 +13,6 @@ exports.getNextGameContent = exports.getOrCreateGameContent = exports.GameConten
 const data_1 = require("../utils/data/data");
 const resources_json_1 = __importDefault(require("../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../utils/data/components.json"));
-const formulas_1 = require("../utils/formulas/formulas");
 const getOrCreateGameContent = () => {
     let gameContent = (0, data_1.getDataFromLocalStorage)("gameContent");
     if (!gameContent)
@@ -82,7 +81,6 @@ class GameContent {
         this.upgradeCost = (_a = config.upgradeCost) !== null && _a !== void 0 ? _a : config.baseCost;
         this.progressToNext = config.progressToNext;
         this.idBtn = `btn-${this.type}-${this.name.toLowerCase().split(" ").join("-")}`;
-        // if(!!this.idBtn) this.btn = document.getElementById(this.idBtn);
     }
     //#endregion
     upgrade() {
@@ -93,31 +91,29 @@ class GameContent {
     }
     getHtmlTemplateGameContent(isPaused) {
         const ligneBtn = isPaused ? "" : `
-            <div class="ligne">
+            <div class="flex height-100 align-items-center">
                 <button class="btn btn-primary btn-game-content" id="${this.idBtn}">${this.upgradeCost}</button>
             </div>
         `;
+        const isNew = !this.level;
         return __classPrivateFieldGet(this, _GameContent_instances, "m", _GameContent_getHtmlLine).call(this, `
-            <div class="colonne game-content">
-                <div class="ligne">
-                    <h1>Niveau ${this.level}</h1>
+            <div class="flex colonne game-content width-100">
+                <div class="flex">
+					<div class="flex colonne width-100">
+						<div class="flex">
+                    		<h1>${isNew ? "<em style='color: var(--tertiary);'>New</em> - " : ""}${this.name} ${isNew ? "" : `(${this.level})`}</h1>
+						</div>
+						<div class="flex justify-content-center">
+							<h3>
+								<i class="fa-solid fa-coins icon color-yellow margin-right"></i>
+								${this.gainPerSecond}/s
+							</h3>
+						</div>
+					</div>
+					<div class="flex colonne width-100">
+						${ligneBtn}
+					</div>
                 </div>
-                <div class="ligne">
-                    <span>${this.name}</span>
-                </div>
-                <div class="ligne">
-                    <div class="colonne">
-                        <div class="ligne">
-                            <span class="game-content-gain"><i class="fa-solid fa-coins icon color-yellow margin-right"></i>${(0, formulas_1.toDecimal)(this.level * this.gainPerSecond)}</span>
-                        </div>
-                    </div>
-                    <div class="colonne">
-                        <div class="ligne">
-                            <span class="game-content-time"><i class="fa-solid fa-clock icon color-light-blue margin-right"></i>1s</span>
-                        </div>
-                    </div>
-                </div>
-                ${ligneBtn}
             </div>
         `);
     }
@@ -127,5 +123,5 @@ _GameContent_instances = new WeakSet(), _GameContent_upgradeCostWithFormula = fu
     const formula = this.baseCost * (Math.pow(this.level, this.exponent));
     return Math.ceil(formula);
 }, _GameContent_getHtmlLine = function _GameContent_getHtmlLine(content) {
-    return `<div class="ligne">${content}</div>`;
+    return `<div class="flex justify-content-center">${content}</div>`;
 };

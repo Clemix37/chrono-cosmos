@@ -9,7 +9,9 @@
 }
 
 .btn-game-content {
-    font-size: 25px;
+    font-size: 40px;
+    min-width: 80%;
+    min-height: 80%;
 }
 
 .game-content-gain, .game-content-time {

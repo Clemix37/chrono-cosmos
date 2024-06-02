@@ -1,14 +1,19 @@
-import IGameConfig from "../../../interfaces/IGameConfig";
-import { IDS_BTNS_SCREENS } from "../../utils/configs/buttons/buttons";
-import { IDS_DIVS, hideOtherDivsThan } from "../../utils/utils";
-import { game } from "../game";
+import IGameConfig from "../../interfaces/IGameConfig";
+import { IDS_BTNS_SCREENS } from "../utils/configs/buttons/buttons";
+import { game } from "../game/game";
 // import { changeGameStatus, getGameConfig } from "../gameConfig";
 
-const launchGameScreen = (config:IGameConfig):void => {
-    hideOtherDivsThan(IDS_DIVS.GAME);
+/**
+ * Gets the HTML file playing screen and display it in the DOM
+ * @param config 
+ */
+async function launchGameScreen(config:IGameConfig):Promise<void> {
+    const res = await fetch("../../../screens/playing.html");
+    const htmlContent = await res.text();
+    document.body.innerHTML = htmlContent;
     displayPausedGame(config.status === "paused");
     attachEvents();
-};
+}
 
 const displayPausedGame = (toDisplay:boolean):void => {
     const btnGamePause = document.getElementById(IDS_BTNS_SCREENS.GAME.PAUSE);
@@ -43,7 +48,7 @@ const attachEventsResume = ():void => {
 };
 
 const attachEventClearData = () => {
-    const btnClearData = document.getElementById("btnClearData");
+    const btnClearData = document.getElementById(IDS_BTNS_SCREENS.GAME.CLEAR_DATA);
     if(!btnClearData) return;
     btnClearData.addEventListener("click", () => {
         game.clearDataFromLocalStorage();

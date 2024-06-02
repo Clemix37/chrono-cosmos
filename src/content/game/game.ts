@@ -4,8 +4,9 @@ import { getDataFromLocalStorage } from "../utils/data/data";
 import { toDecimal } from "../utils/formulas/formulas";
 import { getListOfGameStatus, getOrCreateConfig } from "../utils/utils";
 import { GameContent, getNextGameContent, getOrCreateGameContent } from "./gameContent";
-import { launchGameScreen } from "./screens/playingScreen";
-import { launchGameStartScreen } from "./screens/startScreen";
+import { launchGameScreen } from "../screens/playingScreen";
+import { launchGameStartScreen } from "../screens/startScreen";
+import { launchGameEndScreen } from "../screens/endScreen";
 
 export class Game implements IGame {
 
@@ -23,7 +24,7 @@ export class Game implements IGame {
     //#region Constructor
 
     constructor(){
-        this.energy = getDataFromLocalStorage("energyCounter") ?? 5;
+        this.energy = getDataFromLocalStorage("energyCounter") ?? 3;
         this.config = getOrCreateConfig();
         const gameContent = getOrCreateGameContent();
         this.components = gameContent.components;
@@ -53,19 +54,19 @@ export class Game implements IGame {
         window.location.reload();
     }
 
-    launchGameScreen(){
+    async launchGameScreen(){
         const listOfGameStatuses = getListOfGameStatus();
         switch(this.config.status){
             case listOfGameStatuses.notStarted:
-                launchGameStartScreen();
+                await launchGameStartScreen();
                 break;
             case listOfGameStatuses.playing:
             case listOfGameStatuses.paused:
-                launchGameScreen(this.config);
+                await launchGameScreen(this.config);
                 this.#displayAndAttachGameContents();
                 break;
             case listOfGameStatuses.over:
-                //@todo
+                await launchGameEndScreen();
                 break;
         }
     }
@@ -161,4 +162,4 @@ export class Game implements IGame {
 const game = new Game();
 game.init();
 
-export {game};
+export { game };

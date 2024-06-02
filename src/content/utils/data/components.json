@@ -14,6 +14,106 @@
                 "width": 50,
                 "height": 75
             }
+        },
+        {
+            "id": "comp-cup",
+            "name": "Cup",
+            "type": "component",
+            "gainPerSecond": 0.2,
+            "baseCost": 5,
+            "exponent": 2.1,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-bowl",
+            "name": "Bowl",
+            "type": "component",
+            "gainPerSecond": 0.5,
+            "baseCost": 10,
+            "exponent": 2.2,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-plate",
+            "name": "Plate",
+            "type": "component",
+            "gainPerSecond": 1,
+            "baseCost": 15,
+            "exponent": 2.3,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-tray",
+            "name": "Tray",
+            "type": "component",
+            "gainPerSecond": 2,
+            "baseCost": 30,
+            "exponent": 2.4,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-pitcher",
+            "name": "Pitcher",
+            "type": "component",
+            "gainPerSecond": 5,
+            "baseCost": 50,
+            "exponent": 2.5,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-cooking-pot",
+            "name": "Cooking Pot",
+            "type": "component",
+            "gainPerSecond": 10,
+            "baseCost": 75,
+            "exponent": 2.6,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-oven",
+            "name": "Oven",
+            "type": "component",
+            "gainPerSecond": 20,
+            "baseCost": 100,
+            "exponent": 2.7,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-stove",
+            "name": "Stove",
+            "type": "component",
+            "gainPerSecond": 50,
+            "baseCost": 150,
+            "exponent": 2.8,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-microwave",
+            "name": "Microwave",
+            "type": "component",
+            "gainPerSecond": 100,
+            "baseCost": 200,
+            "exponent": 2.9,
+            "level": 0,
+            "maxLevel": 10000
+        },
+        {
+            "id": "comp-fridge",
+            "name": "Fridge",
+            "type": "component",
+            "gainPerSecond": 200,
+            "baseCost": 300,
+            "exponent": 3.0,
+            "level": 0,
+            "maxLevel": 10000
         }
     ]
 }

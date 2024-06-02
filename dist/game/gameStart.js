@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameStartScreen = void 0;
 const IDS_BTNS = {
-    START: "btnLaunchGame"
+    START: "btn-launch-game"
 };
 const ID_RES = "res";
 const launchGameStartScreen = () => {

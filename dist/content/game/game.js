@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
@@ -11,15 +20,16 @@ const data_1 = require("../utils/data/data");
 const formulas_1 = require("../utils/formulas/formulas");
 const utils_1 = require("../utils/utils");
 const gameContent_1 = require("./gameContent");
-const playingScreen_1 = require("./screens/playingScreen");
-const startScreen_1 = require("./screens/startScreen");
+const playingScreen_1 = require("../screens/playingScreen");
+const startScreen_1 = require("../screens/startScreen");
+const endScreen_1 = require("../screens/endScreen");
 class Game {
     //#endregion
     //#region Constructor
     constructor() {
         var _a;
         _Game_instances.add(this);
-        this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 5;
+        this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
         const gameContent = (0, gameContent_1.getOrCreateGameContent)();
         this.components = gameContent.components;
@@ -45,20 +55,22 @@ class Game {
         window.location.reload();
     }
     launchGameScreen() {
-        const listOfGameStatuses = (0, utils_1.getListOfGameStatus)();
-        switch (this.config.status) {
-            case listOfGameStatuses.notStarted:
-                (0, startScreen_1.launchGameStartScreen)();
-                break;
-            case listOfGameStatuses.playing:
-            case listOfGameStatuses.paused:
-                (0, playingScreen_1.launchGameScreen)(this.config);
-                __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
-                break;
-            case listOfGameStatuses.over:
-                //@todo
-                break;
-        }
+        return __awaiter(this, void 0, void 0, function* () {
+            const listOfGameStatuses = (0, utils_1.getListOfGameStatus)();
+            switch (this.config.status) {
+                case listOfGameStatuses.notStarted:
+                    yield (0, startScreen_1.launchGameStartScreen)();
+                    break;
+                case listOfGameStatuses.playing:
+                case listOfGameStatuses.paused:
+                    yield (0, playingScreen_1.launchGameScreen)(this.config);
+                    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
+                    break;
+                case listOfGameStatuses.over:
+                    yield (0, endScreen_1.launchGameEndScreen)();
+                    break;
+            }
+        });
     }
     changeStatus(newStatus) {
         this.config.status = newStatus;
