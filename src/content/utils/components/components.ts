@@ -1,4 +1,8 @@
+import IGameContent from "../../../interfaces/IGameContent";
+import { GameContent } from "../../game/gameContent";
 import { getDataFromLocalStorage } from "../data/data";
+import resourceFile from "../../utils/data/resources.json";
+import componentFile from "../../utils/data/components.json";
 
 const getOrCreateComponents = (): any => {
   let localComp = getDataFromLocalStorage("gameComponents");
@@ -6,9 +10,14 @@ const getOrCreateComponents = (): any => {
   return localComp;
 };
 
-const getDefaultComponents = (): any[] => {
-  const comps: any[] = [];
-  return comps;
+const getDefaultComponents = (): { components: GameContent[], resources: GameContent[] } => {
+	const firstResourceConfig: IGameContent = resourceFile.resources[0] as IGameContent;
+	const firstComponentConfig: IGameContent = componentFile.components[0] as IGameContent;
+	const content = {
+		components: [new GameContent(firstComponentConfig)],
+		resources: [new GameContent(firstResourceConfig)],
+	};
+	return content;
 };
 
 export { getOrCreateComponents };

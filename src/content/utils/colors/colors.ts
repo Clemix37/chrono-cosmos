@@ -6,3 +6,5 @@ const COLORS = {
     SECONDARY: "#34D1BF",
     TERTIARY: "#D1345B",
 };
+
+export { COLORS };

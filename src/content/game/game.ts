@@ -35,7 +35,7 @@ export class Game implements IGame {
     //#endregion
 
     init(){
-        this.launchGameScreen();
+        this.launchActualScreen();
     }
 
     // Save the energy, the config, and the contents in the localStorage
@@ -54,7 +54,7 @@ export class Game implements IGame {
         window.location.reload();
     }
 
-    async launchGameScreen(){
+    async launchActualScreen(){
         const listOfGameStatuses = getListOfGameStatus();
         switch(this.config.status){
             case listOfGameStatuses.notStarted:
@@ -73,7 +73,7 @@ export class Game implements IGame {
 
     changeStatus(newStatus: "not started" | "playing" | "paused" | "over"){
         this.config.status = newStatus;
-        this.launchGameScreen();
+        this.launchActualScreen();
     }
 
     checkForNewContent(){ 

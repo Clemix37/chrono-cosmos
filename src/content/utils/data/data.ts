@@ -2,9 +2,9 @@
 /**
  * Gets data from the localStorage based on key
  * @param key key of the data in localStorage
- * @returns {any}
+ * @returns {any|any[]}
  */
-const getDataFromLocalStorage = (key: string):any => {
+const getDataFromLocalStorage = (key: string):any|any[] => {
     const data = localStorage.getItem(key);
     if(data) return JSON.parse(data);
     else return null;

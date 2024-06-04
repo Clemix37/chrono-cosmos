@@ -32,4 +32,4 @@ const saveConfigInLocalStorage = (gameConfig: IGameConfig):void => {
     localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
 };
 
-export {getOrCreateConfig,getListOfGameStatus};
+export { getOrCreateConfig, getListOfGameStatus };

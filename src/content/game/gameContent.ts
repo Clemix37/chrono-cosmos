@@ -1,15 +1,13 @@
 import IGameContent from "../../interfaces/IGameContent";
-import { getDataFromLocalStorage } from "../utils/data/data";
 import resourceFile from "../utils/data/resources.json";
 import componentFile from "../utils/data/components.json";
-import { toDecimal } from "../utils/formulas/formulas";
 import IGameImage from "../../interfaces/IGameImage";
+import { getOrCreateComponents } from "../utils/components/components";
 
 const getOrCreateGameContent = (): { components: GameContent[], resources: GameContent[] } => {
-	let gameContent = getDataFromLocalStorage("gameContent");
-	if(!gameContent) return getDefaultGameContent();
+	const gameContent = getOrCreateComponents();
 	return {
-		components: gameContent.components.map((comp:IGameContent) => {
+		components: gameContent.components.map((comp: IGameContent) => {
 			const compJson = componentFile.components.find(compJson => compJson.id === comp.id);
 			if(!compJson) return new GameContent(comp);
 			comp.baseCost = compJson.baseCost;
@@ -19,7 +17,7 @@ const getOrCreateGameContent = (): { components: GameContent[], resources: GameC
 			comp.maxLevel = compJson.maxLevel;
 			return new GameContent(comp);
 		}),
-		resources: gameContent.resources.map((res:IGameContent) => {
+		resources: gameContent.resources.map((res: IGameContent) => {
 			const resJson = componentFile.components.find(resJson => resJson.id === res.id);
 			if(!resJson) return new GameContent(res);
 			res.baseCost = resJson.baseCost;
