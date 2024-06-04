@@ -39,7 +39,7 @@ class Game {
     }
     //#endregion
     init() {
-        this.launchGameScreen();
+        this.launchActualScreen();
     }
     // Save the energy, the config, and the contents in the localStorage
     saveGame() {
@@ -55,7 +55,7 @@ class Game {
         localStorage.removeItem("gameContent");
         window.location.reload();
     }
-    launchGameScreen() {
+    launchActualScreen() {
         return __awaiter(this, void 0, void 0, function* () {
             const listOfGameStatuses = (0, utils_1.getListOfGameStatus)();
             switch (this.config.status) {
@@ -75,7 +75,7 @@ class Game {
     }
     changeStatus(newStatus) {
         this.config.status = newStatus;
-        this.launchGameScreen();
+        this.launchActualScreen();
     }
     checkForNewContent() {
         const idsContentAlreadyDisplayed = [...this.resources.map(res => res.id), ...this.components.map(comp => comp.id)];
@@ -154,7 +154,7 @@ const game = new Game();
 exports.game = game;
 game.init();
 
-},{"../screens/endScreen":3,"../screens/playingScreen":4,"../screens/startScreen":5,"../utils/data/data":9,"../utils/formulas/formulas":11,"../utils/utils":12,"./gameContent":2}],2:[function(require,module,exports){
+},{"../screens/endScreen":3,"../screens/playingScreen":4,"../screens/startScreen":5,"../utils/data/data":10,"../utils/formulas/formulas":12,"../utils/utils":13,"./gameContent":2}],2:[function(require,module,exports){
 "use strict";
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
@@ -167,13 +167,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var _GameContent_instances, _GameContent_upgradeCostWithFormula, _GameContent_getHtmlLine;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getNextGameContent = exports.getOrCreateGameContent = exports.GameContent = void 0;
-const data_1 = require("../utils/data/data");
 const resources_json_1 = __importDefault(require("../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../utils/data/components.json"));
+const components_1 = require("../utils/components/components");
 const getOrCreateGameContent = () => {
-    let gameContent = (0, data_1.getDataFromLocalStorage)("gameContent");
-    if (!gameContent)
-        return getDefaultGameContent();
+    const gameContent = (0, components_1.getOrCreateComponents)();
     return {
         components: gameContent.components.map((comp) => {
             const compJson = components_json_1.default.components.find(compJson => compJson.id === comp.id);
@@ -283,7 +281,7 @@ _GameContent_instances = new WeakSet(), _GameContent_upgradeCostWithFormula = fu
     return `<div class="flex justify-content-center">${content}</div>`;
 };
 
-},{"../utils/data/components.json":8,"../utils/data/data":9,"../utils/data/resources.json":10}],3:[function(require,module,exports){
+},{"../utils/components/components":6,"../utils/data/components.json":9,"../utils/data/resources.json":11}],3:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -377,7 +375,7 @@ const attachEventClearData = () => {
     });
 };
 
-},{"../game/game":1,"../utils/configs/buttons/buttons":6}],5:[function(require,module,exports){
+},{"../game/game":1,"../utils/configs/buttons/buttons":7}],5:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -417,7 +415,35 @@ const attachEventGameStart = () => {
     });
 };
 
-},{"../game/game":1,"../utils/configs/buttons/buttons":6}],6:[function(require,module,exports){
+},{"../game/game":1,"../utils/configs/buttons/buttons":7}],6:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getOrCreateComponents = void 0;
+const gameContent_1 = require("../../game/gameContent");
+const data_1 = require("../data/data");
+const resources_json_1 = __importDefault(require("../../utils/data/resources.json"));
+const components_json_1 = __importDefault(require("../../utils/data/components.json"));
+const getOrCreateComponents = () => {
+    let localComp = (0, data_1.getDataFromLocalStorage)("gameComponents");
+    if (!localComp)
+        localComp = getDefaultComponents();
+    return localComp;
+};
+exports.getOrCreateComponents = getOrCreateComponents;
+const getDefaultComponents = () => {
+    const firstResourceConfig = resources_json_1.default.resources[0];
+    const firstComponentConfig = components_json_1.default.components[0];
+    const content = {
+        components: [new gameContent_1.GameContent(firstComponentConfig)],
+        resources: [new gameContent_1.GameContent(firstResourceConfig)],
+    };
+    return content;
+};
+
+},{"../../game/gameContent":2,"../../utils/data/components.json":9,"../../utils/data/resources.json":11,"../data/data":10}],7:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IDS_BTNS_SCREENS = void 0;
@@ -438,7 +464,7 @@ const IDS_BTNS_SCREENS = {
 };
 exports.IDS_BTNS_SCREENS = IDS_BTNS_SCREENS;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getListOfGameStatus = exports.getOrCreateConfig = void 0;
@@ -473,7 +499,7 @@ const saveConfigInLocalStorage = (gameConfig) => {
     localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
 };
 
-},{"../data/data":9}],8:[function(require,module,exports){
+},{"../data/data":10}],9:[function(require,module,exports){
 module.exports={
     "components": [
         {
@@ -594,14 +620,14 @@ module.exports={
     ]
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRandomFromArray = exports.getDataFromLocalStorage = void 0;
 /**
  * Gets data from the localStorage based on key
  * @param key key of the data in localStorage
- * @returns {any}
+ * @returns {any|any[]}
  */
 const getDataFromLocalStorage = (key) => {
     const data = localStorage.getItem(key);
@@ -621,7 +647,7 @@ function getRandomFromArray(arr) {
 }
 exports.getRandomFromArray = getRandomFromArray;
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 module.exports={
     "resources": [
         {
@@ -737,16 +763,22 @@ module.exports={
     ]
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.toDecimal = void 0;
+/**
+ * Returns the number with the number of decimal wanted
+ * @param nb
+ * @param nbDecimal
+ * @returns {number}
+ */
 const toDecimal = (nb, nbDecimal = 2) => {
     return parseFloat(nb.toFixed(nbDecimal));
 };
 exports.toDecimal = toDecimal;
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -783,4 +815,4 @@ const hideOtherDivsThan = (divIdNotToHide) => {
 exports.hideOtherDivsThan = hideOtherDivsThan;
 __exportStar(require("./configs/configs"), exports);
 
-},{"./configs/configs":7}]},{},[1]);
+},{"./configs/configs":8}]},{},[1]);

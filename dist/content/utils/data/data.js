@@ -4,7 +4,7 @@ exports.getRandomFromArray = exports.getDataFromLocalStorage = void 0;
 /**
  * Gets data from the localStorage based on key
  * @param key key of the data in localStorage
- * @returns {any}
+ * @returns {any|any[]}
  */
 const getDataFromLocalStorage = (key) => {
     const data = localStorage.getItem(key);

@@ -10,13 +10,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var _GameContent_instances, _GameContent_upgradeCostWithFormula, _GameContent_getHtmlLine;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getNextGameContent = exports.getOrCreateGameContent = exports.GameContent = void 0;
-const data_1 = require("../utils/data/data");
 const resources_json_1 = __importDefault(require("../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../utils/data/components.json"));
+const components_1 = require("../utils/components/components");
 const getOrCreateGameContent = () => {
-    let gameContent = (0, data_1.getDataFromLocalStorage)("gameContent");
-    if (!gameContent)
-        return getDefaultGameContent();
+    const gameContent = (0, components_1.getOrCreateComponents)();
     return {
         components: gameContent.components.map((comp) => {
             const compJson = components_json_1.default.components.find(compJson => compJson.id === comp.id);

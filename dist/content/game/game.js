@@ -38,7 +38,7 @@ class Game {
     }
     //#endregion
     init() {
-        this.launchGameScreen();
+        this.launchActualScreen();
     }
     // Save the energy, the config, and the contents in the localStorage
     saveGame() {
@@ -54,7 +54,7 @@ class Game {
         localStorage.removeItem("gameContent");
         window.location.reload();
     }
-    launchGameScreen() {
+    launchActualScreen() {
         return __awaiter(this, void 0, void 0, function* () {
             const listOfGameStatuses = (0, utils_1.getListOfGameStatus)();
             switch (this.config.status) {
@@ -74,7 +74,7 @@ class Game {
     }
     changeStatus(newStatus) {
         this.config.status = newStatus;
-        this.launchGameScreen();
+        this.launchActualScreen();
     }
     checkForNewContent() {
         const idsContentAlreadyDisplayed = [...this.resources.map(res => res.id), ...this.components.map(comp => comp.id)];
