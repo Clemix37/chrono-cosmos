@@ -17,7 +17,7 @@ const game_1 = require("../game/game");
  */
 function launchGameStartScreen() {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("../../../screens/start.html");
+        const res = yield fetch("./screens/start.html");
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
         attachEvents();

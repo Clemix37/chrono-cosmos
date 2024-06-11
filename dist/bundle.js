@@ -299,7 +299,7 @@ exports.launchGameEndScreen = void 0;
  */
 function launchGameEndScreen() {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("../../../screens/end.html");
+        const res = yield fetch("./screens/end.html");
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
     });
@@ -328,7 +328,7 @@ const game_1 = require("../game/game");
  */
 function launchGameScreen(config) {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("../../../screens/playing.html");
+        const res = yield fetch("./screens/playing.html");
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
         displayPausedGame(config.status === "paused");
@@ -395,7 +395,7 @@ const game_1 = require("../game/game");
  */
 function launchGameStartScreen() {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("../../../screens/start.html");
+        const res = yield fetch("./screens/start.html");
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
         attachEvents();

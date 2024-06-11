@@ -19,7 +19,7 @@ const game_1 = require("../game/game");
  */
 function launchGameScreen(config) {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("../../../screens/playing.html");
+        const res = yield fetch("./screens/playing.html");
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
         displayPausedGame(config.status === "paused");

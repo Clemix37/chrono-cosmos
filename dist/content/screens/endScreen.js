@@ -15,7 +15,7 @@ exports.launchGameEndScreen = void 0;
  */
 function launchGameEndScreen() {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("../../../screens/end.html");
+        const res = yield fetch("./screens/end.html");
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
     });
