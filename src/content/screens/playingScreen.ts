@@ -8,7 +8,7 @@ import { game } from "../game/game";
  * @param config 
  */
 async function launchGameScreen(config:IGameConfig):Promise<void> {
-    const res = await fetch("../../../screens/playing.html");
+    const res = await fetch("./screens/playing.html");
     const htmlContent = await res.text();
     document.body.innerHTML = htmlContent;
     displayPausedGame(config.status === "paused");
