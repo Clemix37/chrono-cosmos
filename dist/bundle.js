@@ -33,7 +33,6 @@ class Game {
         this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
         const gameContent = (0, gameContent_1.getOrCreateGameContent)();
-        console.log(gameContent);
         this.components = gameContent.components;
         this.resources = gameContent.resources;
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
@@ -174,7 +173,6 @@ const components_json_1 = __importDefault(require("../utils/data/components.json
 const components_1 = require("../utils/components/components");
 const getOrCreateGameContent = () => {
     const gameContent = (0, components_1.getOrCreateComponents)();
-    console.log(gameContent);
     return {
         components: gameContent.components.map((comp) => {
             const compJson = components_json_1.default.components.find(compJson => compJson.id === comp.id);
