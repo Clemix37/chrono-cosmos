@@ -1,7 +1,7 @@
 import IGame from "../../interfaces/IGame";
 import IGameConfig from "../../interfaces/IGameConfig";
-import { getDataFromLocalStorage } from "../utils/data/data";
-import { toDecimal } from "../utils/formulas/formulas";
+import { SESSIONS_KEYS, getDataFromLocalStorage } from "../utils/data/data";
+import { formatEnergy, toDecimal } from "../utils/formulas/formulas";
 import { getListOfGameStatus, getOrCreateConfig } from "../utils/utils";
 import { GameContent, getNextGameContent, getOrCreateGameContent } from "./gameContent";
 import { launchGameScreen } from "../screens/playingScreen";
@@ -40,17 +40,17 @@ export class Game implements IGame {
 
     // Save the energy, the config, and the contents in the localStorage
     saveGame(){
-        localStorage.setItem("energyCounter", JSON.stringify(this.energy));
-        localStorage.setItem("gameConfig", JSON.stringify(this.config))
-        localStorage.setItem("gameContent", JSON.stringify({components:this.components, resources:this.resources}));
+        localStorage.setItem(SESSIONS_KEYS.ENERGY, JSON.stringify(this.energy));
+        localStorage.setItem(SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(this.config))
+        localStorage.setItem(SESSIONS_KEYS.GAME_CONTENT, JSON.stringify({ components: this.components, resources: this.resources }));
     }
 
     // remove every item in the local storage 
     // So that when reloading, no game already exists
     clearDataFromLocalStorage(){
-        localStorage.removeItem("energyCounter");
-        localStorage.removeItem("gameConfig")
-        localStorage.removeItem("gameContent");
+        localStorage.removeItem(SESSIONS_KEYS.ENERGY);
+        localStorage.removeItem(SESSIONS_KEYS.GAME_CONFIG)
+        localStorage.removeItem(SESSIONS_KEYS.GAME_CONTENT);
         window.location.reload();
     }
 
@@ -126,7 +126,7 @@ export class Game implements IGame {
     #displayEnergy(ernegy: number): void{
         const energyCounter = document.getElementById("energyCounter");
         if(!energyCounter) return;
-        energyCounter.textContent = `${ernegy}⚡`;
+        energyCounter.textContent = `${formatEnergy(ernegy)}⚡`;
     }
 
     //#endregion
@@ -149,6 +149,7 @@ export class Game implements IGame {
                 this.#displayAndAttachGameContents();
             });
         }
+        // Adds an energy
         const buttonGame: HTMLButtonElement = document.getElementById("button-game") as HTMLButtonElement;
         buttonGame.addEventListener("click", () => {
             this.energy += 1;

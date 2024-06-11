@@ -33,6 +33,7 @@ class Game {
         this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
         const gameContent = (0, gameContent_1.getOrCreateGameContent)();
+        console.log(gameContent);
         this.components = gameContent.components;
         this.resources = gameContent.resources;
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
@@ -43,16 +44,16 @@ class Game {
     }
     // Save the energy, the config, and the contents in the localStorage
     saveGame() {
-        localStorage.setItem("energyCounter", JSON.stringify(this.energy));
-        localStorage.setItem("gameConfig", JSON.stringify(this.config));
-        localStorage.setItem("gameContent", JSON.stringify({ components: this.components, resources: this.resources }));
+        localStorage.setItem(data_1.SESSIONS_KEYS.ENERGY, JSON.stringify(this.energy));
+        localStorage.setItem(data_1.SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(this.config));
+        localStorage.setItem(data_1.SESSIONS_KEYS.GAME_CONTENT, JSON.stringify({ components: this.components, resources: this.resources }));
     }
     // remove every item in the local storage 
     // So that when reloading, no game already exists
     clearDataFromLocalStorage() {
-        localStorage.removeItem("energyCounter");
-        localStorage.removeItem("gameConfig");
-        localStorage.removeItem("gameContent");
+        localStorage.removeItem(data_1.SESSIONS_KEYS.ENERGY);
+        localStorage.removeItem(data_1.SESSIONS_KEYS.GAME_CONFIG);
+        localStorage.removeItem(data_1.SESSIONS_KEYS.GAME_CONTENT);
         window.location.reload();
     }
     launchActualScreen() {
@@ -124,7 +125,7 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
     const energyCounter = document.getElementById("energyCounter");
     if (!energyCounter)
         return;
-    energyCounter.textContent = `${ernegy}⚡`;
+    energyCounter.textContent = `${(0, formulas_1.formatEnergy)(ernegy)}⚡`;
 }, _Game_attachEvents = function _Game_attachEvents() {
     const all = [...this.components, ...this.resources];
     for (let i = 0; i < all.length; i++) {
@@ -144,6 +145,7 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
             __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         });
     }
+    // Adds an energy
     const buttonGame = document.getElementById("button-game");
     buttonGame.addEventListener("click", () => {
         this.energy += 1;
@@ -172,6 +174,7 @@ const components_json_1 = __importDefault(require("../utils/data/components.json
 const components_1 = require("../utils/components/components");
 const getOrCreateGameContent = () => {
     const gameContent = (0, components_1.getOrCreateComponents)();
+    console.log(gameContent);
     return {
         components: gameContent.components.map((comp) => {
             const compJson = components_json_1.default.components.find(compJson => compJson.id === comp.id);
@@ -427,7 +430,7 @@ const data_1 = require("../data/data");
 const resources_json_1 = __importDefault(require("../../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../../utils/data/components.json"));
 const getOrCreateComponents = () => {
-    let localComp = (0, data_1.getDataFromLocalStorage)("gameComponents");
+    let localComp = (0, data_1.getDataFromLocalStorage)(data_1.SESSIONS_KEYS.GAME_CONTENT);
     if (!localComp)
         localComp = getDefaultComponents();
     return localComp;
@@ -623,7 +626,12 @@ module.exports={
 },{}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRandomFromArray = exports.getDataFromLocalStorage = void 0;
+exports.getRandomFromArray = exports.getDataFromLocalStorage = exports.SESSIONS_KEYS = void 0;
+exports.SESSIONS_KEYS = {
+    GAME_CONFIG: "gameConfig",
+    GAME_CONTENT: "gameContent",
+    ENERGY: "energyCounter",
+};
 /**
  * Gets data from the localStorage based on key
  * @param key key of the data in localStorage
@@ -766,7 +774,10 @@ module.exports={
 },{}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toDecimal = void 0;
+exports.formatEnergy = exports.toDecimal = void 0;
+const THOUSAND = 1e3;
+const MILLION = 1e6;
+const BILLION = 1e9;
 /**
  * Returns the number with the number of decimal wanted
  * @param nb
@@ -777,6 +788,21 @@ const toDecimal = (nb, nbDecimal = 2) => {
     return parseFloat(nb.toFixed(nbDecimal));
 };
 exports.toDecimal = toDecimal;
+/**
+ * Format the energy given into correct currency
+ * @param energy
+ * @returns {string}
+ */
+const formatEnergy = (energy) => {
+    if (energy >= THOUSAND)
+        return `${(0, exports.toDecimal)(energy / THOUSAND, 4)}K`;
+    else if (energy >= MILLION)
+        return `${(0, exports.toDecimal)(energy / MILLION, 4)}M`;
+    else if (energy >= BILLION)
+        return `${(0, exports.toDecimal)(energy / BILLION, 4)}B`;
+    return `${energy}`;
+};
+exports.formatEnergy = formatEnergy;
 
 },{}],13:[function(require,module,exports){
 "use strict";

@@ -15,6 +15,7 @@ const components_json_1 = __importDefault(require("../utils/data/components.json
 const components_1 = require("../utils/components/components");
 const getOrCreateGameContent = () => {
     const gameContent = (0, components_1.getOrCreateComponents)();
+    console.log(gameContent);
     return {
         components: gameContent.components.map((comp) => {
             const compJson = components_json_1.default.components.find(compJson => compJson.id === comp.id);

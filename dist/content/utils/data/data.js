@@ -1,6 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRandomFromArray = exports.getDataFromLocalStorage = void 0;
+exports.getRandomFromArray = exports.getDataFromLocalStorage = exports.SESSIONS_KEYS = void 0;
+exports.SESSIONS_KEYS = {
+    GAME_CONFIG: "gameConfig",
+    GAME_CONTENT: "gameContent",
+    ENERGY: "energyCounter",
+};
 /**
  * Gets data from the localStorage based on key
  * @param key key of the data in localStorage

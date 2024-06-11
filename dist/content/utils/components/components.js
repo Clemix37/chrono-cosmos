@@ -9,7 +9,7 @@ const data_1 = require("../data/data");
 const resources_json_1 = __importDefault(require("../../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../../utils/data/components.json"));
 const getOrCreateComponents = () => {
-    let localComp = (0, data_1.getDataFromLocalStorage)("gameComponents");
+    let localComp = (0, data_1.getDataFromLocalStorage)(data_1.SESSIONS_KEYS.GAME_CONTENT);
     if (!localComp)
         localComp = getDefaultComponents();
     return localComp;

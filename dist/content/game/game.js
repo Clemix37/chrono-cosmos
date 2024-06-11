@@ -32,6 +32,7 @@ class Game {
         this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
         const gameContent = (0, gameContent_1.getOrCreateGameContent)();
+        console.log(gameContent);
         this.components = gameContent.components;
         this.resources = gameContent.resources;
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
@@ -42,16 +43,16 @@ class Game {
     }
     // Save the energy, the config, and the contents in the localStorage
     saveGame() {
-        localStorage.setItem("energyCounter", JSON.stringify(this.energy));
-        localStorage.setItem("gameConfig", JSON.stringify(this.config));
-        localStorage.setItem("gameContent", JSON.stringify({ components: this.components, resources: this.resources }));
+        localStorage.setItem(data_1.SESSIONS_KEYS.ENERGY, JSON.stringify(this.energy));
+        localStorage.setItem(data_1.SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(this.config));
+        localStorage.setItem(data_1.SESSIONS_KEYS.GAME_CONTENT, JSON.stringify({ components: this.components, resources: this.resources }));
     }
     // remove every item in the local storage 
     // So that when reloading, no game already exists
     clearDataFromLocalStorage() {
-        localStorage.removeItem("energyCounter");
-        localStorage.removeItem("gameConfig");
-        localStorage.removeItem("gameContent");
+        localStorage.removeItem(data_1.SESSIONS_KEYS.ENERGY);
+        localStorage.removeItem(data_1.SESSIONS_KEYS.GAME_CONFIG);
+        localStorage.removeItem(data_1.SESSIONS_KEYS.GAME_CONTENT);
         window.location.reload();
     }
     launchActualScreen() {
@@ -123,7 +124,7 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
     const energyCounter = document.getElementById("energyCounter");
     if (!energyCounter)
         return;
-    energyCounter.textContent = `${ernegy}⚡`;
+    energyCounter.textContent = `${(0, formulas_1.formatEnergy)(ernegy)}⚡`;
 }, _Game_attachEvents = function _Game_attachEvents() {
     const all = [...this.components, ...this.resources];
     for (let i = 0; i < all.length; i++) {
@@ -143,6 +144,7 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
             __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         });
     }
+    // Adds an energy
     const buttonGame = document.getElementById("button-game");
     buttonGame.addEventListener("click", () => {
         this.energy += 1;

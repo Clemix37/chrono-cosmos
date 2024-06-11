@@ -1,11 +1,11 @@
 import IGameContent from "../../../interfaces/IGameContent";
 import { GameContent } from "../../game/gameContent";
-import { getDataFromLocalStorage } from "../data/data";
+import { SESSIONS_KEYS, getDataFromLocalStorage } from "../data/data";
 import resourceFile from "../../utils/data/resources.json";
 import componentFile from "../../utils/data/components.json";
 
 const getOrCreateComponents = (): any => {
-  let localComp = getDataFromLocalStorage("gameComponents");
+  let localComp = getDataFromLocalStorage(SESSIONS_KEYS.GAME_CONTENT);
   if (!localComp) localComp = getDefaultComponents();
   return localComp;
 };
