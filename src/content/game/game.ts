@@ -64,6 +64,7 @@ export class Game implements IGame {
             case listOfGameStatuses.paused:
                 await launchGameScreen(this.config);
                 this.#displayAndAttachGameContents();
+                this.#attachAddOneEnergy();
                 break;
             case listOfGameStatuses.over:
                 await launchGameEndScreen();
@@ -134,7 +135,7 @@ export class Game implements IGame {
     //#region Events
 
     #attachEvents(){
-        const all:GameContent[] = [...this.components, ...this.resources];
+        const all: GameContent[] = [...this.components, ...this.resources];
         for (let i = 0; i < all.length; i++) {
             const content = all[i];
             if(!content.idBtn) continue;
@@ -149,8 +150,14 @@ export class Game implements IGame {
                 this.#displayAndAttachGameContents();
             });
         }
-        // Adds an energy
+    }
+
+    /**
+     * Attach the button game and adds one energy every click
+     */
+    #attachAddOneEnergy(){
         const buttonGame: HTMLButtonElement = document.getElementById("button-game") as HTMLButtonElement;
+        if(!buttonGame) throw new Error("No button to add one energy in the game");
         buttonGame.addEventListener("click", () => {
             this.energy += 1;
             this.#displayEnergy(this.energy);

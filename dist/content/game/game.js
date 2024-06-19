@@ -13,7 +13,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Game_instances, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameContents, _Game_displayEnergy, _Game_attachEvents;
+var _Game_instances, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameContents, _Game_displayEnergy, _Game_attachEvents, _Game_attachAddOneEnergy;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
@@ -65,6 +65,7 @@ class Game {
                 case listOfGameStatuses.paused:
                     yield (0, playingScreen_1.launchGameScreen)(this.config);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
+                    __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachAddOneEnergy).call(this);
                     break;
                 case listOfGameStatuses.over:
                     yield (0, endScreen_1.launchGameEndScreen)();
@@ -143,8 +144,10 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
             __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         });
     }
-    // Adds an energy
+}, _Game_attachAddOneEnergy = function _Game_attachAddOneEnergy() {
     const buttonGame = document.getElementById("button-game");
+    if (!buttonGame)
+        throw new Error("No button to add one energy in the game");
     buttonGame.addEventListener("click", () => {
         this.energy += 1;
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
