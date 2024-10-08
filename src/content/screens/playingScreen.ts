@@ -15,45 +15,50 @@ async function launchGameScreen(config:IGameConfig):Promise<void> {
     attachEvents();
 }
 
-const displayPausedGame = (toDisplay:boolean):void => {
+/**
+ * Based on the parameter, hides / displays the pause button and the resume button
+ * @param toDisplay 
+ * @returns {void}
+ */
+function displayPausedGame(toDisplay:boolean):void {
     const btnGamePause = document.getElementById(IDS_BTNS_SCREENS.GAME.PAUSE);
     const btnResumeGame = document.getElementById(IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
     if(!btnGamePause || !btnResumeGame) return;
     btnGamePause.style.display = toDisplay ? "none" : "block";
     btnResumeGame.style.display = toDisplay ? "block" : "none";
-};
+}
 
 //#region Events
 
-const attachEvents = ():void => {
+function attachEvents():void {
     attachEventsPause();
     attachEventsResume();
     attachEventClearData();
-};
+}
 
-const attachEventsPause = ():void => {
+function attachEventsPause():void {
     const btnGamePause = document.getElementById(IDS_BTNS_SCREENS.GAME.PAUSE);
-    if(!btnGamePause) return;
+    if (!btnGamePause) return;
     btnGamePause.addEventListener("click", () => {
         game.changeStatus("paused");
     });
-};
+}
 
-const attachEventsResume = ():void => {
+function attachEventsResume():void {
     const btnResumeGame = document.getElementById(IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
-    if(!btnResumeGame) return;
+    if (!btnResumeGame) return;
     btnResumeGame.addEventListener("click", () => {
         game.changeStatus("playing");
     });
-};
+}
 
-const attachEventClearData = () => {
+function attachEventClearData() {
     const btnClearData = document.getElementById(IDS_BTNS_SCREENS.GAME.CLEAR_DATA);
-    if(!btnClearData) return;
+    if (!btnClearData) return;
     btnClearData.addEventListener("click", () => {
         game.clearDataFromLocalStorage();
     });
-};
+}
 
 //#endregion
 

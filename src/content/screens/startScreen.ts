@@ -13,17 +13,17 @@ async function launchGameStartScreen():Promise<void> {
 
 //#region Events
 
-const attachEvents = ():void => {
+function attachEvents():void {
     attachEventGameStart();
-};
+}
 
-const attachEventGameStart = ():void => {
+function attachEventGameStart():void {
     const gameStartDiv = document.getElementById(IDS_BTNS_SCREENS.GAME_START.LAUNCH);
     if(!gameStartDiv) return;
     gameStartDiv.addEventListener("click", () => {
         game.changeStatus("playing");
     });
-};
+}
 
 //#endregion
 
