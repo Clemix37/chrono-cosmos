@@ -25,14 +25,18 @@ function launchGameStartScreen() {
 }
 exports.launchGameStartScreen = launchGameStartScreen;
 //#region Events
-const attachEvents = () => {
+function attachEvents() {
     attachEventGameStart();
-};
-const attachEventGameStart = () => {
+}
+/**
+ * Attache events on the game start screen
+ * @returns {void}
+ */
+function attachEventGameStart() {
     const gameStartDiv = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_START.LAUNCH);
     if (!gameStartDiv)
         return;
     gameStartDiv.addEventListener("click", () => {
         game_1.game.changeStatus("playing");
     });
-};
+}

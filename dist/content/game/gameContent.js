@@ -13,11 +13,15 @@ exports.getNextGameContent = exports.getOrCreateGameContent = exports.GameConten
 const resources_json_1 = __importDefault(require("../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../utils/data/components.json"));
 const components_1 = require("../utils/components/components");
-const getOrCreateGameContent = () => {
+/**
+ * Gets the components and returns them as GameContent array
+ * @returns {object}
+ */
+function getOrCreateGameContent() {
     const gameContent = (0, components_1.getOrCreateComponents)();
     return {
         components: gameContent.components.map((comp) => {
-            const compJson = components_json_1.default.components.find(compJson => compJson.id === comp.id);
+            const compJson = components_json_1.default.components.find((compJson) => compJson.id === comp.id);
             if (!compJson)
                 return new GameContent(comp);
             comp.baseCost = compJson.baseCost;
@@ -28,7 +32,7 @@ const getOrCreateGameContent = () => {
             return new GameContent(comp);
         }),
         resources: gameContent.resources.map((res) => {
-            const resJson = components_json_1.default.components.find(resJson => resJson.id === res.id);
+            const resJson = components_json_1.default.components.find((resJson) => resJson.id === res.id);
             if (!resJson)
                 return new GameContent(res);
             res.baseCost = resJson.baseCost;
@@ -39,9 +43,13 @@ const getOrCreateGameContent = () => {
             return new GameContent(res);
         }),
     };
-};
+}
 exports.getOrCreateGameContent = getOrCreateGameContent;
-const getDefaultGameContent = () => {
+/**
+ * Gets and returns the first component and resource of the game, which are the default ones
+ * @returns {object}
+ */
+function getDefaultGameContent() {
     const firstResourceConfig = resources_json_1.default.resources[0];
     const firstComponentConfig = components_json_1.default.components[0];
     const content = {
@@ -49,16 +57,27 @@ const getDefaultGameContent = () => {
         resources: [new GameContent(firstResourceConfig)],
     };
     return content;
-};
-const getNextGameContent = (energy, ids) => {
+}
+/**
+ * Based on the energy in parameter and the ids of the game components displayed,
+ * 	Gets the next game components to display
+ * @param energy
+ * @param idsComponentsDisplayed
+ * @returns {object}
+ */
+function getNextGameContent(energy, idsComponentsDisplayed) {
     const minEnergy = 1.2 * energy;
-    const comps = components_json_1.default.components.filter(comp => comp.baseCost <= minEnergy && !ids.includes(comp.id)).map(comp => new GameContent(comp));
-    const res = resources_json_1.default.resources.filter(res => res.baseCost <= minEnergy && !ids.includes(res.id)).map(res => new GameContent(res));
+    const comps = components_json_1.default.components
+        .filter((comp) => comp.baseCost <= minEnergy && !idsComponentsDisplayed.includes(comp.id))
+        .map((comp) => new GameContent(comp));
+    const res = resources_json_1.default.resources
+        .filter((res) => res.baseCost <= minEnergy && !idsComponentsDisplayed.includes(res.id))
+        .map((res) => new GameContent(res));
     return {
         components: comps,
         resources: res,
     };
-};
+}
 exports.getNextGameContent = getNextGameContent;
 class GameContent {
     // btn: HTMLButtonElement | null;
@@ -88,7 +107,9 @@ class GameContent {
         this.upgradeCost = __classPrivateFieldGet(this, _GameContent_instances, "m", _GameContent_upgradeCostWithFormula).call(this);
     }
     getHtmlTemplateGameContent(isPaused) {
-        const ligneBtn = isPaused ? "" : `
+        const ligneBtn = isPaused
+            ? ""
+            : `
             <div class="flex height-100 align-items-center">
                 <button class="btn btn-primary btn-game-content" id="${this.idBtn}">${this.upgradeCost}</button>
             </div>
@@ -118,7 +139,7 @@ class GameContent {
 }
 exports.GameContent = GameContent;
 _GameContent_instances = new WeakSet(), _GameContent_upgradeCostWithFormula = function _GameContent_upgradeCostWithFormula() {
-    const formula = this.baseCost * (Math.pow(this.level, this.exponent));
+    const formula = this.baseCost * Math.pow(this.level, this.exponent);
     return Math.ceil(formula);
 }, _GameContent_getHtmlLine = function _GameContent_getHtmlLine(content) {
     return `<div class="flex justify-content-center">${content}</div>`;

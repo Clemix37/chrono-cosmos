@@ -27,41 +27,46 @@ function launchGameScreen(config) {
     });
 }
 exports.launchGameScreen = launchGameScreen;
-const displayPausedGame = (toDisplay) => {
+/**
+ * Based on the parameter, hides / displays the pause button and the resume button
+ * @param toDisplay
+ * @returns {void}
+ */
+function displayPausedGame(toDisplay) {
     const btnGamePause = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.PAUSE);
     const btnResumeGame = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
     if (!btnGamePause || !btnResumeGame)
         return;
     btnGamePause.style.display = toDisplay ? "none" : "block";
     btnResumeGame.style.display = toDisplay ? "block" : "none";
-};
+}
 //#region Events
-const attachEvents = () => {
+function attachEvents() {
     attachEventsPause();
     attachEventsResume();
     attachEventClearData();
-};
-const attachEventsPause = () => {
+}
+function attachEventsPause() {
     const btnGamePause = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.PAUSE);
     if (!btnGamePause)
         return;
     btnGamePause.addEventListener("click", () => {
         game_1.game.changeStatus("paused");
     });
-};
-const attachEventsResume = () => {
+}
+function attachEventsResume() {
     const btnResumeGame = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
     if (!btnResumeGame)
         return;
     btnResumeGame.addEventListener("click", () => {
         game_1.game.changeStatus("playing");
     });
-};
-const attachEventClearData = () => {
+}
+function attachEventClearData() {
     const btnClearData = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.CLEAR_DATA);
     if (!btnClearData)
         return;
     btnClearData.addEventListener("click", () => {
         game_1.game.clearDataFromLocalStorage();
     });
-};
+}

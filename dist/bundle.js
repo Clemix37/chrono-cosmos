@@ -14,7 +14,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Game_instances, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameContents, _Game_displayEnergy, _Game_attachEvents, _Game_attachAddOneEnergy;
+var _Game_instances, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameComponents, _Game_displayEnergy, _Game_attachEvents, _Game_attachAddOneEnergyBtn;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
@@ -38,23 +38,38 @@ class Game {
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
     }
     //#endregion
+    //#region Public methods
+    /**
+     * Initialize the game
+     */
     init() {
         this.launchActualScreen();
     }
-    // Save the energy, the config, and the contents in the localStorage
+    /**
+     * Saves the energy, the config, and the contents in the localStorage
+     */
     saveGame() {
         localStorage.setItem(data_1.SESSIONS_KEYS.ENERGY, JSON.stringify(this.energy));
         localStorage.setItem(data_1.SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(this.config));
-        localStorage.setItem(data_1.SESSIONS_KEYS.GAME_CONTENT, JSON.stringify({ components: this.components, resources: this.resources }));
+        localStorage.setItem(data_1.SESSIONS_KEYS.GAME_CONTENT, JSON.stringify({
+            components: this.components,
+            resources: this.resources,
+        }));
     }
-    // remove every item in the local storage 
-    // So that when reloading, no game already exists
+    /**
+     * Remove every item in the local storage
+     * So that when reloading, no game already exists
+     */
     clearDataFromLocalStorage() {
         localStorage.removeItem(data_1.SESSIONS_KEYS.ENERGY);
         localStorage.removeItem(data_1.SESSIONS_KEYS.GAME_CONFIG);
         localStorage.removeItem(data_1.SESSIONS_KEYS.GAME_CONTENT);
         window.location.reload();
     }
+    /**
+     * Based on the status of the config,
+     * 	Launch the screen necessary
+     */
     launchActualScreen() {
         return __awaiter(this, void 0, void 0, function* () {
             const listOfGameStatuses = (0, utils_1.getListOfGameStatus)();
@@ -66,7 +81,7 @@ class Game {
                 case listOfGameStatuses.paused:
                     yield (0, playingScreen_1.launchGameScreen)(this.config);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
-                    __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachAddOneEnergy).call(this);
+                    __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachAddOneEnergyBtn).call(this);
                     break;
                 case listOfGameStatuses.over:
                     yield (0, endScreen_1.launchGameEndScreen)();
@@ -74,12 +89,23 @@ class Game {
             }
         });
     }
+    /**
+     * Change the current game status
+     * @param newStatus
+     */
     changeStatus(newStatus) {
         this.config.status = newStatus;
         this.launchActualScreen();
     }
+    /**
+     * Gets the game components displayed and gets the next
+     * Display them and attach events if necessary
+     */
     checkForNewContent() {
-        const idsContentAlreadyDisplayed = [...this.resources.map(res => res.id), ...this.components.map(comp => comp.id)];
+        const idsContentAlreadyDisplayed = [
+            ...this.resources.map((res) => res.id),
+            ...this.components.map((comp) => comp.id),
+        ];
         const nextContent = (0, gameContent_1.getNextGameContent)(this.energy, idsContentAlreadyDisplayed);
         if (nextContent.components.length > 0)
             this.components.push(...nextContent.components);
@@ -91,33 +117,33 @@ class Game {
 }
 exports.Game = Game;
 _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEverySecond() {
-    if (!!this._intervalle)
-        clearInterval(this._intervalle);
+    if (!!this._interval)
+        clearInterval(this._interval);
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
-    this._intervalle = setInterval(() => {
-        const gainComponents = this.components.reduce((acc, comp) => acc + (comp.level * comp.gainPerSecond), 0);
-        const gainResources = this.resources.reduce((acc, res) => acc + (res.level * res.gainPerSecond), 0);
+    this._interval = setInterval(() => {
+        const gainComponents = this.components.reduce((acc, comp) => acc + comp.level * comp.gainPerSecond, 0);
+        const gainResources = this.resources.reduce((acc, res) => acc + res.level * res.gainPerSecond, 0);
         this.energy = (0, formulas_1.toDecimal)(this.energy + gainComponents + gainResources);
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
         this.saveGame();
         this.checkForNewContent();
     }, 1000);
 }, _Game_displayAndAttachGameContents = function _Game_displayAndAttachGameContents() {
-    if (!!this._intervalle)
-        clearInterval(this._intervalle);
+    if (!!this._interval)
+        clearInterval(this._interval);
     this.saveGame();
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameContents).call(this, "components-content", this.components);
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameContents).call(this, "resources-content", this.resources);
+    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameComponents).call(this, "components-content", this.components);
+    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameComponents).call(this, "resources-content", this.resources);
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachEvents).call(this);
     if (this.config.status === "playing")
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_countEverySecond).call(this);
-}, _Game_displayGameContents = function _Game_displayGameContents(id, contens) {
+}, _Game_displayGameComponents = function _Game_displayGameComponents(id, contents) {
     const div = document.getElementById(id);
     if (!div)
         return;
     div.innerHTML = "";
-    for (let i = 0; i < contens.length; i++) {
-        const comp = contens[i];
+    for (let i = 0; i < contents.length; i++) {
+        const comp = contents[i];
         const contentHml = comp.getHtmlTemplateGameContent(this.config.status === "paused");
         div.innerHTML += contentHml;
     }
@@ -145,7 +171,7 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
             __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         });
     }
-}, _Game_attachAddOneEnergy = function _Game_attachAddOneEnergy() {
+}, _Game_attachAddOneEnergyBtn = function _Game_attachAddOneEnergyBtn() {
     const buttonGame = document.getElementById("button-game");
     if (!buttonGame)
         throw new Error("No button to add one energy in the game");
@@ -174,11 +200,15 @@ exports.getNextGameContent = exports.getOrCreateGameContent = exports.GameConten
 const resources_json_1 = __importDefault(require("../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../utils/data/components.json"));
 const components_1 = require("../utils/components/components");
-const getOrCreateGameContent = () => {
+/**
+ * Gets the components and returns them as GameContent array
+ * @returns {object}
+ */
+function getOrCreateGameContent() {
     const gameContent = (0, components_1.getOrCreateComponents)();
     return {
         components: gameContent.components.map((comp) => {
-            const compJson = components_json_1.default.components.find(compJson => compJson.id === comp.id);
+            const compJson = components_json_1.default.components.find((compJson) => compJson.id === comp.id);
             if (!compJson)
                 return new GameContent(comp);
             comp.baseCost = compJson.baseCost;
@@ -189,7 +219,7 @@ const getOrCreateGameContent = () => {
             return new GameContent(comp);
         }),
         resources: gameContent.resources.map((res) => {
-            const resJson = components_json_1.default.components.find(resJson => resJson.id === res.id);
+            const resJson = components_json_1.default.components.find((resJson) => resJson.id === res.id);
             if (!resJson)
                 return new GameContent(res);
             res.baseCost = resJson.baseCost;
@@ -200,9 +230,13 @@ const getOrCreateGameContent = () => {
             return new GameContent(res);
         }),
     };
-};
+}
 exports.getOrCreateGameContent = getOrCreateGameContent;
-const getDefaultGameContent = () => {
+/**
+ * Gets and returns the first component and resource of the game, which are the default ones
+ * @returns {object}
+ */
+function getDefaultGameContent() {
     const firstResourceConfig = resources_json_1.default.resources[0];
     const firstComponentConfig = components_json_1.default.components[0];
     const content = {
@@ -210,16 +244,27 @@ const getDefaultGameContent = () => {
         resources: [new GameContent(firstResourceConfig)],
     };
     return content;
-};
-const getNextGameContent = (energy, ids) => {
+}
+/**
+ * Based on the energy in parameter and the ids of the game components displayed,
+ * 	Gets the next game components to display
+ * @param energy
+ * @param idsComponentsDisplayed
+ * @returns {object}
+ */
+function getNextGameContent(energy, idsComponentsDisplayed) {
     const minEnergy = 1.2 * energy;
-    const comps = components_json_1.default.components.filter(comp => comp.baseCost <= minEnergy && !ids.includes(comp.id)).map(comp => new GameContent(comp));
-    const res = resources_json_1.default.resources.filter(res => res.baseCost <= minEnergy && !ids.includes(res.id)).map(res => new GameContent(res));
+    const comps = components_json_1.default.components
+        .filter((comp) => comp.baseCost <= minEnergy && !idsComponentsDisplayed.includes(comp.id))
+        .map((comp) => new GameContent(comp));
+    const res = resources_json_1.default.resources
+        .filter((res) => res.baseCost <= minEnergy && !idsComponentsDisplayed.includes(res.id))
+        .map((res) => new GameContent(res));
     return {
         components: comps,
         resources: res,
     };
-};
+}
 exports.getNextGameContent = getNextGameContent;
 class GameContent {
     // btn: HTMLButtonElement | null;
@@ -249,7 +294,9 @@ class GameContent {
         this.upgradeCost = __classPrivateFieldGet(this, _GameContent_instances, "m", _GameContent_upgradeCostWithFormula).call(this);
     }
     getHtmlTemplateGameContent(isPaused) {
-        const ligneBtn = isPaused ? "" : `
+        const ligneBtn = isPaused
+            ? ""
+            : `
             <div class="flex height-100 align-items-center">
                 <button class="btn btn-primary btn-game-content" id="${this.idBtn}">${this.upgradeCost}</button>
             </div>
@@ -279,7 +326,7 @@ class GameContent {
 }
 exports.GameContent = GameContent;
 _GameContent_instances = new WeakSet(), _GameContent_upgradeCostWithFormula = function _GameContent_upgradeCostWithFormula() {
-    const formula = this.baseCost * (Math.pow(this.level, this.exponent));
+    const formula = this.baseCost * Math.pow(this.level, this.exponent);
     return Math.ceil(formula);
 }, _GameContent_getHtmlLine = function _GameContent_getHtmlLine(content) {
     return `<div class="flex justify-content-center">${content}</div>`;
@@ -340,44 +387,49 @@ function launchGameScreen(config) {
     });
 }
 exports.launchGameScreen = launchGameScreen;
-const displayPausedGame = (toDisplay) => {
+/**
+ * Based on the parameter, hides / displays the pause button and the resume button
+ * @param toDisplay
+ * @returns {void}
+ */
+function displayPausedGame(toDisplay) {
     const btnGamePause = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.PAUSE);
     const btnResumeGame = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
     if (!btnGamePause || !btnResumeGame)
         return;
     btnGamePause.style.display = toDisplay ? "none" : "block";
     btnResumeGame.style.display = toDisplay ? "block" : "none";
-};
+}
 //#region Events
-const attachEvents = () => {
+function attachEvents() {
     attachEventsPause();
     attachEventsResume();
     attachEventClearData();
-};
-const attachEventsPause = () => {
+}
+function attachEventsPause() {
     const btnGamePause = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.PAUSE);
     if (!btnGamePause)
         return;
     btnGamePause.addEventListener("click", () => {
         game_1.game.changeStatus("paused");
     });
-};
-const attachEventsResume = () => {
+}
+function attachEventsResume() {
     const btnResumeGame = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
     if (!btnResumeGame)
         return;
     btnResumeGame.addEventListener("click", () => {
         game_1.game.changeStatus("playing");
     });
-};
-const attachEventClearData = () => {
+}
+function attachEventClearData() {
     const btnClearData = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.CLEAR_DATA);
     if (!btnClearData)
         return;
     btnClearData.addEventListener("click", () => {
         game_1.game.clearDataFromLocalStorage();
     });
-};
+}
 
 },{"../game/game":1,"../utils/configs/buttons/buttons":7}],5:[function(require,module,exports){
 "use strict";
@@ -407,17 +459,21 @@ function launchGameStartScreen() {
 }
 exports.launchGameStartScreen = launchGameStartScreen;
 //#region Events
-const attachEvents = () => {
+function attachEvents() {
     attachEventGameStart();
-};
-const attachEventGameStart = () => {
+}
+/**
+ * Attache events on the game start screen
+ * @returns {void}
+ */
+function attachEventGameStart() {
     const gameStartDiv = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_START.LAUNCH);
     if (!gameStartDiv)
         return;
     gameStartDiv.addEventListener("click", () => {
         game_1.game.changeStatus("playing");
     });
-};
+}
 
 },{"../game/game":1,"../utils/configs/buttons/buttons":7}],6:[function(require,module,exports){
 "use strict";
@@ -430,14 +486,24 @@ const gameContent_1 = require("../../game/gameContent");
 const data_1 = require("../data/data");
 const resources_json_1 = __importDefault(require("../../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../../utils/data/components.json"));
-const getOrCreateComponents = () => {
+/**
+ * Checks if game components exists in localStorage
+ * If not, gets the default one
+ * Return game components
+ * @returns {any}
+ */
+function getOrCreateComponents() {
     let localComp = (0, data_1.getDataFromLocalStorage)(data_1.SESSIONS_KEYS.GAME_CONTENT);
     if (!localComp)
         localComp = getDefaultComponents();
     return localComp;
-};
+}
 exports.getOrCreateComponents = getOrCreateComponents;
-const getDefaultComponents = () => {
+/**
+ * Creates the default components and returns them
+ * @returns {object}
+ */
+function getDefaultComponents() {
     const firstResourceConfig = resources_json_1.default.resources[0];
     const firstComponentConfig = components_json_1.default.components[0];
     const content = {
@@ -445,7 +511,7 @@ const getDefaultComponents = () => {
         resources: [new gameContent_1.GameContent(firstResourceConfig)],
     };
     return content;
-};
+}
 
 },{"../../game/gameContent":2,"../../utils/data/components.json":9,"../../utils/data/resources.json":11,"../data/data":10}],7:[function(require,module,exports){
 "use strict";
@@ -473,23 +539,38 @@ exports.IDS_BTNS_SCREENS = IDS_BTNS_SCREENS;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getListOfGameStatus = exports.getOrCreateConfig = void 0;
 const data_1 = require("../data/data");
-const getDefaultConfig = () => {
+/**
+ * Create the default config and returns it
+ * @returns {IGameConfig}
+ */
+function getDefaultConfig() {
     const gameConfig = {
         playerName: "",
         level: 0,
         status: "not started",
     };
     return gameConfig;
-};
-const getOrCreateConfig = () => {
+}
+/**
+ * Check if game config exists in localStorage
+ * If not, create the default one
+ * Save the config
+ * Returns it
+ * @returns {IGameConfig}
+ */
+function getOrCreateConfig() {
     let gameConfig = (0, data_1.getDataFromLocalStorage)("gameConfig");
     if (!gameConfig)
         gameConfig = getDefaultConfig();
     saveConfigInLocalStorage(gameConfig);
     return gameConfig;
-};
+}
 exports.getOrCreateConfig = getOrCreateConfig;
-const getListOfGameStatus = () => {
+/**
+ * Returns the list of game status
+ * @returns {object}
+ */
+function getListOfGameStatus() {
     const list = {
         notStarted: "not started",
         playing: "playing",
@@ -497,11 +578,15 @@ const getListOfGameStatus = () => {
         over: "over",
     };
     return list;
-};
+}
 exports.getListOfGameStatus = getListOfGameStatus;
-const saveConfigInLocalStorage = (gameConfig) => {
+/**
+ * Saves the config in parameter in localStorage
+ * @param gameConfig
+ */
+function saveConfigInLocalStorage(gameConfig) {
     localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
-};
+}
 
 },{"../data/data":10}],9:[function(require,module,exports){
 module.exports={
@@ -823,20 +908,24 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.hideOtherDivsThan = exports.IDS_DIVS = void 0;
-const IDS_DIVS = {
+const IDS_GAME_DIVS = {
     GAME_START: "div-game-start-screen",
     GAME_END: "div-game-end-screen",
     GAME: "div-game-content",
 };
-exports.IDS_DIVS = IDS_DIVS;
-const hideOtherDivsThan = (divIdNotToHide) => {
-    const idsDivs = Object.values(IDS_DIVS);
+exports.IDS_DIVS = IDS_GAME_DIVS;
+/**
+ * Hides every game div but the one in parameter
+ * @param idDivToShow
+ */
+const hideOtherDivsThan = (idDivToShow) => {
+    const idsDivs = Object.values(IDS_GAME_DIVS);
     for (let i = 0; i < idsDivs.length; i++) {
         const id = idsDivs[i];
         const divId = document.getElementById(id);
         if (!divId)
             continue;
-        divId.style.display = id === divIdNotToHide ? "flex" : "none";
+        divId.style.display = id === idDivToShow ? "flex" : "none";
     }
 };
 exports.hideOtherDivsThan = hideOtherDivsThan;
