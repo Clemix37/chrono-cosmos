@@ -24,10 +24,8 @@ function getDefaultComponents(): {
 	components: GameContent[];
 	resources: GameContent[];
 } {
-	const firstResourceConfig: IGameContent = resourceFile
-		.resources[0] as IGameContent;
-	const firstComponentConfig: IGameContent = componentFile
-		.components[0] as IGameContent;
+	const firstResourceConfig: IGameContent = resourceFile.resources[0] as IGameContent;
+	const firstComponentConfig: IGameContent = componentFile.components[0] as IGameContent;
 	const content = {
 		components: [new GameContent(firstComponentConfig)],
 		resources: [new GameContent(firstResourceConfig)],

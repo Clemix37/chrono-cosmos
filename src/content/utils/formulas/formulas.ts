@@ -4,12 +4,12 @@ const BILLION = 1e9;
 
 /**
  * Returns the number with the number of decimal wanted
- * @param nb 
- * @param nbDecimal 
+ * @param nb
+ * @param nbDecimal
  * @returns {number}
  */
-export const toDecimal = (nb:number, nbDecimal:number = 2):number => {
-    return parseFloat(nb.toFixed(nbDecimal));
+export const toDecimal = (nb: number, nbDecimal: number = 2): number => {
+	return parseFloat(nb.toFixed(nbDecimal));
 };
 
 /**
@@ -17,9 +17,9 @@ export const toDecimal = (nb:number, nbDecimal:number = 2):number => {
  * @param energy
  * @returns {string}
  */
-export const formatEnergy = (energy:number): string => {
-    if(energy >= THOUSAND) return `${toDecimal(energy/THOUSAND, 4)}K`;
-    else if(energy >= MILLION) return `${toDecimal(energy/MILLION, 4)}M`;
-    else if(energy >= BILLION) return `${toDecimal(energy/BILLION, 4)}B`;
-    return `${energy}`;
+export const formatEnergy = (energy: number): string => {
+	if (energy >= THOUSAND) return `${toDecimal(energy / THOUSAND, 4)}K`;
+	else if (energy >= MILLION) return `${toDecimal(energy / MILLION, 4)}M`;
+	else if (energy >= BILLION) return `${toDecimal(energy / BILLION, 4)}B`;
+	return `${energy}`;
 };

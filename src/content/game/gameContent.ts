@@ -4,12 +4,16 @@ import componentFile from "../utils/data/components.json";
 import IGameImage from "../../interfaces/IGameImage";
 import { getOrCreateComponents } from "../utils/components/components";
 
-const getOrCreateGameContent = (): { components: GameContent[], resources: GameContent[] } => {
+/**
+ * Gets the components and returns them as GameContent array
+ * @returns {object}
+ */
+function getOrCreateGameContent(): { components: GameContent[]; resources: GameContent[] } {
 	const gameContent = getOrCreateComponents();
 	return {
 		components: gameContent.components.map((comp: IGameContent) => {
-			const compJson = componentFile.components.find(compJson => compJson.id === comp.id);
-			if(!compJson) return new GameContent(comp);
+			const compJson = componentFile.components.find((compJson) => compJson.id === comp.id);
+			if (!compJson) return new GameContent(comp);
 			comp.baseCost = compJson.baseCost;
 			comp.exponent = compJson.exponent;
 			comp.gainPerSecond = compJson.gainPerSecond;
@@ -18,8 +22,8 @@ const getOrCreateGameContent = (): { components: GameContent[], resources: GameC
 			return new GameContent(comp);
 		}),
 		resources: gameContent.resources.map((res: IGameContent) => {
-			const resJson = componentFile.components.find(resJson => resJson.id === res.id);
-			if(!resJson) return new GameContent(res);
+			const resJson = componentFile.components.find((resJson) => resJson.id === res.id);
+			if (!resJson) return new GameContent(res);
 			res.baseCost = resJson.baseCost;
 			res.exponent = resJson.exponent;
 			res.gainPerSecond = resJson.gainPerSecond;
@@ -28,9 +32,13 @@ const getOrCreateGameContent = (): { components: GameContent[], resources: GameC
 			return new GameContent(res);
 		}),
 	};
-};
+}
 
-const getDefaultGameContent = (): { components: GameContent[], resources: GameContent[] } => {
+/**
+ * Gets and returns the first component and resource of the game, which are the default ones
+ * @returns {object}
+ */
+function getDefaultGameContent(): { components: GameContent[]; resources: GameContent[] } {
 	const firstResourceConfig: IGameContent = resourceFile.resources[0] as IGameContent;
 	const firstComponentConfig: IGameContent = componentFile.components[0] as IGameContent;
 	const content = {
@@ -38,20 +46,33 @@ const getDefaultGameContent = (): { components: GameContent[], resources: GameCo
 		resources: [new GameContent(firstResourceConfig)],
 	};
 	return content;
-};
+}
 
-const getNextGameContent = (energy: number, ids: string[]): { components: GameContent[], resources: GameContent[] } => {
+/**
+ * Based on the energy in parameter and the ids of the game components displayed,
+ * 	Gets the next game components to display
+ * @param energy
+ * @param idsComponentsDisplayed
+ * @returns {object}
+ */
+function getNextGameContent(
+	energy: number,
+	idsComponentsDisplayed: string[],
+): { components: GameContent[]; resources: GameContent[] } {
 	const minEnergy = 1.2 * energy;
-	const comps = componentFile.components.filter(comp => comp.baseCost <= minEnergy && !ids.includes(comp.id)).map(comp => new GameContent(comp as IGameContent));
-	const res = resourceFile.resources.filter(res => res.baseCost <= minEnergy && !ids.includes(res.id)).map(res => new GameContent(res as IGameContent));
+	const comps = componentFile.components
+		.filter((comp) => comp.baseCost <= minEnergy && !idsComponentsDisplayed.includes(comp.id))
+		.map((comp) => new GameContent(comp as IGameContent));
+	const res = resourceFile.resources
+		.filter((res) => res.baseCost <= minEnergy && !idsComponentsDisplayed.includes(res.id))
+		.map((res) => new GameContent(res as IGameContent));
 	return {
 		components: comps,
 		resources: res,
 	};
-};
+}
 
 class GameContent implements IGameContent {
-
 	//#region Properties
 
 	id: string;
@@ -72,7 +93,7 @@ class GameContent implements IGameContent {
 
 	//#region Constructor
 
-	constructor(config: IGameContent){
+	constructor(config: IGameContent) {
 		this.id = config.id;
 		this.name = config.name;
 		this.baseCost = config.baseCost;
@@ -89,32 +110,36 @@ class GameContent implements IGameContent {
 
 	//#endregion
 
-	upgrade(){
-		if(this.level +1 > this.maxLevel) return;
+	upgrade() {
+		if (this.level + 1 > this.maxLevel) return;
 		this.level++;
 		this.upgradeCost = this.#upgradeCostWithFormula();
 	}
-	#upgradeCostWithFormula():number{
-		const formula = this.baseCost * (this.level ** this.exponent);
+	#upgradeCostWithFormula(): number {
+		const formula = this.baseCost * this.level ** this.exponent;
 		return Math.ceil(formula);
 	}
-    #getHtmlLine(content:string){
-        return `<div class="flex justify-content-center">${content}</div>`;
-    }
+	#getHtmlLine(content: string) {
+		return `<div class="flex justify-content-center">${content}</div>`;
+	}
 
-    getHtmlTemplateGameContent(isPaused: boolean){
-        const ligneBtn = isPaused ? "" : `
+	getHtmlTemplateGameContent(isPaused: boolean) {
+		const ligneBtn = isPaused
+			? ""
+			: `
             <div class="flex height-100 align-items-center">
                 <button class="btn btn-primary btn-game-content" id="${this.idBtn}">${this.upgradeCost}</button>
             </div>
         `;
 		const isNew = !this.level;
-        return this.#getHtmlLine(`
+		return this.#getHtmlLine(`
             <div class="flex colonne game-content width-100">
                 <div class="flex">
 					<div class="flex colonne width-100">
 						<div class="flex">
-                    		<h1>${isNew ? "<em style='color: var(--tertiary);'>New</em> - " : ""}${this.name} ${isNew ? "" : `(${this.level})`}</h1>
+                    		<h1>${isNew ? "<em style='color: var(--tertiary);'>New</em> - " : ""}${this.name} ${
+			isNew ? "" : `(${this.level})`
+		}</h1>
 						</div>
 						<div class="flex justify-content-center">
 							<h3>
@@ -129,7 +154,7 @@ class GameContent implements IGameContent {
                 </div>
             </div>
         `);
-    }
+	}
 }
 
 export { GameContent, getOrCreateGameContent, getNextGameContent };

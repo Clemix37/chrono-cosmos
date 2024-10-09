@@ -51,11 +51,18 @@ export class Game implements IGame {
 
 	//#endregion
 
+	//#region Public methods
+
+	/**
+	 * Initialize the game
+	 */
 	init() {
 		this.launchActualScreen();
 	}
 
-	// Save the energy, the config, and the contents in the localStorage
+	/**
+	 * Saves the energy, the config, and the contents in the localStorage
+	 */
 	saveGame() {
 		localStorage.setItem(SESSIONS_KEYS.ENERGY, JSON.stringify(this.energy));
 		localStorage.setItem(SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(this.config));
@@ -68,8 +75,10 @@ export class Game implements IGame {
 		);
 	}
 
-	// remove every item in the local storage
-	// So that when reloading, no game already exists
+	/**
+	 * Remove every item in the local storage
+	 * So that when reloading, no game already exists
+	 */
 	clearDataFromLocalStorage() {
 		localStorage.removeItem(SESSIONS_KEYS.ENERGY);
 		localStorage.removeItem(SESSIONS_KEYS.GAME_CONFIG);
@@ -77,6 +86,10 @@ export class Game implements IGame {
 		window.location.reload();
 	}
 
+	/**
+	 * Based on the status of the config,
+	 * 	Launch the screen necessary
+	 */
 	async launchActualScreen() {
 		const listOfGameStatuses = getListOfGameStatus();
 		switch (this.config.status) {
@@ -95,11 +108,19 @@ export class Game implements IGame {
 		}
 	}
 
+	/**
+	 * Change the current game status
+	 * @param newStatus
+	 */
 	changeStatus(newStatus: "not started" | "playing" | "paused" | "over") {
 		this.config.status = newStatus;
 		this.launchActualScreen();
 	}
 
+	/**
+	 * Gets the game components displayed and gets the next
+	 * Display them and attach events if necessary
+	 */
 	checkForNewContent() {
 		const idsContentAlreadyDisplayed = [
 			...this.resources.map((res) => res.id),
@@ -114,6 +135,17 @@ export class Game implements IGame {
 		if (nextContent.components.length > 0 || nextContent.resources.length > 0) this.#displayAndAttachGameContents();
 	}
 
+	//#endregion
+
+	//#region Private methods
+
+	/**
+	 * Each second,
+	 * 	Calculate the amount of energy gained in a second and adds it to the energy counter
+	 * 	Display this energy
+	 * 	Saves the game in localStorage
+	 * 	Check if new content is available
+	 */
 	#countEverySecond() {
 		if (!!this._interval) clearInterval(this._interval);
 		this.#displayEnergy(this.energy);
@@ -129,21 +161,33 @@ export class Game implements IGame {
 
 	//#region Display
 
+	/**
+	 * Clears the interval
+	 * Saves the game
+	 * Dispkay game components
+	 * Attach events of these game components
+	 */
 	#displayAndAttachGameContents(): void {
 		if (!!this._interval) clearInterval(this._interval);
 		this.saveGame();
-		this.#displayGameContents("components-content", this.components);
-		this.#displayGameContents("resources-content", this.resources);
+		this.#displayGameComponents("components-content", this.components);
+		this.#displayGameComponents("resources-content", this.resources);
 		this.#attachEvents();
 		if (this.config.status === "playing") this.#countEverySecond();
 	}
 
-	#displayGameContents(id: string, contens: GameContent[]): void {
+	/**
+	 * Display game contents inside the div which id is in parameter
+	 * @param id
+	 * @param contents
+	 * @returns {void}
+	 */
+	#displayGameComponents(id: string, contents: GameContent[]): void {
 		const div = document.getElementById(id);
 		if (!div) return;
 		div.innerHTML = "";
-		for (let i = 0; i < contens.length; i++) {
-			const comp = contens[i];
+		for (let i = 0; i < contents.length; i++) {
+			const comp = contents[i];
 			const contentHml = comp.getHtmlTemplateGameContent(this.config.status === "paused");
 			div.innerHTML += contentHml;
 		}
@@ -195,6 +239,8 @@ export class Game implements IGame {
 			this.#displayEnergy(this.energy);
 		});
 	}
+
+	//#endregion
 
 	//#endregion
 }

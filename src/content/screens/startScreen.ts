@@ -4,25 +4,29 @@ import { game } from "../game/game";
 /**
  * Gets the HTML file of the start screen and display it in the DOM
  */
-async function launchGameStartScreen():Promise<void> {
-    const res = await fetch("./screens/start.html");
-    const htmlContent = await res.text();
-    document.body.innerHTML = htmlContent;
-    attachEvents();
+async function launchGameStartScreen(): Promise<void> {
+	const res = await fetch("./screens/start.html");
+	const htmlContent = await res.text();
+	document.body.innerHTML = htmlContent;
+	attachEvents();
 }
 
 //#region Events
 
-function attachEvents():void {
-    attachEventGameStart();
+function attachEvents(): void {
+	attachEventGameStart();
 }
 
-function attachEventGameStart():void {
-    const gameStartDiv = document.getElementById(IDS_BTNS_SCREENS.GAME_START.LAUNCH);
-    if(!gameStartDiv) return;
-    gameStartDiv.addEventListener("click", () => {
-        game.changeStatus("playing");
-    });
+/**
+ * Attache events on the game start screen
+ * @returns {void}
+ */
+function attachEventGameStart(): void {
+	const gameStartDiv = document.getElementById(IDS_BTNS_SCREENS.GAME_START.LAUNCH);
+	if (!gameStartDiv) return;
+	gameStartDiv.addEventListener("click", () => {
+		game.changeStatus("playing");
+	});
 }
 
 //#endregion
