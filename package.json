@@ -1,20 +1,20 @@
 {
-  "name": "chronocosmos",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "tsc && node dist/index.js",
-    "test": "jest",
-    "build": "tsc && node dist/index.js && browserify ./dist/content/game/game.js -o ./dist/bundle.js"
-  },
-  "author": "CyberWebDev",
-  "license": "MIT",
-  "dependencies": {
-    "typescript": "^5.2.2"
-  },
-  "devDependencies": {
-    "ts-jest": "^29.1.4",
-    "ts-node": "^10.9.1"
-  }
+	"name": "chronocosmos",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "tsc && node dist/index.js",
+		"test": "jest",
+		"build": "tsc && node dist/index.js && browserify ./dist/content/game/game.js -o ./dist/bundle.js"
+	},
+	"author": "CyberWebDev",
+	"license": "MIT",
+	"dependencies": {
+		"typescript": "^5.2.2"
+	},
+	"devDependencies": {
+		"ts-jest": "^29.1.4",
+		"ts-node": "^10.9.1"
+	}
 }
