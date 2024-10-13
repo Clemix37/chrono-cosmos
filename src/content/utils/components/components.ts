@@ -33,4 +33,4 @@ function getDefaultComponents(): {
 	return content;
 }
 
-export { getOrCreateComponents };
+export { getOrCreateComponents, getDefaultComponents };

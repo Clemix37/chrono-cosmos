@@ -10,7 +10,7 @@ export const SESSIONS_KEYS = {
  * @returns {any|any[]}
  */
 const getDataFromLocalStorage = (key: string): any | any[] => {
-	const data = localStorage.getItem(key);
+	const data = localStorage?.getItem(key);
 	if (data) return JSON.parse(data);
 	else return null;
 };
