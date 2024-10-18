@@ -1,12 +1,15 @@
 import IGame from "../../interfaces/IGame";
 import IGameConfig from "../../interfaces/IGameConfig";
-import { SESSIONS_KEYS, getDataFromLocalStorage } from "../utils/data/data";
+import { getDataFromLocalStorage } from "../utils/data/data";
 import { formatEnergy, toDecimal } from "../utils/formulas/formulas";
-import { getListOfGameStatus, getOrCreateConfig } from "../utils/utils";
-import { GameContent, getNextGameContent, getOrCreateGameContent } from "./gameContent";
+import { getOrCreateConfig } from "../utils/utils";
+import { GameContent, getNextGameContent, getOrCreateGameContent } from "./GameContent";
 import { launchGameScreen } from "../screens/playingScreen";
 import { launchGameStartScreen } from "../screens/startScreen";
 import { launchGameEndScreen } from "../screens/endScreen";
+import { GameStatus, SESSIONS_KEYS } from "../utils/constants";
+import { displayRandomCharacters, launchGameCharacterCreationScreen } from "../screens/characterCreationScreen";
+import Character from "./Character";
 
 export class Game implements IGame {
 	//#region Properties
@@ -15,6 +18,10 @@ export class Game implements IGame {
 	 * Energy counter
 	 */
 	energy: number;
+	/**
+	 * Character the player is playing
+	 */
+	// character: Character;
 	/**
 	 * Game config
 	 */
@@ -83,7 +90,6 @@ export class Game implements IGame {
 		localStorage.removeItem(SESSIONS_KEYS.ENERGY);
 		localStorage.removeItem(SESSIONS_KEYS.GAME_CONFIG);
 		localStorage.removeItem(SESSIONS_KEYS.GAME_CONTENT);
-		window.location.reload();
 	}
 
 	/**
@@ -91,18 +97,21 @@ export class Game implements IGame {
 	 * 	Launch the screen necessary
 	 */
 	async launchActualScreen() {
-		const listOfGameStatuses = getListOfGameStatus();
 		switch (this.config.status) {
-			case listOfGameStatuses.notStarted:
+			case GameStatus.notStarted:
 				await launchGameStartScreen();
 				break;
-			case listOfGameStatuses.playing:
-			case listOfGameStatuses.paused:
+			case GameStatus.characterCreation:
+				await launchGameCharacterCreationScreen();
+				displayRandomCharacters();
+				break;
+			case GameStatus.playing:
+			case GameStatus.paused:
 				await launchGameScreen(this.config);
 				this.#displayAndAttachGameContents();
 				this.#attachAddOneEnergyBtn();
 				break;
-			case listOfGameStatuses.over:
+			case GameStatus.over:
 				await launchGameEndScreen();
 				break;
 		}
@@ -112,7 +121,7 @@ export class Game implements IGame {
 	 * Change the current game status
 	 * @param newStatus
 	 */
-	changeStatus(newStatus: "not started" | "playing" | "paused" | "over") {
+	changeStatus(newStatus: string) {
 		this.config.status = newStatus;
 		this.launchActualScreen();
 	}

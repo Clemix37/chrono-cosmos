@@ -1,5 +1,36 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const constants_1 = require("../utils/constants");
+class Character {
+    //#endregion
+    //#region Constructor
+    constructor({ speed, strength, intelligence }) {
+        this.name = constants_1.CHARACTER_PROPS.NAME;
+        this.age = constants_1.CHARACTER_PROPS.AGE;
+        this.speed = speed;
+        this.strength = strength;
+        this.intelligence = intelligence;
+    }
+    //#endregion
+    //#region Accessors
+    //#endregion
+    //#region Public methods
+    getDisplayTemplate() {
+        return `
+			<div class="colonne" style="padding: 5px; width: 200px; border: 1px solid red; border-radius: 8px; margin: 0 10px;">
+				<h3>Speed: <em>${this.speed}</em></h3>
+				<h3>Strength: <em>${this.strength}</em></h3>
+				<h3>Intelligence: <em>${this.intelligence}</em></h3>
+				<button class="btn btn-primary ${constants_1.CLASSES_GAME.SELECT_CHARACTER}">Select</button>
+			</div>
+		`;
+    }
+}
+exports.default = Character;
+
+},{"../utils/constants":10}],2:[function(require,module,exports){
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -20,10 +51,12 @@ exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
 const formulas_1 = require("../utils/formulas/formulas");
 const utils_1 = require("../utils/utils");
-const gameContent_1 = require("./gameContent");
+const GameContent_1 = require("./GameContent");
 const playingScreen_1 = require("../screens/playingScreen");
 const startScreen_1 = require("../screens/startScreen");
 const endScreen_1 = require("../screens/endScreen");
+const constants_1 = require("../utils/constants");
+const characterCreationScreen_1 = require("../screens/characterCreationScreen");
 class Game {
     //#endregion
     //#region Constructor
@@ -32,7 +65,7 @@ class Game {
         _Game_instances.add(this);
         this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
-        const gameContent = (0, gameContent_1.getOrCreateGameContent)();
+        const gameContent = (0, GameContent_1.getOrCreateGameContent)();
         this.components = gameContent.components;
         this.resources = gameContent.resources;
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
@@ -49,9 +82,9 @@ class Game {
      * Saves the energy, the config, and the contents in the localStorage
      */
     saveGame() {
-        localStorage.setItem(data_1.SESSIONS_KEYS.ENERGY, JSON.stringify(this.energy));
-        localStorage.setItem(data_1.SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(this.config));
-        localStorage.setItem(data_1.SESSIONS_KEYS.GAME_CONTENT, JSON.stringify({
+        localStorage.setItem(constants_1.SESSIONS_KEYS.ENERGY, JSON.stringify(this.energy));
+        localStorage.setItem(constants_1.SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(this.config));
+        localStorage.setItem(constants_1.SESSIONS_KEYS.GAME_CONTENT, JSON.stringify({
             components: this.components,
             resources: this.resources,
         }));
@@ -61,10 +94,9 @@ class Game {
      * So that when reloading, no game already exists
      */
     clearDataFromLocalStorage() {
-        localStorage.removeItem(data_1.SESSIONS_KEYS.ENERGY);
-        localStorage.removeItem(data_1.SESSIONS_KEYS.GAME_CONFIG);
-        localStorage.removeItem(data_1.SESSIONS_KEYS.GAME_CONTENT);
-        window.location.reload();
+        localStorage.removeItem(constants_1.SESSIONS_KEYS.ENERGY);
+        localStorage.removeItem(constants_1.SESSIONS_KEYS.GAME_CONFIG);
+        localStorage.removeItem(constants_1.SESSIONS_KEYS.GAME_CONTENT);
     }
     /**
      * Based on the status of the config,
@@ -72,18 +104,21 @@ class Game {
      */
     launchActualScreen() {
         return __awaiter(this, void 0, void 0, function* () {
-            const listOfGameStatuses = (0, utils_1.getListOfGameStatus)();
             switch (this.config.status) {
-                case listOfGameStatuses.notStarted:
+                case constants_1.GameStatus.notStarted:
                     yield (0, startScreen_1.launchGameStartScreen)();
                     break;
-                case listOfGameStatuses.playing:
-                case listOfGameStatuses.paused:
+                case constants_1.GameStatus.characterCreation:
+                    yield (0, characterCreationScreen_1.launchGameCharacterCreationScreen)();
+                    (0, characterCreationScreen_1.displayRandomCharacters)();
+                    break;
+                case constants_1.GameStatus.playing:
+                case constants_1.GameStatus.paused:
                     yield (0, playingScreen_1.launchGameScreen)(this.config);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachAddOneEnergyBtn).call(this);
                     break;
-                case listOfGameStatuses.over:
+                case constants_1.GameStatus.over:
                     yield (0, endScreen_1.launchGameEndScreen)();
                     break;
             }
@@ -106,7 +141,7 @@ class Game {
             ...this.resources.map((res) => res.id),
             ...this.components.map((comp) => comp.id),
         ];
-        const nextContent = (0, gameContent_1.getNextGameContent)(this.energy, idsContentAlreadyDisplayed);
+        const nextContent = (0, GameContent_1.getNextGameContent)(this.energy, idsContentAlreadyDisplayed);
         if (nextContent.components.length > 0)
             this.components.push(...nextContent.components);
         if (nextContent.resources.length > 0)
@@ -184,7 +219,7 @@ const game = new Game();
 exports.game = game;
 game.init();
 
-},{"../screens/endScreen":3,"../screens/playingScreen":4,"../screens/startScreen":5,"../utils/data/data":10,"../utils/formulas/formulas":12,"../utils/utils":13,"./gameContent":2}],2:[function(require,module,exports){
+},{"../screens/characterCreationScreen":4,"../screens/endScreen":5,"../screens/playingScreen":6,"../screens/startScreen":7,"../utils/constants":10,"../utils/data/data":12,"../utils/formulas/formulas":14,"../utils/utils":15,"./GameContent":3}],3:[function(require,module,exports){
 "use strict";
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
@@ -332,7 +367,74 @@ _GameContent_instances = new WeakSet(), _GameContent_upgradeCostWithFormula = fu
     return `<div class="flex justify-content-center">${content}</div>`;
 };
 
-},{"../utils/components/components":6,"../utils/data/components.json":9,"../utils/data/resources.json":11}],3:[function(require,module,exports){
+},{"../utils/components/components":8,"../utils/data/components.json":11,"../utils/data/resources.json":13}],4:[function(require,module,exports){
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.displayRandomCharacters = exports.launchGameCharacterCreationScreen = void 0;
+const Character_1 = __importDefault(require("../Classes/Character"));
+const constants_1 = require("../utils/constants");
+const formulas_1 = require("../utils/formulas/formulas");
+//#region Random generation
+function generateRandomStat(keyStat) {
+    const [minValue, maxValue, weight] = constants_1.CHARACTER_STATS[keyStat];
+    const probas = [];
+    for (let i = minValue; i < maxValue; i += weight) {
+        probas.push(i);
+    }
+    return (0, formulas_1.toDecimal)(probas[Math.floor(Math.random() * probas.length)], 2);
+}
+function generateThreeRandomCharacters() {
+    const characters = [];
+    for (let i = 0; i < constants_1.NB_RANDOM_CHARACTER; i++) {
+        const [speed, strength, intelligence] = [
+            generateRandomStat("speed"),
+            generateRandomStat("strength"),
+            generateRandomStat("intelligence"),
+        ];
+        const newChar = new Character_1.default({ speed, strength, intelligence });
+        characters.push(newChar);
+    }
+    return characters;
+}
+//#endregion
+function getRandomCharacters() {
+    const characters = generateThreeRandomCharacters();
+    return characters.reduce((previousDisplay, actualChar) => `${previousDisplay}${actualChar.getDisplayTemplate()}`, "");
+}
+/**
+ * Display characters randomly generated
+ */
+function displayRandomCharacters() {
+    const display = getRandomCharacters();
+    const listCharacters = document.getElementById(constants_1.IDS_GAME_DIVS.LIST_CHARACTERS);
+    listCharacters.innerHTML = display;
+}
+exports.displayRandomCharacters = displayRandomCharacters;
+/**
+ * Gets the HTML file of the end screen and display it inside the DOM
+ */
+function launchGameCharacterCreationScreen() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const res = yield fetch("./screens/character-creation.html");
+        const htmlContent = yield res.text();
+        document.body.innerHTML = htmlContent;
+    });
+}
+exports.launchGameCharacterCreationScreen = launchGameCharacterCreationScreen;
+
+},{"../Classes/Character":1,"../utils/constants":10,"../utils/formulas/formulas":14}],5:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -357,7 +459,7 @@ function launchGameEndScreen() {
 }
 exports.launchGameEndScreen = launchGameEndScreen;
 
-},{}],4:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -370,8 +472,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameScreen = void 0;
-const buttons_1 = require("../utils/configs/buttons/buttons");
-const game_1 = require("../game/game");
+const Game_1 = require("../Classes/Game");
+const constants_1 = require("../utils/constants");
 // import { changeGameStatus, getGameConfig } from "../gameConfig";
 /**
  * Gets the HTML file playing screen and display it in the DOM
@@ -393,8 +495,8 @@ exports.launchGameScreen = launchGameScreen;
  * @returns {void}
  */
 function displayPausedGame(toDisplay) {
-    const btnGamePause = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.PAUSE);
-    const btnResumeGame = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
+    const btnGamePause = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.PAUSE);
+    const btnResumeGame = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
     if (!btnGamePause || !btnResumeGame)
         return;
     btnGamePause.style.display = toDisplay ? "none" : "block";
@@ -407,31 +509,31 @@ function attachEvents() {
     attachEventClearData();
 }
 function attachEventsPause() {
-    const btnGamePause = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.PAUSE);
+    const btnGamePause = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.PAUSE);
     if (!btnGamePause)
         return;
     btnGamePause.addEventListener("click", () => {
-        game_1.game.changeStatus("paused");
+        Game_1.game.changeStatus("paused");
     });
 }
 function attachEventsResume() {
-    const btnResumeGame = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
+    const btnResumeGame = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
     if (!btnResumeGame)
         return;
     btnResumeGame.addEventListener("click", () => {
-        game_1.game.changeStatus("playing");
+        Game_1.game.changeStatus("playing");
     });
 }
 function attachEventClearData() {
-    const btnClearData = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.CLEAR_DATA);
+    const btnClearData = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.CLEAR_DATA);
     if (!btnClearData)
         return;
     btnClearData.addEventListener("click", () => {
-        game_1.game.clearDataFromLocalStorage();
+        Game_1.game.clearDataFromLocalStorage();
     });
 }
 
-},{"../game/game":1,"../utils/configs/buttons/buttons":7}],5:[function(require,module,exports){
+},{"../Classes/Game":2,"../utils/constants":10}],7:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -444,8 +546,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameStartScreen = void 0;
-const buttons_1 = require("../utils/configs/buttons/buttons");
-const game_1 = require("../game/game");
+const Game_1 = require("../Classes/Game");
+const constants_1 = require("../utils/constants");
 /**
  * Gets the HTML file of the start screen and display it in the DOM
  */
@@ -460,32 +562,33 @@ function launchGameStartScreen() {
 exports.launchGameStartScreen = launchGameStartScreen;
 //#region Events
 function attachEvents() {
-    attachEventGameStart();
+    attachEventStartScreen();
 }
 /**
  * Attache events on the game start screen
  * @returns {void}
  */
-function attachEventGameStart() {
-    const gameStartDiv = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_START.LAUNCH);
+function attachEventStartScreen() {
+    const gameStartDiv = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME_START.SELECT_CHARACTER);
     if (!gameStartDiv)
         return;
     gameStartDiv.addEventListener("click", () => {
-        game_1.game.changeStatus("playing");
+        Game_1.game.changeStatus(constants_1.GameStatus.characterCreation);
     });
 }
 
-},{"../game/game":1,"../utils/configs/buttons/buttons":7}],6:[function(require,module,exports){
+},{"../Classes/Game":2,"../utils/constants":10}],8:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOrCreateComponents = void 0;
-const gameContent_1 = require("../../game/gameContent");
+exports.getDefaultComponents = exports.getOrCreateComponents = void 0;
+const GameContent_1 = require("../../Classes/GameContent");
 const data_1 = require("../data/data");
 const resources_json_1 = __importDefault(require("../../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../../utils/data/components.json"));
+const constants_1 = require("../constants");
 /**
  * Checks if game components exists in localStorage
  * If not, gets the default one
@@ -493,7 +596,7 @@ const components_json_1 = __importDefault(require("../../utils/data/components.j
  * @returns {any}
  */
 function getOrCreateComponents() {
-    let localComp = (0, data_1.getDataFromLocalStorage)(data_1.SESSIONS_KEYS.GAME_CONTENT);
+    let localComp = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.GAME_CONTENT);
     if (!localComp)
         localComp = getDefaultComponents();
     return localComp;
@@ -507,37 +610,17 @@ function getDefaultComponents() {
     const firstResourceConfig = resources_json_1.default.resources[0];
     const firstComponentConfig = components_json_1.default.components[0];
     const content = {
-        components: [new gameContent_1.GameContent(firstComponentConfig)],
-        resources: [new gameContent_1.GameContent(firstResourceConfig)],
+        components: [new GameContent_1.GameContent(firstComponentConfig)],
+        resources: [new GameContent_1.GameContent(firstResourceConfig)],
     };
     return content;
 }
+exports.getDefaultComponents = getDefaultComponents;
 
-},{"../../game/gameContent":2,"../../utils/data/components.json":9,"../../utils/data/resources.json":11,"../data/data":10}],7:[function(require,module,exports){
+},{"../../Classes/GameContent":3,"../../utils/data/components.json":11,"../../utils/data/resources.json":13,"../constants":10,"../data/data":12}],9:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IDS_BTNS_SCREENS = void 0;
-const IDS_BTNS_SCREENS = {
-    GAME_START: {
-        LAUNCH: "btn-launch-game",
-    },
-    GAME_END: {
-        RESTART: "btnRestartGame",
-    },
-    GAME: {
-        PAUSE: "btn-pause-game",
-        CLEAR_DATA: "btn-clear-data",
-    },
-    GAME_PAUSED: {
-        RESUME: "btn-resume-game",
-    },
-};
-exports.IDS_BTNS_SCREENS = IDS_BTNS_SCREENS;
-
-},{}],8:[function(require,module,exports){
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getListOfGameStatus = exports.getOrCreateConfig = void 0;
+exports.getDefaultConfig = exports.getOrCreateConfig = void 0;
 const data_1 = require("../data/data");
 /**
  * Create the default config and returns it
@@ -551,6 +634,7 @@ function getDefaultConfig() {
     };
     return gameConfig;
 }
+exports.getDefaultConfig = getDefaultConfig;
 /**
  * Check if game config exists in localStorage
  * If not, create the default one
@@ -567,20 +651,6 @@ function getOrCreateConfig() {
 }
 exports.getOrCreateConfig = getOrCreateConfig;
 /**
- * Returns the list of game status
- * @returns {object}
- */
-function getListOfGameStatus() {
-    const list = {
-        notStarted: "not started",
-        playing: "playing",
-        paused: "paused",
-        over: "over",
-    };
-    return list;
-}
-exports.getListOfGameStatus = getListOfGameStatus;
-/**
  * Saves the config in parameter in localStorage
  * @param gameConfig
  */
@@ -588,7 +658,80 @@ function saveConfigInLocalStorage(gameConfig) {
     localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
 }
 
-},{"../data/data":10}],9:[function(require,module,exports){
+},{"../data/data":12}],10:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CHARACTER_PROPS = exports.CHARACTER_STATS = exports.CHARACTER_PROPS_STATS = exports.NB_RANDOM_CHARACTER = exports.NUMBERS = exports.SESSIONS_KEYS = exports.COLORS = exports.IDS_BTNS_SCREENS = exports.GameStatus = exports.CLASSES_GAME = exports.IDS_GAME_DIVS = void 0;
+exports.IDS_GAME_DIVS = {
+    GAME_START: "div-game-start-screen",
+    CHARACTER_CREATION: "div-character-creation-screen",
+    LIST_CHARACTERS: "div-list-characters",
+    GAME_END: "div-game-end-screen",
+    GAME: "div-game-content",
+};
+exports.CLASSES_GAME = {
+    SELECT_CHARACTER: "btn-select-character",
+};
+exports.GameStatus = {
+    notStarted: "not started",
+    characterCreation: "character creation",
+    playing: "playing",
+    paused: "paused",
+    over: "over",
+};
+exports.IDS_BTNS_SCREENS = {
+    GAME_START: {
+        SELECT_CHARACTER: "btn-choose-character-game",
+    },
+    GAME_END: {
+        RESTART: "btnRestartGame",
+    },
+    GAME: {
+        PAUSE: "btn-pause-game",
+        CLEAR_DATA: "btn-clear-data",
+    },
+    GAME_PAUSED: {
+        RESUME: "btn-resume-game",
+    },
+};
+exports.COLORS = {
+    BACKGROUND: "#070707",
+    TEXT: "#EFEFEF",
+    PRIMARY: "#3E4ED6",
+    SECONDARY: "#34D1BF",
+    TERTIARY: "#D1345B",
+};
+exports.SESSIONS_KEYS = {
+    GAME_CONFIG: "gameConfig",
+    GAME_CONTENT: "gameContent",
+    ENERGY: "energyCounter",
+};
+exports.NUMBERS = {
+    THOUSAND: 1e3,
+    MILLION: 1e6,
+    BILLION: 1e9,
+};
+exports.NB_RANDOM_CHARACTER = 3;
+exports.CHARACTER_PROPS_STATS = {
+    SPEED: "speed",
+    STRENGTH: "strength",
+    INTELLIGENCE: "intelligence",
+};
+/**
+ * Detailed as follow:
+ * 	{ prop: [minValue, maxValue, step] }
+ */
+exports.CHARACTER_STATS = {
+    speed: [1, 3, 0.2],
+    strength: [1, 5, 0.4],
+    intelligence: [1, 3, 0.1],
+};
+exports.CHARACTER_PROPS = {
+    AGE: 25,
+    NAME: "Jack",
+};
+
+},{}],11:[function(require,module,exports){
 module.exports={
     "components": [
         {
@@ -709,22 +852,17 @@ module.exports={
     ]
 }
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRandomFromArray = exports.getDataFromLocalStorage = exports.SESSIONS_KEYS = void 0;
-exports.SESSIONS_KEYS = {
-    GAME_CONFIG: "gameConfig",
-    GAME_CONTENT: "gameContent",
-    ENERGY: "energyCounter",
-};
+exports.getRandomFromArray = exports.getDataFromLocalStorage = void 0;
 /**
  * Gets data from the localStorage based on key
  * @param key key of the data in localStorage
  * @returns {any|any[]}
  */
 const getDataFromLocalStorage = (key) => {
-    const data = localStorage.getItem(key);
+    const data = localStorage === null || localStorage === void 0 ? void 0 : localStorage.getItem(key);
     if (data)
         return JSON.parse(data);
     else
@@ -741,7 +879,7 @@ function getRandomFromArray(arr) {
 }
 exports.getRandomFromArray = getRandomFromArray;
 
-},{}],11:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports={
     "resources": [
         {
@@ -857,13 +995,11 @@ module.exports={
     ]
 }
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.formatEnergy = exports.toDecimal = void 0;
-const THOUSAND = 1e3;
-const MILLION = 1e6;
-const BILLION = 1e9;
+const constants_1 = require("../constants");
 /**
  * Returns the number with the number of decimal wanted
  * @param nb
@@ -880,17 +1016,20 @@ exports.toDecimal = toDecimal;
  * @returns {string}
  */
 const formatEnergy = (energy) => {
-    if (energy >= THOUSAND)
-        return `${(0, exports.toDecimal)(energy / THOUSAND, 4)}K`;
-    else if (energy >= MILLION)
-        return `${(0, exports.toDecimal)(energy / MILLION, 4)}M`;
-    else if (energy >= BILLION)
-        return `${(0, exports.toDecimal)(energy / BILLION, 4)}B`;
-    return `${energy}`;
+    if (energy < constants_1.NUMBERS.THOUSAND)
+        return `${energy}`;
+    if (energy >= constants_1.NUMBERS.BILLION)
+        return `${(0, exports.toDecimal)(energy / constants_1.NUMBERS.BILLION, 4)}B`;
+    else if (energy >= constants_1.NUMBERS.MILLION)
+        return `${(0, exports.toDecimal)(energy / constants_1.NUMBERS.MILLION, 4)}M`;
+    else if (energy >= constants_1.NUMBERS.THOUSAND)
+        return `${(0, exports.toDecimal)(energy / constants_1.NUMBERS.THOUSAND, 4)}K`;
+    else
+        return "";
 };
 exports.formatEnergy = formatEnergy;
 
-},{}],13:[function(require,module,exports){
+},{"../constants":10}],15:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -907,19 +1046,14 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hideOtherDivsThan = exports.IDS_DIVS = void 0;
-const IDS_GAME_DIVS = {
-    GAME_START: "div-game-start-screen",
-    GAME_END: "div-game-end-screen",
-    GAME: "div-game-content",
-};
-exports.IDS_DIVS = IDS_GAME_DIVS;
+exports.hideOtherDivsThan = void 0;
+const constants_1 = require("./constants");
 /**
  * Hides every game div but the one in parameter
  * @param idDivToShow
  */
 const hideOtherDivsThan = (idDivToShow) => {
-    const idsDivs = Object.values(IDS_GAME_DIVS);
+    const idsDivs = Object.values(constants_1.IDS_GAME_DIVS);
     for (let i = 0; i < idsDivs.length; i++) {
         const id = idsDivs[i];
         const divId = document.getElementById(id);
@@ -931,4 +1065,4 @@ const hideOtherDivsThan = (idDivToShow) => {
 exports.hideOtherDivsThan = hideOtherDivsThan;
 __exportStar(require("./configs/configs"), exports);
 
-},{"./configs/configs":8}]},{},[1]);
+},{"./configs/configs":9,"./constants":10}]},{},[2]);

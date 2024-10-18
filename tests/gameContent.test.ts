@@ -1,4 +1,4 @@
-import { GameContent } from "../src/content/game/gameContent";
+import { GameContent } from "../src/content/Classes/GameContent";
 import IGameContent from "../src/interfaces/IGameContent";
 
 const gameContent: IGameContent = {

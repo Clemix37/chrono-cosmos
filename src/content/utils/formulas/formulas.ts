@@ -1,6 +1,4 @@
-const THOUSAND = 1e3;
-const MILLION = 1e6;
-const BILLION = 1e9;
+import { NUMBERS } from "../constants";
 
 /**
  * Returns the number with the number of decimal wanted
@@ -18,9 +16,9 @@ export const toDecimal = (nb: number, nbDecimal: number = 2): number => {
  * @returns {string}
  */
 export const formatEnergy = (energy: number): string => {
-	if (energy < THOUSAND) return `${energy}`;
-	if (energy >= BILLION) return `${toDecimal(energy / BILLION, 4)}B`;
-	else if (energy >= MILLION) return `${toDecimal(energy / MILLION, 4)}M`;
-	else if (energy >= THOUSAND) return `${toDecimal(energy / THOUSAND, 4)}K`;
+	if (energy < NUMBERS.THOUSAND) return `${energy}`;
+	if (energy >= NUMBERS.BILLION) return `${toDecimal(energy / NUMBERS.BILLION, 4)}B`;
+	else if (energy >= NUMBERS.MILLION) return `${toDecimal(energy / NUMBERS.MILLION, 4)}M`;
+	else if (energy >= NUMBERS.THOUSAND) return `${toDecimal(energy / NUMBERS.THOUSAND, 4)}K`;
 	else return "";
 };

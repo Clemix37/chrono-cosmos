@@ -1,5 +1,5 @@
-import { IDS_BTNS_SCREENS } from "../utils/configs/buttons/buttons";
-import { game } from "../game/game";
+import { game } from "../Classes/Game";
+import { IDS_BTNS_SCREENS, GameStatus } from "../utils/constants";
 
 /**
  * Gets the HTML file of the start screen and display it in the DOM
@@ -14,18 +14,18 @@ async function launchGameStartScreen(): Promise<void> {
 //#region Events
 
 function attachEvents(): void {
-	attachEventGameStart();
+	attachEventStartScreen();
 }
 
 /**
  * Attache events on the game start screen
  * @returns {void}
  */
-function attachEventGameStart(): void {
-	const gameStartDiv = document.getElementById(IDS_BTNS_SCREENS.GAME_START.LAUNCH);
+function attachEventStartScreen(): void {
+	const gameStartDiv = document.getElementById(IDS_BTNS_SCREENS.GAME_START.SELECT_CHARACTER);
 	if (!gameStartDiv) return;
 	gameStartDiv.addEventListener("click", () => {
-		game.changeStatus("playing");
+		game.changeStatus(GameStatus.characterCreation);
 	});
 }
 

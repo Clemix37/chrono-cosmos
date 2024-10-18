@@ -1,8 +1,4 @@
-const IDS_GAME_DIVS = {
-	GAME_START: "div-game-start-screen",
-	GAME_END: "div-game-end-screen",
-	GAME: "div-game-content",
-};
+import { IDS_GAME_DIVS } from "./constants";
 
 /**
  * Hides every game div but the one in parameter
@@ -19,4 +15,4 @@ const hideOtherDivsThan = (idDivToShow: string): void => {
 };
 
 export * from "./configs/configs";
-export { IDS_GAME_DIVS as IDS_DIVS, hideOtherDivsThan };
+export { hideOtherDivsThan };

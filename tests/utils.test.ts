@@ -1,10 +1,9 @@
 import { toDecimal, formatEnergy } from "../src/content/utils/formulas/formulas";
 import { getRandomFromArray } from "../src/content/utils/data/data";
-import { getListOfGameStatus, getDefaultConfig } from "../src/content/utils/configs/configs";
+import { getDefaultConfig } from "../src/content/utils/configs/configs";
 import { getDefaultComponents } from "../src/content/utils/components/components";
-import IGameStatus from "../src/interfaces/IGameStatus";
 import IGameConfig from "../src/interfaces/IGameConfig";
-import { GameContent } from "../src/content/game/gameContent";
+import { GameContent } from "../src/content/Classes/GameContent";
 
 //#region Formulas
 
@@ -71,17 +70,6 @@ test("Gets the default config", () => {
 		playerName: "",
 		level: 0,
 		status: "not started",
-	});
-});
-
-test("Gets the list of game status", () => {
-	const listOfGameStatuses: IGameStatus = getListOfGameStatus();
-	expect(listOfGameStatuses).toBeDefined();
-	expect(listOfGameStatuses).toEqual({
-		notStarted: "not started",
-		playing: "playing",
-		paused: "paused",
-		over: "over",
 	});
 });
 

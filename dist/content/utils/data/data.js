@@ -1,18 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRandomFromArray = exports.getDataFromLocalStorage = exports.SESSIONS_KEYS = void 0;
-exports.SESSIONS_KEYS = {
-    GAME_CONFIG: "gameConfig",
-    GAME_CONTENT: "gameContent",
-    ENERGY: "energyCounter",
-};
+exports.getRandomFromArray = exports.getDataFromLocalStorage = void 0;
 /**
  * Gets data from the localStorage based on key
  * @param key key of the data in localStorage
  * @returns {any|any[]}
  */
 const getDataFromLocalStorage = (key) => {
-    const data = localStorage.getItem(key);
+    const data = localStorage === null || localStorage === void 0 ? void 0 : localStorage.getItem(key);
     if (data)
         return JSON.parse(data);
     else

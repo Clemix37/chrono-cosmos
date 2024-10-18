@@ -19,10 +19,12 @@ exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
 const formulas_1 = require("../utils/formulas/formulas");
 const utils_1 = require("../utils/utils");
-const gameContent_1 = require("./gameContent");
+const GameContent_1 = require("./GameContent");
 const playingScreen_1 = require("../screens/playingScreen");
 const startScreen_1 = require("../screens/startScreen");
 const endScreen_1 = require("../screens/endScreen");
+const constants_1 = require("../utils/constants");
+const characterCreationScreen_1 = require("../screens/characterCreationScreen");
 class Game {
     //#endregion
     //#region Constructor
@@ -31,7 +33,7 @@ class Game {
         _Game_instances.add(this);
         this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
-        const gameContent = (0, gameContent_1.getOrCreateGameContent)();
+        const gameContent = (0, GameContent_1.getOrCreateGameContent)();
         this.components = gameContent.components;
         this.resources = gameContent.resources;
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
@@ -48,9 +50,9 @@ class Game {
      * Saves the energy, the config, and the contents in the localStorage
      */
     saveGame() {
-        localStorage.setItem(data_1.SESSIONS_KEYS.ENERGY, JSON.stringify(this.energy));
-        localStorage.setItem(data_1.SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(this.config));
-        localStorage.setItem(data_1.SESSIONS_KEYS.GAME_CONTENT, JSON.stringify({
+        localStorage.setItem(constants_1.SESSIONS_KEYS.ENERGY, JSON.stringify(this.energy));
+        localStorage.setItem(constants_1.SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(this.config));
+        localStorage.setItem(constants_1.SESSIONS_KEYS.GAME_CONTENT, JSON.stringify({
             components: this.components,
             resources: this.resources,
         }));
@@ -60,10 +62,9 @@ class Game {
      * So that when reloading, no game already exists
      */
     clearDataFromLocalStorage() {
-        localStorage.removeItem(data_1.SESSIONS_KEYS.ENERGY);
-        localStorage.removeItem(data_1.SESSIONS_KEYS.GAME_CONFIG);
-        localStorage.removeItem(data_1.SESSIONS_KEYS.GAME_CONTENT);
-        window.location.reload();
+        localStorage.removeItem(constants_1.SESSIONS_KEYS.ENERGY);
+        localStorage.removeItem(constants_1.SESSIONS_KEYS.GAME_CONFIG);
+        localStorage.removeItem(constants_1.SESSIONS_KEYS.GAME_CONTENT);
     }
     /**
      * Based on the status of the config,
@@ -71,18 +72,21 @@ class Game {
      */
     launchActualScreen() {
         return __awaiter(this, void 0, void 0, function* () {
-            const listOfGameStatuses = (0, utils_1.getListOfGameStatus)();
             switch (this.config.status) {
-                case listOfGameStatuses.notStarted:
+                case constants_1.GameStatus.notStarted:
                     yield (0, startScreen_1.launchGameStartScreen)();
                     break;
-                case listOfGameStatuses.playing:
-                case listOfGameStatuses.paused:
+                case constants_1.GameStatus.characterCreation:
+                    yield (0, characterCreationScreen_1.launchGameCharacterCreationScreen)();
+                    (0, characterCreationScreen_1.displayRandomCharacters)();
+                    break;
+                case constants_1.GameStatus.playing:
+                case constants_1.GameStatus.paused:
                     yield (0, playingScreen_1.launchGameScreen)(this.config);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachAddOneEnergyBtn).call(this);
                     break;
-                case listOfGameStatuses.over:
+                case constants_1.GameStatus.over:
                     yield (0, endScreen_1.launchGameEndScreen)();
                     break;
             }
@@ -105,7 +109,7 @@ class Game {
             ...this.resources.map((res) => res.id),
             ...this.components.map((comp) => comp.id),
         ];
-        const nextContent = (0, gameContent_1.getNextGameContent)(this.energy, idsContentAlreadyDisplayed);
+        const nextContent = (0, GameContent_1.getNextGameContent)(this.energy, idsContentAlreadyDisplayed);
         if (nextContent.components.length > 0)
             this.components.push(...nextContent.components);
         if (nextContent.resources.length > 0)

@@ -1,9 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.formatEnergy = exports.toDecimal = void 0;
-const THOUSAND = 1e3;
-const MILLION = 1e6;
-const BILLION = 1e9;
+const constants_1 = require("../constants");
 /**
  * Returns the number with the number of decimal wanted
  * @param nb
@@ -20,12 +18,15 @@ exports.toDecimal = toDecimal;
  * @returns {string}
  */
 const formatEnergy = (energy) => {
-    if (energy >= THOUSAND)
-        return `${(0, exports.toDecimal)(energy / THOUSAND, 4)}K`;
-    else if (energy >= MILLION)
-        return `${(0, exports.toDecimal)(energy / MILLION, 4)}M`;
-    else if (energy >= BILLION)
-        return `${(0, exports.toDecimal)(energy / BILLION, 4)}B`;
-    return `${energy}`;
+    if (energy < constants_1.NUMBERS.THOUSAND)
+        return `${energy}`;
+    if (energy >= constants_1.NUMBERS.BILLION)
+        return `${(0, exports.toDecimal)(energy / constants_1.NUMBERS.BILLION, 4)}B`;
+    else if (energy >= constants_1.NUMBERS.MILLION)
+        return `${(0, exports.toDecimal)(energy / constants_1.NUMBERS.MILLION, 4)}M`;
+    else if (energy >= constants_1.NUMBERS.THOUSAND)
+        return `${(0, exports.toDecimal)(energy / constants_1.NUMBERS.THOUSAND, 4)}K`;
+    else
+        return "";
 };
 exports.formatEnergy = formatEnergy;

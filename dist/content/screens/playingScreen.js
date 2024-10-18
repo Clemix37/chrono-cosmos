@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameScreen = void 0;
-const buttons_1 = require("../utils/configs/buttons/buttons");
-const game_1 = require("../game/game");
+const Game_1 = require("../Classes/Game");
+const constants_1 = require("../utils/constants");
 // import { changeGameStatus, getGameConfig } from "../gameConfig";
 /**
  * Gets the HTML file playing screen and display it in the DOM
@@ -33,8 +33,8 @@ exports.launchGameScreen = launchGameScreen;
  * @returns {void}
  */
 function displayPausedGame(toDisplay) {
-    const btnGamePause = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.PAUSE);
-    const btnResumeGame = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
+    const btnGamePause = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.PAUSE);
+    const btnResumeGame = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
     if (!btnGamePause || !btnResumeGame)
         return;
     btnGamePause.style.display = toDisplay ? "none" : "block";
@@ -47,26 +47,26 @@ function attachEvents() {
     attachEventClearData();
 }
 function attachEventsPause() {
-    const btnGamePause = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.PAUSE);
+    const btnGamePause = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.PAUSE);
     if (!btnGamePause)
         return;
     btnGamePause.addEventListener("click", () => {
-        game_1.game.changeStatus("paused");
+        Game_1.game.changeStatus("paused");
     });
 }
 function attachEventsResume() {
-    const btnResumeGame = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
+    const btnResumeGame = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
     if (!btnResumeGame)
         return;
     btnResumeGame.addEventListener("click", () => {
-        game_1.game.changeStatus("playing");
+        Game_1.game.changeStatus("playing");
     });
 }
 function attachEventClearData() {
-    const btnClearData = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME.CLEAR_DATA);
+    const btnClearData = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.CLEAR_DATA);
     if (!btnClearData)
         return;
     btnClearData.addEventListener("click", () => {
-        game_1.game.clearDataFromLocalStorage();
+        Game_1.game.clearDataFromLocalStorage();
     });
 }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getListOfGameStatus = exports.getOrCreateConfig = void 0;
+exports.getDefaultConfig = exports.getOrCreateConfig = void 0;
 const data_1 = require("../data/data");
 /**
  * Create the default config and returns it
@@ -14,6 +14,7 @@ function getDefaultConfig() {
     };
     return gameConfig;
 }
+exports.getDefaultConfig = getDefaultConfig;
 /**
  * Check if game config exists in localStorage
  * If not, create the default one
@@ -29,20 +30,6 @@ function getOrCreateConfig() {
     return gameConfig;
 }
 exports.getOrCreateConfig = getOrCreateConfig;
-/**
- * Returns the list of game status
- * @returns {object}
- */
-function getListOfGameStatus() {
-    const list = {
-        notStarted: "not started",
-        playing: "playing",
-        paused: "paused",
-        over: "over",
-    };
-    return list;
-}
-exports.getListOfGameStatus = getListOfGameStatus;
 /**
  * Saves the config in parameter in localStorage
  * @param gameConfig

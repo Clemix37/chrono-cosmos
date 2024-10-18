@@ -1,6 +1,6 @@
 import IGameConfig from "../../interfaces/IGameConfig";
-import { IDS_BTNS_SCREENS } from "../utils/configs/buttons/buttons";
-import { game } from "../game/game";
+import { game } from "../Classes/Game";
+import { IDS_BTNS_SCREENS } from "../utils/constants";
 // import { changeGameStatus, getGameConfig } from "../gameConfig";
 
 /**

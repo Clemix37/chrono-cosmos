@@ -1,5 +1,4 @@
 import IGameConfig from "../../../interfaces/IGameConfig";
-import IGameStatus from "../../../interfaces/IGameStatus";
 import { getDataFromLocalStorage } from "../data/data";
 
 /**
@@ -30,20 +29,6 @@ function getOrCreateConfig(): IGameConfig {
 }
 
 /**
- * Returns the list of game status
- * @returns {object}
- */
-function getListOfGameStatus(): IGameStatus {
-	const list: IGameStatus = {
-		notStarted: "not started",
-		playing: "playing",
-		paused: "paused",
-		over: "over",
-	};
-	return list;
-}
-
-/**
  * Saves the config in parameter in localStorage
  * @param gameConfig
  */
@@ -51,4 +36,4 @@ function saveConfigInLocalStorage(gameConfig: IGameConfig): void {
 	localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
 }
 
-export { getOrCreateConfig, getDefaultConfig, getListOfGameStatus };
+export { getOrCreateConfig, getDefaultConfig };

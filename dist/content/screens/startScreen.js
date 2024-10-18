@@ -10,8 +10,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameStartScreen = void 0;
-const buttons_1 = require("../utils/configs/buttons/buttons");
-const game_1 = require("../game/game");
+const Game_1 = require("../Classes/Game");
+const constants_1 = require("../utils/constants");
 /**
  * Gets the HTML file of the start screen and display it in the DOM
  */
@@ -26,17 +26,17 @@ function launchGameStartScreen() {
 exports.launchGameStartScreen = launchGameStartScreen;
 //#region Events
 function attachEvents() {
-    attachEventGameStart();
+    attachEventStartScreen();
 }
 /**
  * Attache events on the game start screen
  * @returns {void}
  */
-function attachEventGameStart() {
-    const gameStartDiv = document.getElementById(buttons_1.IDS_BTNS_SCREENS.GAME_START.LAUNCH);
+function attachEventStartScreen() {
+    const gameStartDiv = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME_START.SELECT_CHARACTER);
     if (!gameStartDiv)
         return;
     gameStartDiv.addEventListener("click", () => {
-        game_1.game.changeStatus("playing");
+        Game_1.game.changeStatus(constants_1.GameStatus.characterCreation);
     });
 }

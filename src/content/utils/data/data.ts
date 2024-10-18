@@ -1,9 +1,3 @@
-export const SESSIONS_KEYS = {
-	GAME_CONFIG: "gameConfig",
-	GAME_CONTENT: "gameContent",
-	ENERGY: "energyCounter",
-};
-
 /**
  * Gets data from the localStorage based on key
  * @param key key of the data in localStorage

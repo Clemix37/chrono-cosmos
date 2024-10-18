@@ -1,8 +1,9 @@
 import IGameContent from "../../../interfaces/IGameContent";
-import { GameContent } from "../../game/gameContent";
-import { SESSIONS_KEYS, getDataFromLocalStorage } from "../data/data";
+import { GameContent } from "../../Classes/GameContent";
+import { getDataFromLocalStorage } from "../data/data";
 import resourceFile from "../../utils/data/resources.json";
 import componentFile from "../../utils/data/components.json";
+import { SESSIONS_KEYS } from "../constants";
 
 /**
  * Checks if game components exists in localStorage

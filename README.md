@@ -9,12 +9,7 @@ Take great care, you could die outside of your base ...
 
 ## Development
 
-Future development includes creating or selecting pre-configured characters.  
-Each character has its unique stats.  
-These would be the stats:
-- [ ] Speed
-- [ ] Strength
-- [ ] Intelligence
+Selection of the character is still in development.
 
 ## License
 

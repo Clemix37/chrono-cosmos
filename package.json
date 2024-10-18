@@ -6,7 +6,7 @@
 	"scripts": {
 		"start": "tsc && node dist/index.js",
 		"test": "jest",
-		"build": "tsc && node dist/index.js && browserify ./dist/content/game/game.js -o ./dist/bundle.js"
+		"build": "tsc && node dist/index.js && browserify ./dist/content/Classes/Game.js -o ./dist/bundle.js"
 	},
 	"author": "CyberWebDev",
 	"license": "MIT",

@@ -14,19 +14,14 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hideOtherDivsThan = exports.IDS_DIVS = void 0;
-const IDS_GAME_DIVS = {
-    GAME_START: "div-game-start-screen",
-    GAME_END: "div-game-end-screen",
-    GAME: "div-game-content",
-};
-exports.IDS_DIVS = IDS_GAME_DIVS;
+exports.hideOtherDivsThan = void 0;
+const constants_1 = require("./constants");
 /**
  * Hides every game div but the one in parameter
  * @param idDivToShow
  */
 const hideOtherDivsThan = (idDivToShow) => {
-    const idsDivs = Object.values(IDS_GAME_DIVS);
+    const idsDivs = Object.values(constants_1.IDS_GAME_DIVS);
     for (let i = 0; i < idsDivs.length; i++) {
         const id = idsDivs[i];
         const divId = document.getElementById(id);
