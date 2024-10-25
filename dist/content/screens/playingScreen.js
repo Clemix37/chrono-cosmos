@@ -68,5 +68,6 @@ function attachEventClearData() {
         return;
     btnClearData.addEventListener("click", () => {
         Game_1.game.clearDataFromLocalStorage();
+        (0, Game_1.recreateGame)();
     });
 }

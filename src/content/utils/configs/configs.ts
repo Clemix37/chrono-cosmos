@@ -1,4 +1,5 @@
 import IGameConfig from "../../../interfaces/IGameConfig";
+import { SESSIONS_KEYS } from "../constants";
 import { getDataFromLocalStorage } from "../data/data";
 
 /**
@@ -22,7 +23,7 @@ function getDefaultConfig(): IGameConfig {
  * @returns {IGameConfig}
  */
 function getOrCreateConfig(): IGameConfig {
-	let gameConfig: IGameConfig = getDataFromLocalStorage("gameConfig");
+	let gameConfig: IGameConfig = getDataFromLocalStorage(SESSIONS_KEYS.GAME_CONFIG);
 	if (!gameConfig) gameConfig = getDefaultConfig();
 	saveConfigInLocalStorage(gameConfig);
 	return gameConfig;

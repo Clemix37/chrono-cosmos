@@ -1,9 +1,11 @@
 import ICharacter from "../../interfaces/ICharacter";
 import { CHARACTER_PROPS, CLASSES_GAME } from "../utils/constants";
+import { generateRandomId } from "../utils/utils";
 
 export default class Character implements ICharacter {
 	//#region Properties
 
+	id: string;
 	name: string;
 	age: number;
 	speed: number;
@@ -15,6 +17,7 @@ export default class Character implements ICharacter {
 	//#region Constructor
 
 	constructor({ speed, strength, intelligence }: { speed: number; strength: number; intelligence: number }) {
+		this.id = generateRandomId();
 		this.name = CHARACTER_PROPS.NAME;
 		this.age = CHARACTER_PROPS.AGE;
 		this.speed = speed;
@@ -36,7 +39,7 @@ export default class Character implements ICharacter {
 				<h3>Speed: <em>${this.speed}</em></h3>
 				<h3>Strength: <em>${this.strength}</em></h3>
 				<h3>Intelligence: <em>${this.intelligence}</em></h3>
-				<button class="btn btn-primary ${CLASSES_GAME.SELECT_CHARACTER}">Select</button>
+				<button data-id="${this.id}" class="btn btn-primary ${CLASSES_GAME.SELECT_CHARACTER}">Select</button>
 			</div>
 		`;
 	}

@@ -2,6 +2,7 @@ export const IDS_GAME_DIVS = {
 	GAME_START: "div-game-start-screen",
 	CHARACTER_CREATION: "div-character-creation-screen",
 	LIST_CHARACTERS: "div-list-characters",
+	DISPLAY_CHAR: "div-display-character",
 	GAME_END: "div-game-end-screen",
 	GAME: "div-game-content",
 } as const;
@@ -43,9 +44,10 @@ export const COLORS = {
 } as const;
 
 export const SESSIONS_KEYS = {
-	GAME_CONFIG: "gameConfig",
-	GAME_CONTENT: "gameContent",
-	ENERGY: "energyCounter",
+	GAME_CONFIG: "ccGameConfig",
+	GAME_CONTENT: "ccGameContent",
+	ENERGY: "ccEnergyCounter",
+	GAME_CHAR: "ccGameChar",
 } as const;
 
 export const NUMBERS = {

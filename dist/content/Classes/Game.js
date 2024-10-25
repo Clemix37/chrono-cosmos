@@ -13,9 +13,9 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Game_instances, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameComponents, _Game_displayEnergy, _Game_attachEvents, _Game_attachAddOneEnergyBtn;
+var _Game_instances, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameComponents, _Game_displayEnergy, _Game_displayCurrentCharacter, _Game_attachEvents, _Game_attachAddOneEnergyBtn, _Game_attachCharacterSelectEvent;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.game = exports.Game = void 0;
+exports.recreateGame = exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
 const formulas_1 = require("../utils/formulas/formulas");
 const utils_1 = require("../utils/utils");
@@ -29,10 +29,11 @@ class Game {
     //#endregion
     //#region Constructor
     constructor() {
-        var _a;
+        var _a, _b;
         _Game_instances.add(this);
-        this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 3;
+        this.energy = (_a = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.ENERGY)) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
+        this.character = (_b = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.GAME_CHAR)) !== null && _b !== void 0 ? _b : null;
         const gameContent = (0, GameContent_1.getOrCreateGameContent)();
         this.components = gameContent.components;
         this.resources = gameContent.resources;
@@ -56,6 +57,7 @@ class Game {
             components: this.components,
             resources: this.resources,
         }));
+        localStorage.setItem(constants_1.SESSIONS_KEYS.GAME_CHAR, JSON.stringify(this.character));
     }
     /**
      * Remove every item in the local storage
@@ -65,6 +67,7 @@ class Game {
         localStorage.removeItem(constants_1.SESSIONS_KEYS.ENERGY);
         localStorage.removeItem(constants_1.SESSIONS_KEYS.GAME_CONFIG);
         localStorage.removeItem(constants_1.SESSIONS_KEYS.GAME_CONTENT);
+        localStorage.removeItem(constants_1.SESSIONS_KEYS.GAME_CHAR);
     }
     /**
      * Based on the status of the config,
@@ -79,12 +82,14 @@ class Game {
                 case constants_1.GameStatus.characterCreation:
                     yield (0, characterCreationScreen_1.launchGameCharacterCreationScreen)();
                     (0, characterCreationScreen_1.displayRandomCharacters)();
+                    __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachCharacterSelectEvent).call(this);
                     break;
                 case constants_1.GameStatus.playing:
                 case constants_1.GameStatus.paused:
                     yield (0, playingScreen_1.launchGameScreen)(this.config);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachAddOneEnergyBtn).call(this);
+                    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayCurrentCharacter).call(this);
                     break;
                 case constants_1.GameStatus.over:
                     yield (0, endScreen_1.launchGameEndScreen)();
@@ -155,6 +160,10 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
     if (!energyCounter)
         return;
     energyCounter.textContent = `${(0, formulas_1.formatEnergy)(ernegy)}⚡`;
+}, _Game_displayCurrentCharacter = function _Game_displayCurrentCharacter() {
+    var _a, _b, _c;
+    const divDisplayChar = document.getElementById(constants_1.IDS_GAME_DIVS.DISPLAY_CHAR);
+    divDisplayChar.innerHTML = `<span>Speed: ${(_a = this.character) === null || _a === void 0 ? void 0 : _a.speed}, Strength: ${(_b = this.character) === null || _b === void 0 ? void 0 : _b.strength}, Intelligence: ${(_c = this.character) === null || _c === void 0 ? void 0 : _c.intelligence}</span>`;
 }, _Game_attachEvents = function _Game_attachEvents() {
     const all = [...this.components, ...this.resources];
     for (let i = 0; i < all.length; i++) {
@@ -182,7 +191,26 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
         this.energy += 1;
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
     });
+}, _Game_attachCharacterSelectEvent = function _Game_attachCharacterSelectEvent() {
+    const btnSelectChar = document.querySelectorAll(`.${constants_1.CLASSES_GAME.SELECT_CHARACTER}`);
+    const auClic = (e) => {
+        const id = e.target.dataset.id;
+        const char = (0, characterCreationScreen_1.getCharacterGeneratedById)(id);
+        this.character = char;
+        // Saves the current character selected
+        this.saveGame();
+        this.changeStatus(constants_1.GameStatus.playing);
+    };
+    for (let i = 0; i < btnSelectChar.length; i++) {
+        const btn = btnSelectChar[i];
+        btn.removeEventListener("click", auClic);
+        btn.addEventListener("click", auClic);
+    }
 };
-const game = new Game();
-exports.game = game;
-game.init();
+let game;
+function recreateGame() {
+    exports.game = game = new Game();
+    game.init();
+}
+exports.recreateGame = recreateGame;
+recreateGame();

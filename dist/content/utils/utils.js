@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hideOtherDivsThan = void 0;
+exports.generateRandomId = exports.hideOtherDivsThan = void 0;
 const constants_1 = require("./constants");
 /**
  * Hides every game div but the one in parameter
@@ -31,4 +31,12 @@ const hideOtherDivsThan = (idDivToShow) => {
     }
 };
 exports.hideOtherDivsThan = hideOtherDivsThan;
+/**
+ * Generates a unique id
+ * @returns {string}
+ */
+function generateRandomId() {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+}
+exports.generateRandomId = generateRandomId;
 __exportStar(require("./configs/configs"), exports);

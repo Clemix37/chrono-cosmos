@@ -2,6 +2,8 @@ import Character from "../Classes/Character";
 import { CHARACTER_STATS, IDS_GAME_DIVS, NB_RANDOM_CHARACTER } from "../utils/constants";
 import { toDecimal } from "../utils/formulas/formulas";
 
+let charactersGenerated: Character[] = [];
+
 //#region Random generation
 
 function generateRandomStat(keyStat: "speed" | "strength" | "intelligence"): number {
@@ -14,7 +16,7 @@ function generateRandomStat(keyStat: "speed" | "strength" | "intelligence"): num
 }
 
 function generateThreeRandomCharacters(): Character[] {
-	const characters: Character[] = [];
+	charactersGenerated = [];
 	for (let i = 0; i < NB_RANDOM_CHARACTER; i++) {
 		const [speed, strength, intelligence] = [
 			generateRandomStat("speed"),
@@ -22,12 +24,21 @@ function generateThreeRandomCharacters(): Character[] {
 			generateRandomStat("intelligence"),
 		];
 		const newChar: Character = new Character({ speed, strength, intelligence });
-		characters.push(newChar);
+		charactersGenerated.push(newChar);
 	}
-	return characters;
+	return charactersGenerated;
 }
 
 //#endregion
+
+/**
+ * Returns the character generated from its id
+ * @returns {Character}
+ */
+function getCharacterGeneratedById(id: string): Character {
+	console.log(charactersGenerated);
+	return charactersGenerated.find((char) => char.id === id) as Character;
+}
 
 function getRandomCharacters(): string {
 	const characters: Character[] = generateThreeRandomCharacters();
@@ -55,4 +66,4 @@ async function launchGameCharacterCreationScreen(): Promise<void> {
 	document.body.innerHTML = htmlContent;
 }
 
-export { launchGameCharacterCreationScreen, displayRandomCharacters };
+export { launchGameCharacterCreationScreen, displayRandomCharacters, getCharacterGeneratedById };

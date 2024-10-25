@@ -2,10 +2,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const constants_1 = require("../utils/constants");
+const utils_1 = require("../utils/utils");
 class Character {
     //#endregion
     //#region Constructor
     constructor({ speed, strength, intelligence }) {
+        this.id = (0, utils_1.generateRandomId)();
         this.name = constants_1.CHARACTER_PROPS.NAME;
         this.age = constants_1.CHARACTER_PROPS.AGE;
         this.speed = speed;
@@ -22,14 +24,14 @@ class Character {
 				<h3>Speed: <em>${this.speed}</em></h3>
 				<h3>Strength: <em>${this.strength}</em></h3>
 				<h3>Intelligence: <em>${this.intelligence}</em></h3>
-				<button class="btn btn-primary ${constants_1.CLASSES_GAME.SELECT_CHARACTER}">Select</button>
+				<button data-id="${this.id}" class="btn btn-primary ${constants_1.CLASSES_GAME.SELECT_CHARACTER}">Select</button>
 			</div>
 		`;
     }
 }
 exports.default = Character;
 
-},{"../utils/constants":10}],2:[function(require,module,exports){
+},{"../utils/constants":10,"../utils/utils":15}],2:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -45,9 +47,9 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Game_instances, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameComponents, _Game_displayEnergy, _Game_attachEvents, _Game_attachAddOneEnergyBtn;
+var _Game_instances, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameComponents, _Game_displayEnergy, _Game_displayCurrentCharacter, _Game_attachEvents, _Game_attachAddOneEnergyBtn, _Game_attachCharacterSelectEvent;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.game = exports.Game = void 0;
+exports.recreateGame = exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
 const formulas_1 = require("../utils/formulas/formulas");
 const utils_1 = require("../utils/utils");
@@ -61,10 +63,11 @@ class Game {
     //#endregion
     //#region Constructor
     constructor() {
-        var _a;
+        var _a, _b;
         _Game_instances.add(this);
-        this.energy = (_a = (0, data_1.getDataFromLocalStorage)("energyCounter")) !== null && _a !== void 0 ? _a : 3;
+        this.energy = (_a = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.ENERGY)) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
+        this.character = (_b = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.GAME_CHAR)) !== null && _b !== void 0 ? _b : null;
         const gameContent = (0, GameContent_1.getOrCreateGameContent)();
         this.components = gameContent.components;
         this.resources = gameContent.resources;
@@ -88,6 +91,7 @@ class Game {
             components: this.components,
             resources: this.resources,
         }));
+        localStorage.setItem(constants_1.SESSIONS_KEYS.GAME_CHAR, JSON.stringify(this.character));
     }
     /**
      * Remove every item in the local storage
@@ -97,6 +101,7 @@ class Game {
         localStorage.removeItem(constants_1.SESSIONS_KEYS.ENERGY);
         localStorage.removeItem(constants_1.SESSIONS_KEYS.GAME_CONFIG);
         localStorage.removeItem(constants_1.SESSIONS_KEYS.GAME_CONTENT);
+        localStorage.removeItem(constants_1.SESSIONS_KEYS.GAME_CHAR);
     }
     /**
      * Based on the status of the config,
@@ -111,12 +116,14 @@ class Game {
                 case constants_1.GameStatus.characterCreation:
                     yield (0, characterCreationScreen_1.launchGameCharacterCreationScreen)();
                     (0, characterCreationScreen_1.displayRandomCharacters)();
+                    __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachCharacterSelectEvent).call(this);
                     break;
                 case constants_1.GameStatus.playing:
                 case constants_1.GameStatus.paused:
                     yield (0, playingScreen_1.launchGameScreen)(this.config);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachAddOneEnergyBtn).call(this);
+                    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayCurrentCharacter).call(this);
                     break;
                 case constants_1.GameStatus.over:
                     yield (0, endScreen_1.launchGameEndScreen)();
@@ -187,6 +194,10 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
     if (!energyCounter)
         return;
     energyCounter.textContent = `${(0, formulas_1.formatEnergy)(ernegy)}⚡`;
+}, _Game_displayCurrentCharacter = function _Game_displayCurrentCharacter() {
+    var _a, _b, _c;
+    const divDisplayChar = document.getElementById(constants_1.IDS_GAME_DIVS.DISPLAY_CHAR);
+    divDisplayChar.innerHTML = `<span>Speed: ${(_a = this.character) === null || _a === void 0 ? void 0 : _a.speed}, Strength: ${(_b = this.character) === null || _b === void 0 ? void 0 : _b.strength}, Intelligence: ${(_c = this.character) === null || _c === void 0 ? void 0 : _c.intelligence}</span>`;
 }, _Game_attachEvents = function _Game_attachEvents() {
     const all = [...this.components, ...this.resources];
     for (let i = 0; i < all.length; i++) {
@@ -214,10 +225,29 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
         this.energy += 1;
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
     });
+}, _Game_attachCharacterSelectEvent = function _Game_attachCharacterSelectEvent() {
+    const btnSelectChar = document.querySelectorAll(`.${constants_1.CLASSES_GAME.SELECT_CHARACTER}`);
+    const auClic = (e) => {
+        const id = e.target.dataset.id;
+        const char = (0, characterCreationScreen_1.getCharacterGeneratedById)(id);
+        this.character = char;
+        // Saves the current character selected
+        this.saveGame();
+        this.changeStatus(constants_1.GameStatus.playing);
+    };
+    for (let i = 0; i < btnSelectChar.length; i++) {
+        const btn = btnSelectChar[i];
+        btn.removeEventListener("click", auClic);
+        btn.addEventListener("click", auClic);
+    }
 };
-const game = new Game();
-exports.game = game;
-game.init();
+let game;
+function recreateGame() {
+    exports.game = game = new Game();
+    game.init();
+}
+exports.recreateGame = recreateGame;
+recreateGame();
 
 },{"../screens/characterCreationScreen":4,"../screens/endScreen":5,"../screens/playingScreen":6,"../screens/startScreen":7,"../utils/constants":10,"../utils/data/data":12,"../utils/formulas/formulas":14,"../utils/utils":15,"./GameContent":3}],3:[function(require,module,exports){
 "use strict";
@@ -382,10 +412,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.displayRandomCharacters = exports.launchGameCharacterCreationScreen = void 0;
+exports.getCharacterGeneratedById = exports.displayRandomCharacters = exports.launchGameCharacterCreationScreen = void 0;
 const Character_1 = __importDefault(require("../Classes/Character"));
 const constants_1 = require("../utils/constants");
 const formulas_1 = require("../utils/formulas/formulas");
+let charactersGenerated = [];
 //#region Random generation
 function generateRandomStat(keyStat) {
     const [minValue, maxValue, weight] = constants_1.CHARACTER_STATS[keyStat];
@@ -396,7 +427,7 @@ function generateRandomStat(keyStat) {
     return (0, formulas_1.toDecimal)(probas[Math.floor(Math.random() * probas.length)], 2);
 }
 function generateThreeRandomCharacters() {
-    const characters = [];
+    charactersGenerated = [];
     for (let i = 0; i < constants_1.NB_RANDOM_CHARACTER; i++) {
         const [speed, strength, intelligence] = [
             generateRandomStat("speed"),
@@ -404,11 +435,20 @@ function generateThreeRandomCharacters() {
             generateRandomStat("intelligence"),
         ];
         const newChar = new Character_1.default({ speed, strength, intelligence });
-        characters.push(newChar);
+        charactersGenerated.push(newChar);
     }
-    return characters;
+    return charactersGenerated;
 }
 //#endregion
+/**
+ * Returns the character generated from its id
+ * @returns {Character}
+ */
+function getCharacterGeneratedById(id) {
+    console.log(charactersGenerated);
+    return charactersGenerated.find((char) => char.id === id);
+}
+exports.getCharacterGeneratedById = getCharacterGeneratedById;
 function getRandomCharacters() {
     const characters = generateThreeRandomCharacters();
     return characters.reduce((previousDisplay, actualChar) => `${previousDisplay}${actualChar.getDisplayTemplate()}`, "");
@@ -530,6 +570,7 @@ function attachEventClearData() {
         return;
     btnClearData.addEventListener("click", () => {
         Game_1.game.clearDataFromLocalStorage();
+        (0, Game_1.recreateGame)();
     });
 }
 
@@ -621,6 +662,7 @@ exports.getDefaultComponents = getDefaultComponents;
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDefaultConfig = exports.getOrCreateConfig = void 0;
+const constants_1 = require("../constants");
 const data_1 = require("../data/data");
 /**
  * Create the default config and returns it
@@ -643,7 +685,7 @@ exports.getDefaultConfig = getDefaultConfig;
  * @returns {IGameConfig}
  */
 function getOrCreateConfig() {
-    let gameConfig = (0, data_1.getDataFromLocalStorage)("gameConfig");
+    let gameConfig = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.GAME_CONFIG);
     if (!gameConfig)
         gameConfig = getDefaultConfig();
     saveConfigInLocalStorage(gameConfig);
@@ -658,7 +700,7 @@ function saveConfigInLocalStorage(gameConfig) {
     localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
 }
 
-},{"../data/data":12}],10:[function(require,module,exports){
+},{"../constants":10,"../data/data":12}],10:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CHARACTER_PROPS = exports.CHARACTER_STATS = exports.CHARACTER_PROPS_STATS = exports.NB_RANDOM_CHARACTER = exports.NUMBERS = exports.SESSIONS_KEYS = exports.COLORS = exports.IDS_BTNS_SCREENS = exports.GameStatus = exports.CLASSES_GAME = exports.IDS_GAME_DIVS = void 0;
@@ -666,6 +708,7 @@ exports.IDS_GAME_DIVS = {
     GAME_START: "div-game-start-screen",
     CHARACTER_CREATION: "div-character-creation-screen",
     LIST_CHARACTERS: "div-list-characters",
+    DISPLAY_CHAR: "div-display-character",
     GAME_END: "div-game-end-screen",
     GAME: "div-game-content",
 };
@@ -702,9 +745,10 @@ exports.COLORS = {
     TERTIARY: "#D1345B",
 };
 exports.SESSIONS_KEYS = {
-    GAME_CONFIG: "gameConfig",
-    GAME_CONTENT: "gameContent",
-    ENERGY: "energyCounter",
+    GAME_CONFIG: "ccGameConfig",
+    GAME_CONTENT: "ccGameContent",
+    ENERGY: "ccEnergyCounter",
+    GAME_CHAR: "ccGameChar",
 };
 exports.NUMBERS = {
     THOUSAND: 1e3,
@@ -1046,7 +1090,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hideOtherDivsThan = void 0;
+exports.generateRandomId = exports.hideOtherDivsThan = void 0;
 const constants_1 = require("./constants");
 /**
  * Hides every game div but the one in parameter
@@ -1063,6 +1107,14 @@ const hideOtherDivsThan = (idDivToShow) => {
     }
 };
 exports.hideOtherDivsThan = hideOtherDivsThan;
+/**
+ * Generates a unique id
+ * @returns {string}
+ */
+function generateRandomId() {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+}
+exports.generateRandomId = generateRandomId;
 __exportStar(require("./configs/configs"), exports);
 
 },{"./configs/configs":9,"./constants":10}]},{},[2]);

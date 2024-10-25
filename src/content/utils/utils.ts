@@ -14,5 +14,13 @@ const hideOtherDivsThan = (idDivToShow: string): void => {
 	}
 };
 
+/**
+ * Generates a unique id
+ * @returns {string}
+ */
+function generateRandomId(): string {
+	return Date.now().toString(36) + Math.random().toString(36).substring(2);
+}
+
 export * from "./configs/configs";
-export { hideOtherDivsThan };
+export { hideOtherDivsThan, generateRandomId };

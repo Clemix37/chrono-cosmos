@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.displayRandomCharacters = exports.launchGameCharacterCreationScreen = void 0;
+exports.getCharacterGeneratedById = exports.displayRandomCharacters = exports.launchGameCharacterCreationScreen = void 0;
 const Character_1 = __importDefault(require("../Classes/Character"));
 const constants_1 = require("../utils/constants");
 const formulas_1 = require("../utils/formulas/formulas");
+let charactersGenerated = [];
 //#region Random generation
 function generateRandomStat(keyStat) {
     const [minValue, maxValue, weight] = constants_1.CHARACTER_STATS[keyStat];
@@ -26,7 +27,7 @@ function generateRandomStat(keyStat) {
     return (0, formulas_1.toDecimal)(probas[Math.floor(Math.random() * probas.length)], 2);
 }
 function generateThreeRandomCharacters() {
-    const characters = [];
+    charactersGenerated = [];
     for (let i = 0; i < constants_1.NB_RANDOM_CHARACTER; i++) {
         const [speed, strength, intelligence] = [
             generateRandomStat("speed"),
@@ -34,11 +35,20 @@ function generateThreeRandomCharacters() {
             generateRandomStat("intelligence"),
         ];
         const newChar = new Character_1.default({ speed, strength, intelligence });
-        characters.push(newChar);
+        charactersGenerated.push(newChar);
     }
-    return characters;
+    return charactersGenerated;
 }
 //#endregion
+/**
+ * Returns the character generated from its id
+ * @returns {Character}
+ */
+function getCharacterGeneratedById(id) {
+    console.log(charactersGenerated);
+    return charactersGenerated.find((char) => char.id === id);
+}
+exports.getCharacterGeneratedById = getCharacterGeneratedById;
 function getRandomCharacters() {
     const characters = generateThreeRandomCharacters();
     return characters.reduce((previousDisplay, actualChar) => `${previousDisplay}${actualChar.getDisplayTemplate()}`, "");

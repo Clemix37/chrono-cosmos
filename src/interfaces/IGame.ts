@@ -5,9 +5,9 @@ import IGameConfig from "./IGameConfig";
 
 export default interface IGame {
 	energy: number; // Energy gained
-	// character: Character; // Character the player is playing
 	config: IGameConfig; // Game configuration
 	resources: GameContent[]; // Resources collected
 	components: GameContent[]; // Components collected
+	character?: Character; // Character the player is playing
 	timeTravelGames?: Game[]; // Possible previous games before travel
 }

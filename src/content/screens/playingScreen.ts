@@ -1,5 +1,5 @@
 import IGameConfig from "../../interfaces/IGameConfig";
-import { game } from "../Classes/Game";
+import { game, recreateGame } from "../Classes/Game";
 import { IDS_BTNS_SCREENS } from "../utils/constants";
 // import { changeGameStatus, getGameConfig } from "../gameConfig";
 
@@ -57,6 +57,7 @@ function attachEventClearData() {
 	if (!btnClearData) return;
 	btnClearData.addEventListener("click", () => {
 		game.clearDataFromLocalStorage();
+		recreateGame();
 	});
 }
 

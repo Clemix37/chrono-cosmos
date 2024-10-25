@@ -7,8 +7,12 @@ import { GameContent, getNextGameContent, getOrCreateGameContent } from "./GameC
 import { launchGameScreen } from "../screens/playingScreen";
 import { launchGameStartScreen } from "../screens/startScreen";
 import { launchGameEndScreen } from "../screens/endScreen";
-import { GameStatus, SESSIONS_KEYS } from "../utils/constants";
-import { displayRandomCharacters, launchGameCharacterCreationScreen } from "../screens/characterCreationScreen";
+import { CLASSES_GAME, GameStatus, IDS_GAME_DIVS, SESSIONS_KEYS } from "../utils/constants";
+import {
+	displayRandomCharacters,
+	getCharacterGeneratedById,
+	launchGameCharacterCreationScreen,
+} from "../screens/characterCreationScreen";
 import Character from "./Character";
 
 export class Game implements IGame {
@@ -18,10 +22,6 @@ export class Game implements IGame {
 	 * Energy counter
 	 */
 	energy: number;
-	/**
-	 * Character the player is playing
-	 */
-	// character: Character;
 	/**
 	 * Game config
 	 */
@@ -34,6 +34,10 @@ export class Game implements IGame {
 	 * Game resources
 	 */
 	resources: GameContent[];
+	/**
+	 * Character the player is playing
+	 */
+	character?: Character;
 	/**
 	 * Game passed as the player traveled through time
 	 */
@@ -48,8 +52,9 @@ export class Game implements IGame {
 	//#region Constructor
 
 	constructor() {
-		this.energy = getDataFromLocalStorage("energyCounter") ?? 3;
+		this.energy = getDataFromLocalStorage(SESSIONS_KEYS.ENERGY) ?? 3;
 		this.config = getOrCreateConfig();
+		this.character = getDataFromLocalStorage(SESSIONS_KEYS.GAME_CHAR) ?? null;
 		const gameContent = getOrCreateGameContent();
 		this.components = gameContent.components;
 		this.resources = gameContent.resources;
@@ -80,6 +85,7 @@ export class Game implements IGame {
 				resources: this.resources,
 			}),
 		);
+		localStorage.setItem(SESSIONS_KEYS.GAME_CHAR, JSON.stringify(this.character));
 	}
 
 	/**
@@ -90,6 +96,7 @@ export class Game implements IGame {
 		localStorage.removeItem(SESSIONS_KEYS.ENERGY);
 		localStorage.removeItem(SESSIONS_KEYS.GAME_CONFIG);
 		localStorage.removeItem(SESSIONS_KEYS.GAME_CONTENT);
+		localStorage.removeItem(SESSIONS_KEYS.GAME_CHAR);
 	}
 
 	/**
@@ -104,12 +111,14 @@ export class Game implements IGame {
 			case GameStatus.characterCreation:
 				await launchGameCharacterCreationScreen();
 				displayRandomCharacters();
+				this.#attachCharacterSelectEvent();
 				break;
 			case GameStatus.playing:
 			case GameStatus.paused:
 				await launchGameScreen(this.config);
 				this.#displayAndAttachGameContents();
 				this.#attachAddOneEnergyBtn();
+				this.#displayCurrentCharacter();
 				break;
 			case GameStatus.over:
 				await launchGameEndScreen();
@@ -212,6 +221,14 @@ export class Game implements IGame {
 		energyCounter.textContent = `${formatEnergy(ernegy)}⚡`;
 	}
 
+	/**
+	 * Display the current character
+	 */
+	#displayCurrentCharacter(): void {
+		const divDisplayChar: HTMLDivElement = document.getElementById(IDS_GAME_DIVS.DISPLAY_CHAR) as HTMLDivElement;
+		divDisplayChar.innerHTML = `<span>Speed: ${this.character?.speed}, Strength: ${this.character?.strength}, Intelligence: ${this.character?.intelligence}</span>`;
+	}
+
 	//#endregion
 
 	//#region Events
@@ -249,12 +266,38 @@ export class Game implements IGame {
 		});
 	}
 
+	/**
+	 * Attach the event button select character
+	 */
+	#attachCharacterSelectEvent(): void {
+		const btnSelectChar = document.querySelectorAll(`.${CLASSES_GAME.SELECT_CHARACTER}`);
+		const auClic = (e: any) => {
+			const id = e.target.dataset.id;
+			const char: Character = getCharacterGeneratedById(id);
+			this.character = char;
+			// Saves the current character selected
+			this.saveGame();
+			this.changeStatus(GameStatus.playing);
+		};
+		for (let i = 0; i < btnSelectChar.length; i++) {
+			const btn = btnSelectChar[i];
+			btn.removeEventListener("click", auClic);
+			btn.addEventListener("click", auClic);
+		}
+	}
+
 	//#endregion
 
 	//#endregion
 }
 
-const game = new Game();
-game.init();
+let game: Game;
 
-export { game };
+function recreateGame() {
+	game = new Game();
+	game.init();
+}
+
+recreateGame();
+
+export { game, recreateGame };

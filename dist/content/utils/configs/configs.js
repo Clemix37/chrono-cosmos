@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDefaultConfig = exports.getOrCreateConfig = void 0;
+const constants_1 = require("../constants");
 const data_1 = require("../data/data");
 /**
  * Create the default config and returns it
@@ -23,7 +24,7 @@ exports.getDefaultConfig = getDefaultConfig;
  * @returns {IGameConfig}
  */
 function getOrCreateConfig() {
-    let gameConfig = (0, data_1.getDataFromLocalStorage)("gameConfig");
+    let gameConfig = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.GAME_CONFIG);
     if (!gameConfig)
         gameConfig = getDefaultConfig();
     saveConfigInLocalStorage(gameConfig);
