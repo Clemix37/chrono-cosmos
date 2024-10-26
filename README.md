@@ -10,7 +10,7 @@ Take great care, you could die outside of your base ...
 ## Design
 
 This would be the desirable design:  
-![ChronoCosmos](https://github.com/Clemix37/chrono-cosmos/blob/master/img/maquette_dall_e_chatgpt.png?raw=true)
+![ChronoCosmos](https://github.com/Clemix37/chrono-cosmos/blob/main/img/maquette_dall_e_chatgpt.png?raw=true)
 
 ## Development
 
