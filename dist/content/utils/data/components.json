@@ -20,7 +20,7 @@
             "name": "Cup",
             "type": "component",
             "gainPerSecond": 0.2,
-            "baseCost": 5,
+            "baseCost": 30,
             "exponent": 2.1,
             "level": 0,
             "maxLevel": 10000
@@ -30,7 +30,7 @@
             "name": "Bowl",
             "type": "component",
             "gainPerSecond": 0.5,
-            "baseCost": 10,
+            "baseCost": 100,
             "exponent": 2.2,
             "level": 0,
             "maxLevel": 10000
@@ -40,7 +40,7 @@
             "name": "Plate",
             "type": "component",
             "gainPerSecond": 1,
-            "baseCost": 15,
+            "baseCost": 350,
             "exponent": 2.3,
             "level": 0,
             "maxLevel": 10000
@@ -50,7 +50,7 @@
             "name": "Tray",
             "type": "component",
             "gainPerSecond": 2,
-            "baseCost": 30,
+            "baseCost": 1000,
             "exponent": 2.4,
             "level": 0,
             "maxLevel": 10000
@@ -60,7 +60,7 @@
             "name": "Pitcher",
             "type": "component",
             "gainPerSecond": 5,
-            "baseCost": 50,
+            "baseCost": 5000,
             "exponent": 2.5,
             "level": 0,
             "maxLevel": 10000
@@ -70,7 +70,7 @@
             "name": "Cooking Pot",
             "type": "component",
             "gainPerSecond": 10,
-            "baseCost": 75,
+            "baseCost": 17500,
             "exponent": 2.6,
             "level": 0,
             "maxLevel": 10000
@@ -80,7 +80,7 @@
             "name": "Oven",
             "type": "component",
             "gainPerSecond": 20,
-            "baseCost": 100,
+            "baseCost": 50000,
             "exponent": 2.7,
             "level": 0,
             "maxLevel": 10000
@@ -90,7 +90,7 @@
             "name": "Stove",
             "type": "component",
             "gainPerSecond": 50,
-            "baseCost": 150,
+            "baseCost": 200000,
             "exponent": 2.8,
             "level": 0,
             "maxLevel": 10000
@@ -100,7 +100,7 @@
             "name": "Microwave",
             "type": "component",
             "gainPerSecond": 100,
-            "baseCost": 200,
+            "baseCost": 750000,
             "exponent": 2.9,
             "level": 0,
             "maxLevel": 10000
@@ -110,7 +110,7 @@
             "name": "Fridge",
             "type": "component",
             "gainPerSecond": 200,
-            "baseCost": 300,
+            "baseCost": 2000000,
             "exponent": 3.0,
             "level": 0,
             "maxLevel": 10000

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formatEnergy = exports.toDecimal = void 0;
+exports.getCostUpgraded = exports.formatEnergy = exports.toDecimal = void 0;
 const constants_1 = require("../constants");
 /**
  * Returns the number with the number of decimal wanted
@@ -30,3 +30,15 @@ const formatEnergy = (energy) => {
         return "";
 };
 exports.formatEnergy = formatEnergy;
+/**
+ * Calculate the new cost based on base cost, exponent and actual level
+ * @param baseCost
+ * @param exponent
+ * @param level
+ * @returns {number}
+ */
+function getCostUpgraded(baseCost, exponent, level) {
+    const resultFormula = baseCost * Math.pow(exponent, (level - 1));
+    return Math.ceil(resultFormula);
+}
+exports.getCostUpgraded = getCostUpgraded;

@@ -1,4 +1,5 @@
 import { GameContent } from "../src/content/Classes/GameContent";
+import { getCostUpgraded } from "../src/content/utils/formulas/formulas";
 import IGameContent from "../src/interfaces/IGameContent";
 
 const gameContent: IGameContent = {
@@ -41,6 +42,6 @@ test("game content upgrade correct", () => {
 	expect(newGameContent.level).toBe(oldLevel + 1);
 	expect(newGameContent.upgradeCost).toBeDefined();
 	expect(newGameContent.upgradeCost).toBe(
-		Math.ceil(newGameContent.baseCost * (oldLevel + 1) ** newGameContent.exponent),
+		getCostUpgraded(newGameContent.baseCost, newGameContent.exponent, oldLevel + 1),
 	);
 });

@@ -4,6 +4,7 @@ import { GameContent } from "../content/Classes/GameContent";
 import IGameConfig from "./IGameConfig";
 
 export default interface IGame {
+	spaceshipLevel: number; // The level of the current spaceship
 	energy: number; // Energy gained
 	config: IGameConfig; // Game configuration
 	resources: GameContent[]; // Resources collected

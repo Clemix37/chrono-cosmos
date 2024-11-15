@@ -65,6 +65,7 @@ class Game {
     constructor() {
         var _a, _b;
         _Game_instances.add(this);
+        this.spaceshipLevel = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.SPACESHIP_LEVEL);
         this.energy = (_a = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.ENERGY)) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
         this.character = (_b = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.GAME_CHAR)) !== null && _b !== void 0 ? _b : null;
@@ -119,7 +120,6 @@ class Game {
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachCharacterSelectEvent).call(this);
                     break;
                 case constants_1.GameStatus.playing:
-                case constants_1.GameStatus.paused:
                     yield (0, playingScreen_1.launchGameScreen)(this.config);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachAddOneEnergyBtn).call(this);
@@ -139,22 +139,9 @@ class Game {
         this.config.status = newStatus;
         this.launchActualScreen();
     }
-    /**
-     * Gets the game components displayed and gets the next
-     * Display them and attach events if necessary
-     */
-    checkForNewContent() {
-        const idsContentAlreadyDisplayed = [
-            ...this.resources.map((res) => res.id),
-            ...this.components.map((comp) => comp.id),
-        ];
-        const nextContent = (0, GameContent_1.getNextGameContent)(this.energy, idsContentAlreadyDisplayed);
-        if (nextContent.components.length > 0)
-            this.components.push(...nextContent.components);
-        if (nextContent.resources.length > 0)
-            this.resources.push(...nextContent.resources);
-        if (nextContent.components.length > 0 || nextContent.resources.length > 0)
-            __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
+    upgradeSpaceship() {
+        this.spaceshipLevel++;
+        // TODO: update some stuff
     }
 }
 exports.Game = Game;
@@ -167,30 +154,25 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
         const gainResources = this.resources.reduce((acc, res) => acc + res.level * res.gainPerSecond, 0);
         this.energy = (0, formulas_1.toDecimal)(this.energy + gainComponents + gainResources);
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
+        __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         this.saveGame();
-        this.checkForNewContent();
     }, 1000);
 }, _Game_displayAndAttachGameContents = function _Game_displayAndAttachGameContents() {
     if (!!this._interval)
         clearInterval(this._interval);
     this.saveGame();
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameComponents).call(this, "components-content", this.components);
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameComponents).call(this, "resources-content", this.resources);
+    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameComponents).call(this, [...this.components, ...this.resources].sort((a, b) => { var _a, _b; return ((_a = a.upgradeCost) !== null && _a !== void 0 ? _a : 0) - ((_b = b.upgradeCost) !== null && _b !== void 0 ? _b : 0); }));
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachEvents).call(this);
     if (this.config.status === "playing")
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_countEverySecond).call(this);
-}, _Game_displayGameComponents = function _Game_displayGameComponents(id, contents) {
-    const div = document.getElementById(id);
+}, _Game_displayGameComponents = function _Game_displayGameComponents(contents) {
+    const div = document.getElementById("div-game-contents-shop");
     if (!div)
         return;
-    div.innerHTML = "";
-    for (let i = 0; i < contents.length; i++) {
-        const comp = contents[i];
-        const contentHml = comp.getHtmlTemplateGameContent(this.config.status === "paused");
-        div.innerHTML += contentHml;
-    }
+    const display = contents.reduce((prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`, ``);
+    div.innerHTML = display;
 }, _Game_displayEnergy = function _Game_displayEnergy(ernegy) {
-    const energyCounter = document.getElementById("energyCounter");
+    const energyCounter = document.getElementById("lbl-energy-counter");
     if (!energyCounter)
         return;
     energyCounter.textContent = `${(0, formulas_1.formatEnergy)(ernegy)}⚡`;
@@ -251,20 +233,14 @@ recreateGame();
 
 },{"../screens/characterCreationScreen":4,"../screens/endScreen":5,"../screens/playingScreen":6,"../screens/startScreen":7,"../utils/constants":10,"../utils/data/data":12,"../utils/formulas/formulas":14,"../utils/utils":15,"./GameContent":3}],3:[function(require,module,exports){
 "use strict";
-var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
-    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
-    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
-    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _GameContent_instances, _GameContent_upgradeCostWithFormula, _GameContent_getHtmlLine;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getNextGameContent = exports.getOrCreateGameContent = exports.GameContent = void 0;
-const resources_json_1 = __importDefault(require("../utils/data/resources.json"));
+exports.getOrCreateGameContent = exports.GameContent = void 0;
 const components_json_1 = __importDefault(require("../utils/data/components.json"));
 const components_1 = require("../utils/components/components");
+const formulas_1 = require("../utils/formulas/formulas");
 /**
  * Gets the components and returns them as GameContent array
  * @returns {object}
@@ -297,47 +273,17 @@ function getOrCreateGameContent() {
     };
 }
 exports.getOrCreateGameContent = getOrCreateGameContent;
-/**
- * Gets and returns the first component and resource of the game, which are the default ones
- * @returns {object}
- */
-function getDefaultGameContent() {
-    const firstResourceConfig = resources_json_1.default.resources[0];
-    const firstComponentConfig = components_json_1.default.components[0];
-    const content = {
-        components: [new GameContent(firstComponentConfig)],
-        resources: [new GameContent(firstResourceConfig)],
-    };
-    return content;
-}
-/**
- * Based on the energy in parameter and the ids of the game components displayed,
- * 	Gets the next game components to display
- * @param energy
- * @param idsComponentsDisplayed
- * @returns {object}
- */
-function getNextGameContent(energy, idsComponentsDisplayed) {
-    const minEnergy = 1.2 * energy;
-    const comps = components_json_1.default.components
-        .filter((comp) => comp.baseCost <= minEnergy && !idsComponentsDisplayed.includes(comp.id))
-        .map((comp) => new GameContent(comp));
-    const res = resources_json_1.default.resources
-        .filter((res) => res.baseCost <= minEnergy && !idsComponentsDisplayed.includes(res.id))
-        .map((res) => new GameContent(res));
-    return {
-        components: comps,
-        resources: res,
-    };
-}
-exports.getNextGameContent = getNextGameContent;
 class GameContent {
     // btn: HTMLButtonElement | null;
     //#endregion
     //#region Constructor
+    /**
+     * Assign every value of the config in argument
+     * @constructor
+     * @param config
+     */
     constructor(config) {
         var _a;
-        _GameContent_instances.add(this);
         this.id = config.id;
         this.name = config.name;
         this.baseCost = config.baseCost;
@@ -356,48 +302,45 @@ class GameContent {
         if (this.level + 1 > this.maxLevel)
             return;
         this.level++;
-        this.upgradeCost = __classPrivateFieldGet(this, _GameContent_instances, "m", _GameContent_upgradeCostWithFormula).call(this);
+        this.upgradeCost = (0, formulas_1.getCostUpgraded)(this.baseCost, this.exponent, this.level);
     }
-    getHtmlTemplateGameContent(isPaused) {
-        const ligneBtn = isPaused
-            ? ""
-            : `
-            <div class="flex height-100 align-items-center">
-                <button class="btn btn-primary btn-game-content" id="${this.idBtn}">${this.upgradeCost}</button>
-            </div>
-        `;
-        const isNew = !this.level;
-        return __classPrivateFieldGet(this, _GameContent_instances, "m", _GameContent_getHtmlLine).call(this, `
-            <div class="flex colonne game-content width-100">
-                <div class="flex">
-					<div class="flex colonne width-100">
-						<div class="flex">
-                    		<h1>${isNew ? "<em style='color: var(--tertiary);'>New</em> - " : ""}${this.name} ${isNew ? "" : `(${this.level})`}</h1>
-						</div>
-						<div class="flex justify-content-center">
-							<h3>
-								<i class="fa-solid fa-coins icon color-yellow margin-right"></i>
-								${this.gainPerSecond}/s
-							</h3>
-						</div>
+    getHtmlTemplateGameContent(energy) {
+        // TODO: display IMAGES
+        return `
+			<div class="flex card colonne">
+				<div class="flex card-header justify-content-space-around align-items-center">
+					<button class="button"
+						style="cursor: default; width: 30px; height: 30px; border-radius: 50%; border: none; background-color: var(--bg); color: var(--accent);">
+						<i class="fas fa-star"></i></button>
+					<h2 style="text-align: center;">${this.name}</h2>
+					<button class="button"
+						style="cursor: default; width: 30px; height: 30px; border-radius: 50%; border: none; background-color: var(--bg); color: var(--accent);">
+						<i class="fas fa-star"></i>
+					</button>
+				</div>
+				<div class="flex card-content colonne align-items-center height-100 justify-content-center">
+					<div class="flex card-image-content">
+						<!-- <img src="https://github.com/Clemix37/chrono-cosmos/blob/main/img/maquette_dall_e_chatgpt.png?raw=true"
+							width="50" height="50" /> -->
 					</div>
-					<div class="flex colonne width-100">
-						${ligneBtn}
+					<div class="flex card-content-description">
+						<h3 style="text-align: center;"><em>${this.gainPerSecond}/s.</em> - <em>Level ${this.level}</em></h3>
 					</div>
-                </div>
-            </div>
-        `);
+				</div>
+				<div class="flex card-footer width-100">
+					<button title="Add one" id="${this.idBtn}" class="btn-game-content ${energy < this.upgradeCost ? "not-enough" : ""}">
+						<i class="fas fa-star"></i>
+						<em style="font-size: 2em;">${this.upgradeCost}</em>
+						<i class="fas fa-star"></i>
+					</button>
+				</div>
+			</div>
+		`;
     }
 }
 exports.GameContent = GameContent;
-_GameContent_instances = new WeakSet(), _GameContent_upgradeCostWithFormula = function _GameContent_upgradeCostWithFormula() {
-    const formula = this.baseCost * Math.pow(this.level, this.exponent);
-    return Math.ceil(formula);
-}, _GameContent_getHtmlLine = function _GameContent_getHtmlLine(content) {
-    return `<div class="flex justify-content-center">${content}</div>`;
-};
 
-},{"../utils/components/components":8,"../utils/data/components.json":11,"../utils/data/resources.json":13}],4:[function(require,module,exports){
+},{"../utils/components/components":8,"../utils/data/components.json":11,"../utils/formulas/formulas":14}],4:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -416,6 +359,7 @@ exports.getCharacterGeneratedById = exports.displayRandomCharacters = exports.la
 const Character_1 = __importDefault(require("../Classes/Character"));
 const constants_1 = require("../utils/constants");
 const formulas_1 = require("../utils/formulas/formulas");
+const characterCreationScreenUrl = "./screens/character-creation.html";
 let charactersGenerated = [];
 //#region Random generation
 function generateRandomStat(keyStat) {
@@ -467,7 +411,7 @@ exports.displayRandomCharacters = displayRandomCharacters;
  */
 function launchGameCharacterCreationScreen() {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("./screens/character-creation.html");
+        const res = yield fetch(characterCreationScreenUrl);
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
     });
@@ -487,12 +431,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameEndScreen = void 0;
+const endScreenUrl = "./screens/end.html";
 /**
  * Gets the HTML file of the end screen and display it inside the DOM
  */
 function launchGameEndScreen() {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("./screens/end.html");
+        const res = yield fetch(endScreenUrl);
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
     });
@@ -515,60 +460,30 @@ exports.launchGameScreen = void 0;
 const Game_1 = require("../Classes/Game");
 const constants_1 = require("../utils/constants");
 // import { changeGameStatus, getGameConfig } from "../gameConfig";
+const playingScreenUrl = "./screens/playing.html";
 /**
  * Gets the HTML file playing screen and display it in the DOM
  * @param config
  */
 function launchGameScreen(config) {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("./screens/playing.html");
+        const res = yield fetch(playingScreenUrl);
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
-        displayPausedGame(config.status === "paused");
         attachEvents();
     });
 }
 exports.launchGameScreen = launchGameScreen;
-/**
- * Based on the parameter, hides / displays the pause button and the resume button
- * @param toDisplay
- * @returns {void}
- */
-function displayPausedGame(toDisplay) {
-    const btnGamePause = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.PAUSE);
-    const btnResumeGame = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
-    if (!btnGamePause || !btnResumeGame)
-        return;
-    btnGamePause.style.display = toDisplay ? "none" : "block";
-    btnResumeGame.style.display = toDisplay ? "block" : "none";
-}
 //#region Events
 function attachEvents() {
-    attachEventsPause();
-    attachEventsResume();
     attachEventClearData();
-}
-function attachEventsPause() {
-    const btnGamePause = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.PAUSE);
-    if (!btnGamePause)
-        return;
-    btnGamePause.addEventListener("click", () => {
-        Game_1.game.changeStatus("paused");
-    });
-}
-function attachEventsResume() {
-    const btnResumeGame = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
-    if (!btnResumeGame)
-        return;
-    btnResumeGame.addEventListener("click", () => {
-        Game_1.game.changeStatus("playing");
-    });
 }
 function attachEventClearData() {
     const btnClearData = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.CLEAR_DATA);
     if (!btnClearData)
         return;
     btnClearData.addEventListener("click", () => {
+        clearInterval(Game_1.game._interval); // Clears the interval so that we can empty localStorage
         Game_1.game.clearDataFromLocalStorage();
         (0, Game_1.recreateGame)();
     });
@@ -589,12 +504,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameStartScreen = void 0;
 const Game_1 = require("../Classes/Game");
 const constants_1 = require("../utils/constants");
+const startScreenUrl = "./screens/start.html";
 /**
  * Gets the HTML file of the start screen and display it in the DOM
  */
 function launchGameStartScreen() {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("./screens/start.html");
+        const res = yield fetch(startScreenUrl);
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
         attachEvents();
@@ -624,7 +540,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getDefaultComponents = exports.getOrCreateComponents = void 0;
+exports.getDefaultsComponents = exports.getOrCreateComponents = void 0;
 const GameContent_1 = require("../../Classes/GameContent");
 const data_1 = require("../data/data");
 const resources_json_1 = __importDefault(require("../../utils/data/resources.json"));
@@ -639,24 +555,24 @@ const constants_1 = require("../constants");
 function getOrCreateComponents() {
     let localComp = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.GAME_CONTENT);
     if (!localComp)
-        localComp = getDefaultComponents();
+        localComp = getDefaultsComponents();
     return localComp;
 }
 exports.getOrCreateComponents = getOrCreateComponents;
 /**
- * Creates the default components and returns them
- * @returns {object}
+ * Creates the defaults components and returns them
+ * @returns {{ components: GameContent[], resources: GameContent[] }}
  */
-function getDefaultComponents() {
-    const firstResourceConfig = resources_json_1.default.resources[0];
-    const firstComponentConfig = components_json_1.default.components[0];
+function getDefaultsComponents() {
+    const everyComponents = components_json_1.default.components.map((comp) => new GameContent_1.GameContent(comp));
+    const everyResources = resources_json_1.default.resources.map((comp) => new GameContent_1.GameContent(comp));
     const content = {
-        components: [new GameContent_1.GameContent(firstComponentConfig)],
-        resources: [new GameContent_1.GameContent(firstResourceConfig)],
+        components: everyComponents,
+        resources: everyResources,
     };
     return content;
 }
-exports.getDefaultComponents = getDefaultComponents;
+exports.getDefaultsComponents = getDefaultsComponents;
 
 },{"../../Classes/GameContent":3,"../../utils/data/components.json":11,"../../utils/data/resources.json":13,"../constants":10,"../data/data":12}],9:[function(require,module,exports){
 "use strict";
@@ -719,7 +635,6 @@ exports.GameStatus = {
     notStarted: "not started",
     characterCreation: "character creation",
     playing: "playing",
-    paused: "paused",
     over: "over",
 };
 exports.IDS_BTNS_SCREENS = {
@@ -730,11 +645,7 @@ exports.IDS_BTNS_SCREENS = {
         RESTART: "btnRestartGame",
     },
     GAME: {
-        PAUSE: "btn-pause-game",
         CLEAR_DATA: "btn-clear-data",
-    },
-    GAME_PAUSED: {
-        RESUME: "btn-resume-game",
     },
 };
 exports.COLORS = {
@@ -749,6 +660,7 @@ exports.SESSIONS_KEYS = {
     GAME_CONTENT: "ccGameContent",
     ENERGY: "ccEnergyCounter",
     GAME_CHAR: "ccGameChar",
+    SPACESHIP_LEVEL: "ccSpaceshipLevel",
 };
 exports.NUMBERS = {
     THOUSAND: 1e3,
@@ -798,7 +710,7 @@ module.exports={
             "name": "Cup",
             "type": "component",
             "gainPerSecond": 0.2,
-            "baseCost": 5,
+            "baseCost": 30,
             "exponent": 2.1,
             "level": 0,
             "maxLevel": 10000
@@ -808,7 +720,7 @@ module.exports={
             "name": "Bowl",
             "type": "component",
             "gainPerSecond": 0.5,
-            "baseCost": 10,
+            "baseCost": 100,
             "exponent": 2.2,
             "level": 0,
             "maxLevel": 10000
@@ -818,7 +730,7 @@ module.exports={
             "name": "Plate",
             "type": "component",
             "gainPerSecond": 1,
-            "baseCost": 15,
+            "baseCost": 350,
             "exponent": 2.3,
             "level": 0,
             "maxLevel": 10000
@@ -828,7 +740,7 @@ module.exports={
             "name": "Tray",
             "type": "component",
             "gainPerSecond": 2,
-            "baseCost": 30,
+            "baseCost": 1000,
             "exponent": 2.4,
             "level": 0,
             "maxLevel": 10000
@@ -838,7 +750,7 @@ module.exports={
             "name": "Pitcher",
             "type": "component",
             "gainPerSecond": 5,
-            "baseCost": 50,
+            "baseCost": 5000,
             "exponent": 2.5,
             "level": 0,
             "maxLevel": 10000
@@ -848,7 +760,7 @@ module.exports={
             "name": "Cooking Pot",
             "type": "component",
             "gainPerSecond": 10,
-            "baseCost": 75,
+            "baseCost": 17500,
             "exponent": 2.6,
             "level": 0,
             "maxLevel": 10000
@@ -858,7 +770,7 @@ module.exports={
             "name": "Oven",
             "type": "component",
             "gainPerSecond": 20,
-            "baseCost": 100,
+            "baseCost": 50000,
             "exponent": 2.7,
             "level": 0,
             "maxLevel": 10000
@@ -868,7 +780,7 @@ module.exports={
             "name": "Stove",
             "type": "component",
             "gainPerSecond": 50,
-            "baseCost": 150,
+            "baseCost": 200000,
             "exponent": 2.8,
             "level": 0,
             "maxLevel": 10000
@@ -878,7 +790,7 @@ module.exports={
             "name": "Microwave",
             "type": "component",
             "gainPerSecond": 100,
-            "baseCost": 200,
+            "baseCost": 750000,
             "exponent": 2.9,
             "level": 0,
             "maxLevel": 10000
@@ -888,7 +800,7 @@ module.exports={
             "name": "Fridge",
             "type": "component",
             "gainPerSecond": 200,
-            "baseCost": 300,
+            "baseCost": 2000000,
             "exponent": 3.0,
             "level": 0,
             "maxLevel": 10000
@@ -961,7 +873,7 @@ module.exports={
             "name": "Cosmic Dust",
             "type": "resource",
             "gainPerSecond": 1.5,
-            "baseCost": 150,
+            "baseCost": 350,
             "exponent": 1.3,
             "level": 0,
             "maxLevel": 10000
@@ -971,7 +883,7 @@ module.exports={
             "name": "Star Fragments",
             "type": "resource",
             "gainPerSecond": 2,
-            "baseCost": 200,
+            "baseCost": 1000,
             "exponent": 1.3,
             "level": 0,
             "maxLevel": 10000
@@ -981,7 +893,7 @@ module.exports={
             "name": "Asteroid Minerals",
             "type": "resource",
             "gainPerSecond": 2.5,
-            "baseCost": 250,
+            "baseCost": 5000,
             "exponent": 1.4,
             "level": 0,
             "maxLevel": 10000
@@ -991,7 +903,7 @@ module.exports={
             "name": "Dark Matter",
             "type": "resource",
             "gainPerSecond": 3,
-            "baseCost": 300,
+            "baseCost": 17500,
             "exponent": 1.4,
             "level": 0,
             "maxLevel": 10000
@@ -1001,7 +913,7 @@ module.exports={
             "name": "Quantum Particles",
             "type": "resource",
             "gainPerSecond": 4,
-            "baseCost": 400,
+            "baseCost": 50000,
             "exponent": 1.5,
             "level": 0,
             "maxLevel": 10000
@@ -1011,7 +923,7 @@ module.exports={
             "name": "Alien Artifacts",
             "type": "resource",
             "gainPerSecond": 5,
-            "baseCost": 500,
+            "baseCost": 200000,
             "exponent": 1.5,
             "level": 0,
             "maxLevel": 10000
@@ -1021,7 +933,7 @@ module.exports={
             "name": "Temporal Energy",
             "type": "resource",
             "gainPerSecond": 6,
-            "baseCost": 600,
+            "baseCost": 750000,
             "exponent": 1.6,
             "level": 0,
             "maxLevel": 10000
@@ -1031,7 +943,7 @@ module.exports={
             "name": "Stellar Energy",
             "type": "resource",
             "gainPerSecond": 7,
-            "baseCost": 700,
+            "baseCost": 2000000,
             "exponent": 1.6,
             "level": 0,
             "maxLevel": 10000
@@ -1042,7 +954,7 @@ module.exports={
 },{}],14:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.formatEnergy = exports.toDecimal = void 0;
+exports.getCostUpgraded = exports.formatEnergy = exports.toDecimal = void 0;
 const constants_1 = require("../constants");
 /**
  * Returns the number with the number of decimal wanted
@@ -1072,6 +984,18 @@ const formatEnergy = (energy) => {
         return "";
 };
 exports.formatEnergy = formatEnergy;
+/**
+ * Calculate the new cost based on base cost, exponent and actual level
+ * @param baseCost
+ * @param exponent
+ * @param level
+ * @returns {number}
+ */
+function getCostUpgraded(baseCost, exponent, level) {
+    const resultFormula = baseCost * Math.pow(exponent, (level - 1));
+    return Math.ceil(resultFormula);
+}
+exports.getCostUpgraded = getCostUpgraded;
 
 },{"../constants":10}],15:[function(require,module,exports){
 "use strict";

@@ -1,11 +1,13 @@
 import { game } from "../Classes/Game";
 import { IDS_BTNS_SCREENS, GameStatus } from "../utils/constants";
 
+const startScreenUrl = "./screens/start.html";
+
 /**
  * Gets the HTML file of the start screen and display it in the DOM
  */
 async function launchGameStartScreen(): Promise<void> {
-	const res = await fetch("./screens/start.html");
+	const res = await fetch(startScreenUrl);
 	const htmlContent = await res.text();
 	document.body.innerHTML = htmlContent;
 	attachEvents();

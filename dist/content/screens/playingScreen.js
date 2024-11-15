@@ -13,60 +13,30 @@ exports.launchGameScreen = void 0;
 const Game_1 = require("../Classes/Game");
 const constants_1 = require("../utils/constants");
 // import { changeGameStatus, getGameConfig } from "../gameConfig";
+const playingScreenUrl = "./screens/playing.html";
 /**
  * Gets the HTML file playing screen and display it in the DOM
  * @param config
  */
 function launchGameScreen(config) {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("./screens/playing.html");
+        const res = yield fetch(playingScreenUrl);
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
-        displayPausedGame(config.status === "paused");
         attachEvents();
     });
 }
 exports.launchGameScreen = launchGameScreen;
-/**
- * Based on the parameter, hides / displays the pause button and the resume button
- * @param toDisplay
- * @returns {void}
- */
-function displayPausedGame(toDisplay) {
-    const btnGamePause = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.PAUSE);
-    const btnResumeGame = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
-    if (!btnGamePause || !btnResumeGame)
-        return;
-    btnGamePause.style.display = toDisplay ? "none" : "block";
-    btnResumeGame.style.display = toDisplay ? "block" : "none";
-}
 //#region Events
 function attachEvents() {
-    attachEventsPause();
-    attachEventsResume();
     attachEventClearData();
-}
-function attachEventsPause() {
-    const btnGamePause = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.PAUSE);
-    if (!btnGamePause)
-        return;
-    btnGamePause.addEventListener("click", () => {
-        Game_1.game.changeStatus("paused");
-    });
-}
-function attachEventsResume() {
-    const btnResumeGame = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME_PAUSED.RESUME);
-    if (!btnResumeGame)
-        return;
-    btnResumeGame.addEventListener("click", () => {
-        Game_1.game.changeStatus("playing");
-    });
 }
 function attachEventClearData() {
     const btnClearData = document.getElementById(constants_1.IDS_BTNS_SCREENS.GAME.CLEAR_DATA);
     if (!btnClearData)
         return;
     btnClearData.addEventListener("click", () => {
+        clearInterval(Game_1.game._interval); // Clears the interval so that we can empty localStorage
         Game_1.game.clearDataFromLocalStorage();
         (0, Game_1.recreateGame)();
     });

@@ -1,4 +1,29 @@
 <div class="flex colonne" id="div-game-content">
+
+    <!-- ENERGY COUNTER INSIDE BUTTON -->
+    <div class="flex width-100" style="border: 5px solid black; border-radius: 8px;">
+        <div class="flex colonne width-100 align-items-center">
+            <!-- conteneur gris -->
+            <div id="button-game" class="flex"
+                style="border-radius: 50%; border: 10px solid grey; height: 300px; width: 300px; cursor: pointer;">
+                <!-- conteneur bleu -->
+                <div class="flex height-100 width-100" style="border-radius: 50%; border: 50px solid var(--accent);">
+                    <!-- bouton en lui même -->
+                    <div class="flex height-100 width-100 align-items-center justify-content-center"
+                        style="border-radius: 50%; background-color: var(--bg);">
+                        <h1 id="lbl-energy-counter">0⚡</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="div-game-contents-shop" class="flex width-100"
+        style="border: 5px solid black; border-radius: 8px; overflow-x: scroll;">
+
+    </div>
+
+
     <div class="flex width-100">
         <div class="flex colonne width-100 justify-content-center">
             <div class="flex justify-content-center">
@@ -6,48 +31,20 @@
                         class="fa-solid fa-trash-alt fa-2x"></i></button>
             </div>
         </div>
-        <div class="flex colonne width-100 justify-content-center">
+        <!-- <div class="flex colonne width-100 justify-content-center">
             <div class="flex justify-content-center">
                 <h1 id="energyCounter">0⚡</h1>
             </div>
-        </div>
-        <div class="flex colonne width-100 justify-content-center">
-            <div class="flex justify-content-center">
-                <button id="btn-pause-game" class="btn btn-secondary" title="Pause"><i
-                        class="fa-solid fa-pause fa-2x"></i></button>
-                <button id="btn-resume-game" class="btn btn-secondary" title="Resume"><i
-                        class="fa-solid fa-play fa-2x"></i></button>
-            </div>
-        </div>
+        </div> -->
     </div>
 
     <!-- ADDS ONE ENERGY WHEN CLICKING IT -->
-    <div class="flex justify-content-center">
+    <!-- <div class="flex justify-content-center">
         <div id="button-game">⚡</div>
-    </div>
+    </div> -->
 
     <div id="div-display-character" class="flex justify-content-center">
 
-    </div>
-
-    <!-- DISPLAY TABS -->
-    <div class="flex">
-        <div class="flex colonne width-100">
-            <div class="flex justify-content-center">
-                <h3>Components</h3>
-            </div>
-        </div>
-        <div class="flex colonne width-100">
-            <div class="flex justify-content-center">
-                <h3>Resources</h3>
-            </div>
-        </div>
-    </div>
-
-    <!-- TABS CONTENTS-->
-    <div class="flex">
-        <div class="flex colonne width-100" id="components-content"></div>
-        <div class="flex colonne width-100" id="resources-content"></div>
     </div>
 
 </div>

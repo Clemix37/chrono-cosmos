@@ -2,7 +2,7 @@
     border-radius: 50%;
     width: 200px;
     height: 200px;
-    background-color: var(--secondary);
+    background-color: var(--accent);
     font-size: 150px;
     display: flex;
     justify-content: center;

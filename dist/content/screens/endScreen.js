@@ -10,12 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameEndScreen = void 0;
+const endScreenUrl = "./screens/end.html";
 /**
  * Gets the HTML file of the end screen and display it inside the DOM
  */
 function launchGameEndScreen() {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("./screens/end.html");
+        const res = yield fetch(endScreenUrl);
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
     });

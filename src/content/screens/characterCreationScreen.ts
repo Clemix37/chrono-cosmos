@@ -2,6 +2,7 @@ import Character from "../Classes/Character";
 import { CHARACTER_STATS, IDS_GAME_DIVS, NB_RANDOM_CHARACTER } from "../utils/constants";
 import { toDecimal } from "../utils/formulas/formulas";
 
+const characterCreationScreenUrl = "./screens/character-creation.html";
 let charactersGenerated: Character[] = [];
 
 //#region Random generation
@@ -61,7 +62,7 @@ function displayRandomCharacters() {
  * Gets the HTML file of the end screen and display it inside the DOM
  */
 async function launchGameCharacterCreationScreen(): Promise<void> {
-	const res = await fetch("./screens/character-creation.html");
+	const res = await fetch(characterCreationScreenUrl);
 	const htmlContent = await res.text();
 	document.body.innerHTML = htmlContent;
 }

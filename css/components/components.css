@@ -2,18 +2,13 @@
 
 .game-content {
     border-radius: 50px;
-    background: #1c1c1c;
-    box-shadow:  -28px 28px 55px #161616, 20px 0px 55px #222222;
+    background: var(--cards);
+    /* box-shadow: -28px 28px 55px #161616, 20px 0px 55px #222222; */
     padding: 5px;
     margin: 15px;
 }
 
-.btn-game-content {
-    font-size: 40px;
-    min-width: 80%;
-    min-height: 80%;
-}
-
-.game-content-gain, .game-content-time {
+.game-content-gain,
+.game-content-time {
     font-size: 20px;
 }

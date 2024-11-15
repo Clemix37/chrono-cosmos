@@ -16,6 +16,7 @@ exports.getCharacterGeneratedById = exports.displayRandomCharacters = exports.la
 const Character_1 = __importDefault(require("../Classes/Character"));
 const constants_1 = require("../utils/constants");
 const formulas_1 = require("../utils/formulas/formulas");
+const characterCreationScreenUrl = "./screens/character-creation.html";
 let charactersGenerated = [];
 //#region Random generation
 function generateRandomStat(keyStat) {
@@ -67,7 +68,7 @@ exports.displayRandomCharacters = displayRandomCharacters;
  */
 function launchGameCharacterCreationScreen() {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("./screens/character-creation.html");
+        const res = yield fetch(characterCreationScreenUrl);
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
     });

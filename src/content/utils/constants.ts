@@ -15,7 +15,6 @@ export const GameStatus = {
 	notStarted: "not started",
 	characterCreation: "character creation",
 	playing: "playing",
-	paused: "paused",
 	over: "over",
 } as const;
 
@@ -27,11 +26,7 @@ export const IDS_BTNS_SCREENS = {
 		RESTART: "btnRestartGame",
 	},
 	GAME: {
-		PAUSE: "btn-pause-game",
 		CLEAR_DATA: "btn-clear-data",
-	},
-	GAME_PAUSED: {
-		RESUME: "btn-resume-game",
 	},
 } as const;
 
@@ -48,6 +43,7 @@ export const SESSIONS_KEYS = {
 	GAME_CONTENT: "ccGameContent",
 	ENERGY: "ccEnergyCounter",
 	GAME_CHAR: "ccGameChar",
+	SPACESHIP_LEVEL: "ccSpaceshipLevel",
 } as const;
 
 export const NUMBERS = {

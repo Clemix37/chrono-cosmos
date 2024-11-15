@@ -22,3 +22,15 @@ export const formatEnergy = (energy: number): string => {
 	else if (energy >= NUMBERS.THOUSAND) return `${toDecimal(energy / NUMBERS.THOUSAND, 4)}K`;
 	else return "";
 };
+
+/**
+ * Calculate the new cost based on base cost, exponent and actual level
+ * @param baseCost
+ * @param exponent
+ * @param level
+ * @returns {number}
+ */
+export function getCostUpgraded(baseCost: number, exponent: number, level: number): number {
+	const resultFormula = baseCost * exponent ** (level - 1);
+	return Math.ceil(resultFormula);
+}

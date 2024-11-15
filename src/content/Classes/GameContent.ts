@@ -3,6 +3,7 @@ import resourceFile from "../utils/data/resources.json";
 import componentFile from "../utils/data/components.json";
 import IGameImage from "../../interfaces/IGameImage";
 import { getOrCreateComponents } from "../utils/components/components";
+import { getCostUpgraded } from "../utils/formulas/formulas";
 
 /**
  * Gets the components and returns them as GameContent array
@@ -34,44 +35,6 @@ function getOrCreateGameContent(): { components: GameContent[]; resources: GameC
 	};
 }
 
-/**
- * Gets and returns the first component and resource of the game, which are the default ones
- * @returns {object}
- */
-function getDefaultGameContent(): { components: GameContent[]; resources: GameContent[] } {
-	const firstResourceConfig: IGameContent = resourceFile.resources[0] as IGameContent;
-	const firstComponentConfig: IGameContent = componentFile.components[0] as IGameContent;
-	const content = {
-		components: [new GameContent(firstComponentConfig)],
-		resources: [new GameContent(firstResourceConfig)],
-	};
-	return content;
-}
-
-/**
- * Based on the energy in parameter and the ids of the game components displayed,
- * 	Gets the next game components to display
- * @param energy
- * @param idsComponentsDisplayed
- * @returns {object}
- */
-function getNextGameContent(
-	energy: number,
-	idsComponentsDisplayed: string[],
-): { components: GameContent[]; resources: GameContent[] } {
-	const minEnergy = 1.2 * energy;
-	const comps = componentFile.components
-		.filter((comp) => comp.baseCost <= minEnergy && !idsComponentsDisplayed.includes(comp.id))
-		.map((comp) => new GameContent(comp as IGameContent));
-	const res = resourceFile.resources
-		.filter((res) => res.baseCost <= minEnergy && !idsComponentsDisplayed.includes(res.id))
-		.map((res) => new GameContent(res as IGameContent));
-	return {
-		components: comps,
-		resources: res,
-	};
-}
-
 class GameContent implements IGameContent {
 	//#region Properties
 
@@ -93,6 +56,11 @@ class GameContent implements IGameContent {
 
 	//#region Constructor
 
+	/**
+	 * Assign every value of the config in argument
+	 * @constructor
+	 * @param config
+	 */
 	constructor(config: IGameContent) {
 		this.id = config.id;
 		this.name = config.name;
@@ -113,48 +81,44 @@ class GameContent implements IGameContent {
 	upgrade() {
 		if (this.level + 1 > this.maxLevel) return;
 		this.level++;
-		this.upgradeCost = this.#upgradeCostWithFormula();
-	}
-	#upgradeCostWithFormula(): number {
-		const formula = this.baseCost * this.level ** this.exponent;
-		return Math.ceil(formula);
-	}
-	#getHtmlLine(content: string) {
-		return `<div class="flex justify-content-center">${content}</div>`;
+		this.upgradeCost = getCostUpgraded(this.baseCost, this.exponent, this.level);
 	}
 
-	getHtmlTemplateGameContent(isPaused: boolean) {
-		const ligneBtn = isPaused
-			? ""
-			: `
-            <div class="flex height-100 align-items-center">
-                <button class="btn btn-primary btn-game-content" id="${this.idBtn}">${this.upgradeCost}</button>
-            </div>
-        `;
-		const isNew = !this.level;
-		return this.#getHtmlLine(`
-            <div class="flex colonne game-content width-100">
-                <div class="flex">
-					<div class="flex colonne width-100">
-						<div class="flex">
-                    		<h1>${isNew ? "<em style='color: var(--tertiary);'>New</em> - " : ""}${this.name} ${
-			isNew ? "" : `(${this.level})`
-		}</h1>
-						</div>
-						<div class="flex justify-content-center">
-							<h3>
-								<i class="fa-solid fa-coins icon color-yellow margin-right"></i>
-								${this.gainPerSecond}/s
-							</h3>
-						</div>
+	getHtmlTemplateGameContent(energy: number) {
+		// TODO: display IMAGES
+		return `
+			<div class="flex card colonne">
+				<div class="flex card-header justify-content-space-around align-items-center">
+					<button class="button"
+						style="cursor: default; width: 30px; height: 30px; border-radius: 50%; border: none; background-color: var(--bg); color: var(--accent);">
+						<i class="fas fa-star"></i></button>
+					<h2 style="text-align: center;">${this.name}</h2>
+					<button class="button"
+						style="cursor: default; width: 30px; height: 30px; border-radius: 50%; border: none; background-color: var(--bg); color: var(--accent);">
+						<i class="fas fa-star"></i>
+					</button>
+				</div>
+				<div class="flex card-content colonne align-items-center height-100 justify-content-center">
+					<div class="flex card-image-content">
+						<!-- <img src="https://github.com/Clemix37/chrono-cosmos/blob/main/img/maquette_dall_e_chatgpt.png?raw=true"
+							width="50" height="50" /> -->
 					</div>
-					<div class="flex colonne width-100">
-						${ligneBtn}
+					<div class="flex card-content-description">
+						<h3 style="text-align: center;"><em>${this.gainPerSecond}/s.</em> - <em>Level ${this.level}</em></h3>
 					</div>
-                </div>
-            </div>
-        `);
+				</div>
+				<div class="flex card-footer width-100">
+					<button title="Add one" id="${this.idBtn}" class="btn-game-content ${
+			energy < (this.upgradeCost as number) ? "not-enough" : ""
+		}">
+						<i class="fas fa-star"></i>
+						<em style="font-size: 2em;">${this.upgradeCost}</em>
+						<i class="fas fa-star"></i>
+					</button>
+				</div>
+			</div>
+		`;
 	}
 }
 
-export { GameContent, getOrCreateGameContent, getNextGameContent };
+export { GameContent, getOrCreateGameContent };

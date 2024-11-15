@@ -31,6 +31,7 @@ class Game {
     constructor() {
         var _a, _b;
         _Game_instances.add(this);
+        this.spaceshipLevel = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.SPACESHIP_LEVEL);
         this.energy = (_a = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.ENERGY)) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
         this.character = (_b = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.GAME_CHAR)) !== null && _b !== void 0 ? _b : null;
@@ -85,7 +86,6 @@ class Game {
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachCharacterSelectEvent).call(this);
                     break;
                 case constants_1.GameStatus.playing:
-                case constants_1.GameStatus.paused:
                     yield (0, playingScreen_1.launchGameScreen)(this.config);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachAddOneEnergyBtn).call(this);
@@ -105,22 +105,9 @@ class Game {
         this.config.status = newStatus;
         this.launchActualScreen();
     }
-    /**
-     * Gets the game components displayed and gets the next
-     * Display them and attach events if necessary
-     */
-    checkForNewContent() {
-        const idsContentAlreadyDisplayed = [
-            ...this.resources.map((res) => res.id),
-            ...this.components.map((comp) => comp.id),
-        ];
-        const nextContent = (0, GameContent_1.getNextGameContent)(this.energy, idsContentAlreadyDisplayed);
-        if (nextContent.components.length > 0)
-            this.components.push(...nextContent.components);
-        if (nextContent.resources.length > 0)
-            this.resources.push(...nextContent.resources);
-        if (nextContent.components.length > 0 || nextContent.resources.length > 0)
-            __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
+    upgradeSpaceship() {
+        this.spaceshipLevel++;
+        // TODO: update some stuff
     }
 }
 exports.Game = Game;
@@ -133,30 +120,25 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
         const gainResources = this.resources.reduce((acc, res) => acc + res.level * res.gainPerSecond, 0);
         this.energy = (0, formulas_1.toDecimal)(this.energy + gainComponents + gainResources);
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
+        __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         this.saveGame();
-        this.checkForNewContent();
     }, 1000);
 }, _Game_displayAndAttachGameContents = function _Game_displayAndAttachGameContents() {
     if (!!this._interval)
         clearInterval(this._interval);
     this.saveGame();
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameComponents).call(this, "components-content", this.components);
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameComponents).call(this, "resources-content", this.resources);
+    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameComponents).call(this, [...this.components, ...this.resources].sort((a, b) => { var _a, _b; return ((_a = a.upgradeCost) !== null && _a !== void 0 ? _a : 0) - ((_b = b.upgradeCost) !== null && _b !== void 0 ? _b : 0); }));
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachEvents).call(this);
     if (this.config.status === "playing")
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_countEverySecond).call(this);
-}, _Game_displayGameComponents = function _Game_displayGameComponents(id, contents) {
-    const div = document.getElementById(id);
+}, _Game_displayGameComponents = function _Game_displayGameComponents(contents) {
+    const div = document.getElementById("div-game-contents-shop");
     if (!div)
         return;
-    div.innerHTML = "";
-    for (let i = 0; i < contents.length; i++) {
-        const comp = contents[i];
-        const contentHml = comp.getHtmlTemplateGameContent(this.config.status === "paused");
-        div.innerHTML += contentHml;
-    }
+    const display = contents.reduce((prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`, ``);
+    div.innerHTML = display;
 }, _Game_displayEnergy = function _Game_displayEnergy(ernegy) {
-    const energyCounter = document.getElementById("energyCounter");
+    const energyCounter = document.getElementById("lbl-energy-counter");
     if (!energyCounter)
         return;
     energyCounter.textContent = `${(0, formulas_1.formatEnergy)(ernegy)}⚡`;

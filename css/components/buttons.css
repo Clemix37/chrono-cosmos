@@ -1,24 +1,26 @@
-button {cursor: pointer;}
+button {
+    cursor: pointer;
+}
 
 .btn {
-    border-radius:8px;
+    border-radius: 8px;
     min-height: 50px;
     min-width: 70px;
     padding: 5px;
-    border:none;
+    border: none;
 }
 
 .btn:is(.btn-primary, .btn-tertiary) {
-    color:var(--texte);
+    color: var(--text);
 }
 
 .btn.btn-primary {
-    background-color: var(--primary);
+    background-color: var(--principal);
 }
 
 .btn.btn-secondary {
-    background-color: var(--secondary);
-    color:var(--background);
+    background-color: var(--accent);
+    color: var(--background);
 }
 
 .btn.btn-tertiary {

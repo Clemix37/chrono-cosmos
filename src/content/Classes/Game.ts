@@ -3,7 +3,7 @@ import IGameConfig from "../../interfaces/IGameConfig";
 import { getDataFromLocalStorage } from "../utils/data/data";
 import { formatEnergy, toDecimal } from "../utils/formulas/formulas";
 import { getOrCreateConfig } from "../utils/utils";
-import { GameContent, getNextGameContent, getOrCreateGameContent } from "./GameContent";
+import { GameContent, getOrCreateGameContent } from "./GameContent";
 import { launchGameScreen } from "../screens/playingScreen";
 import { launchGameStartScreen } from "../screens/startScreen";
 import { launchGameEndScreen } from "../screens/endScreen";
@@ -18,6 +18,10 @@ import Character from "./Character";
 export class Game implements IGame {
 	//#region Properties
 
+	/**
+	 * The level of the current spaceship
+	 */
+	spaceshipLevel: number;
 	/**
 	 * Energy counter
 	 */
@@ -52,6 +56,7 @@ export class Game implements IGame {
 	//#region Constructor
 
 	constructor() {
+		this.spaceshipLevel = getDataFromLocalStorage(SESSIONS_KEYS.SPACESHIP_LEVEL);
 		this.energy = getDataFromLocalStorage(SESSIONS_KEYS.ENERGY) ?? 3;
 		this.config = getOrCreateConfig();
 		this.character = getDataFromLocalStorage(SESSIONS_KEYS.GAME_CHAR) ?? null;
@@ -114,7 +119,6 @@ export class Game implements IGame {
 				this.#attachCharacterSelectEvent();
 				break;
 			case GameStatus.playing:
-			case GameStatus.paused:
 				await launchGameScreen(this.config);
 				this.#displayAndAttachGameContents();
 				this.#attachAddOneEnergyBtn();
@@ -135,22 +139,9 @@ export class Game implements IGame {
 		this.launchActualScreen();
 	}
 
-	/**
-	 * Gets the game components displayed and gets the next
-	 * Display them and attach events if necessary
-	 */
-	checkForNewContent() {
-		const idsContentAlreadyDisplayed = [
-			...this.resources.map((res) => res.id),
-			...this.components.map((comp) => comp.id),
-		];
-		const nextContent: {
-			components: GameContent[];
-			resources: GameContent[];
-		} = getNextGameContent(this.energy, idsContentAlreadyDisplayed);
-		if (nextContent.components.length > 0) this.components.push(...nextContent.components);
-		if (nextContent.resources.length > 0) this.resources.push(...nextContent.resources);
-		if (nextContent.components.length > 0 || nextContent.resources.length > 0) this.#displayAndAttachGameContents();
+	upgradeSpaceship() {
+		this.spaceshipLevel++;
+		// TODO: update some stuff
 	}
 
 	//#endregion
@@ -172,8 +163,8 @@ export class Game implements IGame {
 			const gainResources = this.resources.reduce((acc, res) => acc + res.level * res.gainPerSecond, 0);
 			this.energy = toDecimal(this.energy + gainComponents + gainResources);
 			this.#displayEnergy(this.energy);
+			this.#displayAndAttachGameContents();
 			this.saveGame();
-			this.checkForNewContent();
 		}, 1000);
 	}
 
@@ -188,27 +179,26 @@ export class Game implements IGame {
 	#displayAndAttachGameContents(): void {
 		if (!!this._interval) clearInterval(this._interval);
 		this.saveGame();
-		this.#displayGameComponents("components-content", this.components);
-		this.#displayGameComponents("resources-content", this.resources);
+		this.#displayGameComponents(
+			[...this.components, ...this.resources].sort((a, b) => (a.upgradeCost ?? 0) - (b.upgradeCost ?? 0)),
+		);
 		this.#attachEvents();
 		if (this.config.status === "playing") this.#countEverySecond();
 	}
 
 	/**
-	 * Display game contents inside the div which id is in parameter
-	 * @param id
+	 * Display game contents
 	 * @param contents
 	 * @returns {void}
 	 */
-	#displayGameComponents(id: string, contents: GameContent[]): void {
-		const div = document.getElementById(id);
+	#displayGameComponents(contents: GameContent[]): void {
+		const div: HTMLDivElement = document.getElementById("div-game-contents-shop") as HTMLDivElement;
 		if (!div) return;
-		div.innerHTML = "";
-		for (let i = 0; i < contents.length; i++) {
-			const comp = contents[i];
-			const contentHml = comp.getHtmlTemplateGameContent(this.config.status === "paused");
-			div.innerHTML += contentHml;
-		}
+		const display = contents.reduce(
+			(prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`,
+			``,
+		);
+		div.innerHTML = display;
 	}
 
 	/**
@@ -216,7 +206,7 @@ export class Game implements IGame {
 	 * @param ernegy number of energy
 	 */
 	#displayEnergy(ernegy: number): void {
-		const energyCounter = document.getElementById("energyCounter");
+		const energyCounter = document.getElementById("lbl-energy-counter");
 		if (!energyCounter) return;
 		energyCounter.textContent = `${formatEnergy(ernegy)}⚡`;
 	}

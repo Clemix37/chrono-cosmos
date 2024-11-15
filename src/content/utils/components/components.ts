@@ -13,25 +13,25 @@ import { SESSIONS_KEYS } from "../constants";
  */
 function getOrCreateComponents(): any {
 	let localComp = getDataFromLocalStorage(SESSIONS_KEYS.GAME_CONTENT);
-	if (!localComp) localComp = getDefaultComponents();
+	if (!localComp) localComp = getDefaultsComponents();
 	return localComp;
 }
 
 /**
- * Creates the default components and returns them
- * @returns {object}
+ * Creates the defaults components and returns them
+ * @returns {{ components: GameContent[], resources: GameContent[] }}
  */
-function getDefaultComponents(): {
+function getDefaultsComponents(): {
 	components: GameContent[];
 	resources: GameContent[];
 } {
-	const firstResourceConfig: IGameContent = resourceFile.resources[0] as IGameContent;
-	const firstComponentConfig: IGameContent = componentFile.components[0] as IGameContent;
+	const everyComponents = componentFile.components.map((comp) => new GameContent(comp as IGameContent));
+	const everyResources = resourceFile.resources.map((comp) => new GameContent(comp as IGameContent));
 	const content = {
-		components: [new GameContent(firstComponentConfig)],
-		resources: [new GameContent(firstResourceConfig)],
+		components: everyComponents,
+		resources: everyResources,
 	};
 	return content;
 }
 
-export { getOrCreateComponents, getDefaultComponents };
+export { getOrCreateComponents, getDefaultsComponents };

@@ -1,0 +1,36 @@
+.card {
+    min-width: 250px;
+    padding: 10px;
+    margin: 10px;
+    background-color: var(--cards);
+    border-radius: 10px;
+}
+
+.card .card-content {
+    border-left: 2px solid black;
+    border-radius: 8px;
+    padding: 5px;
+    border-right: 2px solid black;
+}
+
+.card .card-footer {
+    margin-top: 10px;
+}
+
+.card .card-footer button.btn-game-content {
+    height: 40px;
+    width: 100%;
+    border: none;
+    border-radius: 20px;
+    background-color: var(--bg);
+    color: var(--accent);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 0 5px 1px;
+}
+
+.card .card-footer button.btn-game-content.not-enough {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

@@ -12,12 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameStartScreen = void 0;
 const Game_1 = require("../Classes/Game");
 const constants_1 = require("../utils/constants");
+const startScreenUrl = "./screens/start.html";
 /**
  * Gets the HTML file of the start screen and display it in the DOM
  */
 function launchGameStartScreen() {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield fetch("./screens/start.html");
+        const res = yield fetch(startScreenUrl);
         const htmlContent = yield res.text();
         document.body.innerHTML = htmlContent;
         attachEvents();

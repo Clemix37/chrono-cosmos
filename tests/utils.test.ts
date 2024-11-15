@@ -1,7 +1,7 @@
 import { toDecimal, formatEnergy } from "../src/content/utils/formulas/formulas";
 import { getRandomFromArray } from "../src/content/utils/data/data";
 import { getDefaultConfig } from "../src/content/utils/configs/configs";
-import { getDefaultComponents } from "../src/content/utils/components/components";
+import { getDefaultsComponents } from "../src/content/utils/components/components";
 import IGameConfig from "../src/interfaces/IGameConfig";
 import { GameContent } from "../src/content/Classes/GameContent";
 
@@ -73,53 +73,4 @@ test("Gets the default config", () => {
 	});
 });
 
-//#endregion
-
-//#region Components
-
-test("Gets default components", () => {
-	const defaultComponents: {
-		components: GameContent[];
-		resources: GameContent[];
-	} = getDefaultComponents();
-	expect(defaultComponents).toBeDefined();
-	expect(defaultComponents).toEqual({
-		components: [
-			{
-				id: "comp-spoon",
-				name: "Spoon",
-				type: "component",
-				gainPerSecond: 0.1,
-				baseCost: 3,
-				exponent: 2,
-				level: 0,
-				maxLevel: 10000,
-				progressToNext: undefined,
-				upgradeCost: 3,
-				idBtn: "btn-component-spoon",
-				img: {
-					url: "spoon.png",
-					width: 50,
-					height: 75,
-				},
-			},
-		],
-		resources: [
-			{
-				id: "res-water",
-				name: "Water",
-				type: "resource",
-				gainPerSecond: 0.1,
-				baseCost: 3,
-				exponent: 1.2,
-				level: 0,
-				maxLevel: 10000,
-				img: undefined,
-				progressToNext: undefined,
-				upgradeCost: 3,
-				idBtn: "btn-resource-water",
-			},
-		],
-	});
-});
 //#endregion
