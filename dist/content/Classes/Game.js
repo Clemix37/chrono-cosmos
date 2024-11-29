@@ -8,12 +8,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+};
 var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
     if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Game_instances, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameComponents, _Game_displayEnergy, _Game_displayCurrentCharacter, _Game_attachEvents, _Game_attachAddOneEnergyBtn, _Game_attachCharacterSelectEvent;
+var _Game_instances, _Game_minDelay, _Game_lastClickDate, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameComponents, _Game_displayEnergy, _Game_displayCurrentCharacter, _Game_attachEvents, _Game_attachAddOneEnergyBtn, _Game_attachCharacterSelectEvent;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.recreateGame = exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
@@ -31,6 +37,14 @@ class Game {
     constructor() {
         var _a, _b;
         _Game_instances.add(this);
+        /**
+         * Min delay before next click
+         */
+        _Game_minDelay.set(this, 50);
+        /**
+         * Date of last click
+         */
+        _Game_lastClickDate.set(this, void 0);
         this.spaceshipLevel = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.SPACESHIP_LEVEL);
         this.energy = (_a = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.ENERGY)) !== null && _a !== void 0 ? _a : 3;
         this.config = (0, utils_1.getOrCreateConfig)();
@@ -38,6 +52,7 @@ class Game {
         const gameContent = (0, GameContent_1.getOrCreateGameContent)();
         this.components = gameContent.components;
         this.resources = gameContent.resources;
+        __classPrivateFieldSet(this, _Game_lastClickDate, new Date(), "f");
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
     }
     //#endregion
@@ -111,7 +126,7 @@ class Game {
     }
 }
 exports.Game = Game;
-_Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEverySecond() {
+_Game_minDelay = new WeakMap(), _Game_lastClickDate = new WeakMap(), _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEverySecond() {
     if (!!this._interval)
         clearInterval(this._interval);
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
@@ -170,6 +185,10 @@ _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEv
     if (!buttonGame)
         throw new Error("No button to add one energy in the game");
     buttonGame.addEventListener("click", () => {
+        const delay = new Date().getTime() - __classPrivateFieldGet(this, _Game_lastClickDate, "f").getTime();
+        if (delay < __classPrivateFieldGet(this, _Game_minDelay, "f"))
+            return;
+        __classPrivateFieldSet(this, _Game_lastClickDate, new Date(), "f");
         this.energy += 1;
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
     });

@@ -50,6 +50,14 @@ export class Game implements IGame {
 	 * Interval by whoch game refreshes
 	 */
 	_interval?: NodeJS.Timeout;
+	/**
+	 * Min delay before next click
+	 */
+	#minDelay: number = 50;
+	/**
+	 * Date of last click
+	 */
+	#lastClickDate: Date;
 
 	//#endregion
 
@@ -63,6 +71,7 @@ export class Game implements IGame {
 		const gameContent = getOrCreateGameContent();
 		this.components = gameContent.components;
 		this.resources = gameContent.resources;
+		this.#lastClickDate = new Date();
 		this.#displayEnergy(this.energy);
 	}
 
@@ -251,6 +260,9 @@ export class Game implements IGame {
 		const buttonGame: HTMLButtonElement = document.getElementById("button-game") as HTMLButtonElement;
 		if (!buttonGame) throw new Error("No button to add one energy in the game");
 		buttonGame.addEventListener("click", () => {
+			const delay: number = new Date().getTime() - this.#lastClickDate.getTime();
+			if (delay < this.#minDelay) return;
+			this.#lastClickDate = new Date();
 			this.energy += 1;
 			this.#displayEnergy(this.energy);
 		});
