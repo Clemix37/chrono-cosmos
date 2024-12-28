@@ -259,7 +259,8 @@ export class Game implements IGame {
 	#attachAddOneEnergyBtn() {
 		const buttonGame: HTMLButtonElement = document.getElementById("button-game") as HTMLButtonElement;
 		if (!buttonGame) throw new Error("No button to add one energy in the game");
-		buttonGame.addEventListener("click", () => {
+		buttonGame.addEventListener("click", (e) => {
+			if (!e.isTrusted) return;
 			const delay: number = new Date().getTime() - this.#lastClickDate.getTime();
 			if (delay < this.#minDelay) return;
 			this.#lastClickDate = new Date();

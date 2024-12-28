@@ -218,7 +218,9 @@ _Game_minDelay = new WeakMap(), _Game_lastClickDate = new WeakMap(), _Game_insta
     const buttonGame = document.getElementById("button-game");
     if (!buttonGame)
         throw new Error("No button to add one energy in the game");
-    buttonGame.addEventListener("click", () => {
+    buttonGame.addEventListener("click", (e) => {
+        if (!e.isTrusted)
+            return;
         const delay = new Date().getTime() - __classPrivateFieldGet(this, _Game_lastClickDate, "f").getTime();
         if (delay < __classPrivateFieldGet(this, _Game_minDelay, "f"))
             return;
