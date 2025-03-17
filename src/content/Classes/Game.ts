@@ -174,7 +174,7 @@ export class Game implements IGame {
 			this.#displayEnergy(this.energy);
 			this.#displayAndAttachGameContents();
 			this.saveGame();
-		}, 1000);
+		}, 1000 / ((this.character?.speed ?? 1) + (this.character?.intelligence ?? 1) - (this.character?.strength ?? 1)));
 	}
 
 	//#region Display

@@ -161,6 +161,7 @@ class Game {
 }
 exports.Game = Game;
 _Game_minDelay = new WeakMap(), _Game_lastClickDate = new WeakMap(), _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEverySecond() {
+    var _a, _b, _c, _d, _e, _f;
     if (!!this._interval)
         clearInterval(this._interval);
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
@@ -171,7 +172,7 @@ _Game_minDelay = new WeakMap(), _Game_lastClickDate = new WeakMap(), _Game_insta
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         this.saveGame();
-    }, 1000);
+    }, 1000 / (((_b = (_a = this.character) === null || _a === void 0 ? void 0 : _a.speed) !== null && _b !== void 0 ? _b : 1) + ((_d = (_c = this.character) === null || _c === void 0 ? void 0 : _c.intelligence) !== null && _d !== void 0 ? _d : 1) - ((_f = (_e = this.character) === null || _e === void 0 ? void 0 : _e.strength) !== null && _f !== void 0 ? _f : 1)));
 }, _Game_displayAndAttachGameContents = function _Game_displayAndAttachGameContents() {
     if (!!this._interval)
         clearInterval(this._interval);
