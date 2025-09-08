@@ -1,54 +1,77 @@
-<div class="flex colonne" id="div-game-content">
+<link rel="stylesheet" href="./css/game.css">
 
-    <!-- ENERGY COUNTER INSIDE BUTTON -->
-    <div class="flex width-100" style="border: 5px solid black; border-radius: 8px;">
-        <div class="flex colonne width-100 align-items-center">
-            <!-- conteneur gris -->
-            <div id="button-game" class="flex"
-                style="border-radius: 50%; border: 10px solid grey; height: 300px; width: 300px; cursor: pointer;">
-                <!-- conteneur bleu -->
-                <div class="flex height-100 width-100" style="border-radius: 50%; border: 50px solid var(--accent);">
-                    <!-- bouton en lui même -->
-                    <div class="flex height-100 width-100 align-items-center justify-content-center"
-                        style="border-radius: 50%; background-color: var(--bg);">
-                        <h1 id="lbl-energy-counter">0⚡</h1>
-                    </div>
+<div class="colonne game-playing" role="game" aria-label="ChronoCosmos mockup">
+    <div class="header">
+        <div class="title">ChronoCosmos</div>
+        <button id="btn-clear-data" class="btn btn-tertiary" title="Clear data"><i
+                class="fa-solid fa-trash-alt fa-2x"></i></button>
+    </div>
+
+    <div class="energy-row" aria-hidden="false">
+        <div>
+            <div class="energy-circle" title="Energy">
+                <div class="energy-value" id="lbl-energy-counter">2</div>
+            </div>
+            <div class="energy-sub" id="energy-per-second">Energy / second: +0.8</div>
+        </div>
+    </div>
+
+    <div style="display: grid;">
+        <div class="stat">
+            <div class="meta"><abbr title="Resource power">Strength</abbr></div>
+            <div class="bar-wrap">
+                <div class="bar"><i id="strength-bar"></i></div>
+                <!-- <button class="btn" data-stat="str">Upgrade</button> -->
+            </div>
+        </div>
+        <div class="stat">
+            <div class="meta"><abbr title="Cheaper / extra effects">Intelligence</abbr></div>
+            <div class="bar-wrap">
+                <div class="bar"><i id="intelligence-bar"></i></div>
+                <!-- <button class="btn" data-stat="int">Upgrade</button> -->
+            </div>
+        </div>
+        <div class="stat">
+            <div class="meta"><abbr title="Faster gains">Speed</abbr></div>
+            <div class="bar-wrap">
+                <div class="bar"><i id="speed-bar"></i></div>
+                <!-- <button class="btn" data-stat="spd">Upgrade</button> -->
+            </div>
+        </div>
+        <div style="height:6px"></div>
+    </div>
+
+    <div class="main">
+        <!-- left: components list -->
+        <div class="left components-list" aria-label="Components">
+        </div>
+
+        <!-- right: resources list -->
+        <div class="right resources-list" aria-label="Resources">
+        </div>
+    </div>
+
+    <div class="bottom">
+        <div class="big-card" aria-label="Components card">
+            <h4>Components</h4>
+            <div class="big-row">
+                <div>
+                    <div style="font-size:13px;color:#A8C9FF">Spoon • level 0</div>
+                    <div class="big-value">+0.10 /s</div>
                 </div>
+                <button class="cta">Upgrade</button>
+            </div>
+        </div>
+
+        <div class="big-card" aria-label="Resources card">
+            <h4>Resources</h4>
+            <div class="big-row">
+                <div>
+                    <div style="font-size:13px;color:#A8C9FF">Water • level 0</div>
+                    <div class="big-value">+0.10 /s</div>
+                </div>
+                <button class="cta">Upgrade</button>
             </div>
         </div>
     </div>
-
-    <div id="div-game-contents-shop" class="flex width-100"
-        style="border: 5px solid black; border-radius: 8px; overflow-x: scroll;">
-
-    </div>
-
-
-    <div class="flex width-100">
-        <div class="flex colonne width-100 justify-content-center">
-            <div class="flex justify-content-center">
-                <button id="btn-clear-data" class="btn btn-tertiary" title="Clear data"><i
-                        class="fa-solid fa-trash-alt fa-2x"></i></button>
-            </div>
-        </div>
-        <!-- <div class="flex colonne width-100 justify-content-center">
-            <div class="flex justify-content-center">
-                <h1 id="energyCounter">0⚡</h1>
-            </div>
-        </div> -->
-    </div>
-
-    <!-- ADDS ONE ENERGY WHEN CLICKING IT -->
-    <!-- <div class="flex justify-content-center">
-        <div id="button-game">⚡</div>
-    </div> -->
-
-    <div id="div-display-character" class="flex justify-content-center">
-
-    </div>
-
-</div>
-
-<div id="game-ui" style="display: none;">
-
 </div>

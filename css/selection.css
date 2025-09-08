@@ -1,0 +1,10 @@
+.btn-select-character {
+    background: var(--primary);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(62, 78, 214, 0.18);
+}

@@ -23,7 +23,7 @@ class Character {
 				<h3>Speed: <em>${this.speed}</em></h3>
 				<h3>Strength: <em>${this.strength}</em></h3>
 				<h3>Intelligence: <em>${this.intelligence}</em></h3>
-				<button data-id="${this.id}" class="btn btn-primary ${constants_1.CLASSES_GAME.SELECT_CHARACTER}">Select</button>
+				<button data-id="${this.id}" class="${constants_1.CLASSES_GAME.SELECT_CHARACTER}">Select</button>
 			</div>
 		`;
     }

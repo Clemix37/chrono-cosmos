@@ -86,38 +86,65 @@ class GameContent implements IGameContent {
 
 	getHtmlTemplateGameContent(energy: number) {
 		// TODO: display IMAGES
+		// return `
+		// 	<div class="flex card colonne">
+		// 		<div class="flex card-header justify-content-space-around align-items-center">
+		// 			<button class="button"
+		// 				style="cursor: default; width: 30px; height: 30px; border-radius: 50%; border: none; background-color: var(--bg); color: var(--accent);">
+		// 				<i class="fas fa-star"></i></button>
+		// 			<h2 style="text-align: center;">${this.name}</h2>
+		// 			<button class="button"
+		// 				style="cursor: default; width: 30px; height: 30px; border-radius: 50%; border: none; background-color: var(--bg); color: var(--accent);">
+		// 				<i class="fas fa-star"></i>
+		// 			</button>
+		// 		</div>
+		// 		<div class="flex card-content colonne align-items-center height-100 justify-content-center">
+		// 			<div class="flex card-image-content">
+		// 				<!-- <img src="https://github.com/Clemix37/chrono-cosmos/blob/main/img/maquette_dall_e_chatgpt.png?raw=true"
+		// 					width="50" height="50" /> -->
+		// 			</div>
+		// 			<div class="flex card-content-description">
+		// 				<h3 style="text-align: center;"><em>${this.gainPerSecond}/s.</em> - <em>Level ${this.level}</em></h3>
+		// 			</div>
+		// 		</div>
+		// 		<div class="flex card-footer width-100">
+		// 			<button title="Add one" id="${this.idBtn}" class="btn-game-content ${
+		// 	energy < (this.upgradeCost as number) ? "not-enough" : ""
+		// }">
+		// 				<i class="fas fa-star"></i>
+		// 				<em style="font-size: 2em;">${this.upgradeCost}</em>
+		// 				<i class="fas fa-star"></i>
+		// 			</button>
+		// 		</div>
+		// 	</div>
+		// `;
 		return `
-			<div class="flex card colonne">
-				<div class="flex card-header justify-content-space-around align-items-center">
-					<button class="button"
-						style="cursor: default; width: 30px; height: 30px; border-radius: 50%; border: none; background-color: var(--bg); color: var(--accent);">
-						<i class="fas fa-star"></i></button>
-					<h2 style="text-align: center;">${this.name}</h2>
-					<button class="button"
-						style="cursor: default; width: 30px; height: 30px; border-radius: 50%; border: none; background-color: var(--bg); color: var(--accent);">
-						<i class="fas fa-star"></i>
-					</button>
-				</div>
-				<div class="flex card-content colonne align-items-center height-100 justify-content-center">
-					<div class="flex card-image-content">
-						<!-- <img src="https://github.com/Clemix37/chrono-cosmos/blob/main/img/maquette_dall_e_chatgpt.png?raw=true"
-							width="50" height="50" /> -->
-					</div>
-					<div class="flex card-content-description">
-						<h3 style="text-align: center;"><em>${this.gainPerSecond}/s.</em> - <em>Level ${this.level}</em></h3>
-					</div>
-				</div>
-				<div class="flex card-footer width-100">
-					<button title="Add one" id="${this.idBtn}" class="btn-game-content ${
-			energy < (this.upgradeCost as number) ? "not-enough" : ""
-		}">
-						<i class="fas fa-star"></i>
-						<em style="font-size: 2em;">${this.upgradeCost}</em>
-						<i class="fas fa-star"></i>
-					</button>
-				</div>
-			</div>
-		`;
+            <div class="item-card">
+                <div class="item-left">
+                    <div class="ico">${this.name.charAt(0).toUpperCase()}</div>
+                    <div>
+                        <div class="meta">${this.name} • Level ${this.level}</div>
+                        <div class="small">+${this.gainPerSecond} /s</div>
+                        <div class="small">${this.upgradeCost} ⚡</div>
+                    </div>
+                </div>
+                <button class="upgrade upgrade-btn" id="${this.idBtn}">${this.level > 0 ? "Upgrade" : "Buy"}</button>
+            </div>
+        `;
+	}
+
+	getHtmlTemplateGameContentAsBig(energy: number, title: string) {
+		return `
+            <div class="big-card" aria-label="${title} card">
+                <h4>${title}</h4>
+                <div class="big-row">
+                    <div>
+                        <div style="font-size:13px;color:#A8C9FF">${this.name} • level ${this.level}</div>
+                        <div class="big-value">+${(this.gainPerSecond * this.level).toFixed(1)} /s</div>
+                    </div>
+                </div>
+            </div>
+        `;
 	}
 }
 

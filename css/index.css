@@ -17,7 +17,7 @@ body {
 *,
 *:before,
 *:after {
-    box-sizing: inherit;
+    box-sizing: border-box;
 }
 
 :root {
@@ -28,13 +28,16 @@ body {
     --tertiary: #D1345B;
     --success: #26c226;
     --light-blue: #0f85e6;
+    --text: #FFFFFF;
 
     --bg: #0A0F1E;
-    --text: #FFFFFF;
-    --principal: #3E4ED6;
-    --accent: #00FFFF;
-    --cards: #1A1F2E;
-    --secondary_text: #E3E3E3;
+    --panel: #12151b;
+    --card: #1A1F2E;
+    --muted: #C8D6E5;
+    --primary: #3E4ED6;
+    --accent: #00E6E6;
+    --glass: rgba(255, 255, 255, 0.04);
+    --radius: 14px;
 }
 
 html,

@@ -19,7 +19,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Game_instances, _Game_minDelay, _Game_lastClickDate, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameComponents, _Game_displayEnergy, _Game_displayCurrentCharacter, _Game_attachEvents, _Game_attachAddOneEnergyBtn, _Game_attachCharacterSelectEvent;
+var _Game_instances, _Game_minDelay, _Game_lastClickDate, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameContents, _Game_displayBigContents, _Game_displayEnergy, _Game_displayEnergyPerSecond, _Game_displayCurrentCharacter, _Game_attachEvents, _Game_attachAddOneEnergyBtn, _Game_attachCharacterSelectEvent;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.recreateGame = exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
@@ -127,7 +127,6 @@ class Game {
 }
 exports.Game = Game;
 _Game_minDelay = new WeakMap(), _Game_lastClickDate = new WeakMap(), _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEverySecond() {
-    var _a, _b, _c, _d, _e, _f;
     if (!!this._interval)
         clearInterval(this._interval);
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
@@ -138,30 +137,90 @@ _Game_minDelay = new WeakMap(), _Game_lastClickDate = new WeakMap(), _Game_insta
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         this.saveGame();
-    }, 1000 / (((_b = (_a = this.character) === null || _a === void 0 ? void 0 : _a.speed) !== null && _b !== void 0 ? _b : 1) + ((_d = (_c = this.character) === null || _c === void 0 ? void 0 : _c.intelligence) !== null && _d !== void 0 ? _d : 1) - ((_f = (_e = this.character) === null || _e === void 0 ? void 0 : _e.strength) !== null && _f !== void 0 ? _f : 1)));
+    }, 1000); /// ((this.character?.speed ?? 1) + (this.character?.intelligence ?? 1) - (this.character?.strength ?? 1))
 }, _Game_displayAndAttachGameContents = function _Game_displayAndAttachGameContents() {
     if (!!this._interval)
         clearInterval(this._interval);
     this.saveGame();
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameComponents).call(this, [...this.components, ...this.resources].sort((a, b) => { var _a, _b; return ((_a = a.upgradeCost) !== null && _a !== void 0 ? _a : 0) - ((_b = b.upgradeCost) !== null && _b !== void 0 ? _b : 0); }));
+    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameContents).call(this, [...this.components].sort((a, b) => { var _a, _b; return ((_a = a.upgradeCost) !== null && _a !== void 0 ? _a : 0) - ((_b = b.upgradeCost) !== null && _b !== void 0 ? _b : 0); }), [...this.resources].sort((a, b) => { var _a, _b; return ((_a = a.upgradeCost) !== null && _a !== void 0 ? _a : 0) - ((_b = b.upgradeCost) !== null && _b !== void 0 ? _b : 0); }));
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachEvents).call(this);
     if (this.config.status === "playing")
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_countEverySecond).call(this);
-}, _Game_displayGameComponents = function _Game_displayGameComponents(contents) {
-    const div = document.getElementById("div-game-contents-shop");
-    if (!div)
+}, _Game_displayGameContents = function _Game_displayGameContents(components, resources) {
+    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayBigContents).call(this, components, resources);
+    const divListComponents = document.querySelector(".components-list");
+    if (!divListComponents)
         return;
-    const display = contents.reduce((prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`, ``);
-    div.innerHTML = display;
+    divListComponents.innerHTML = "";
+    // Components
+    divListComponents.innerHTML += `<div class="mini-header">
+                <h3>Components</h3>
+                <div class="small">${components.filter((r) => r.upgradeCost <= this.energy).length} available</div>
+            </div>`;
+    const displayComponents = components
+        .filter((c) => c.upgradeCost <= this.energy)
+        .reduce((prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`, ``);
+    divListComponents.innerHTML += displayComponents;
+    const divListResources = document.querySelector(".resources-list");
+    if (!divListResources)
+        return;
+    // Resources
+    divListResources.innerHTML = "";
+    divListResources.innerHTML += `<div class="mini-header">
+                <h3>Resources</h3>
+                <div class="small">${resources.filter((r) => r.upgradeCost <= this.energy).length} available</div>
+            </div>`;
+    const displayResources = resources
+        .filter((r) => r.upgradeCost <= this.energy)
+        .reduce((prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`, ``);
+    divListResources.innerHTML += displayResources;
+    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayBigContents).call(this, components, resources);
+}, _Game_displayBigContents = function _Game_displayBigContents(components, resources) {
+    const componentsOrderedBestLevel = components
+        .filter((c) => c.level > 0)
+        .sort((a, b) => a.level - b.level);
+    const resourcesOrderedBestLevel = resources
+        .filter((r) => r.level > 0)
+        .sort((a, b) => a.level - b.level);
+    const bottomCards = document.querySelector(".bottom");
+    if (!bottomCards)
+        return;
+    bottomCards.innerHTML = "";
+    const addContent = (content, title) => {
+        bottomCards.innerHTML += content.getHtmlTemplateGameContentAsBig(this.energy, title);
+    };
+    if (componentsOrderedBestLevel.length > 0) {
+        addContent(componentsOrderedBestLevel[0], "Highest Level Component");
+        if (componentsOrderedBestLevel.length > 1)
+            addContent(componentsOrderedBestLevel[1], "Second highest Level Component");
+    }
+    if (resourcesOrderedBestLevel.length > 0) {
+        addContent(resourcesOrderedBestLevel[0], "Highest Level Resource");
+        if (resourcesOrderedBestLevel.length > 1)
+            addContent(resourcesOrderedBestLevel[1], "Second highest Level Resource");
+    }
 }, _Game_displayEnergy = function _Game_displayEnergy(ernegy) {
     const energyCounter = document.getElementById("lbl-energy-counter");
     if (!energyCounter)
         return;
     energyCounter.textContent = `${(0, formulas_1.formatEnergy)(ernegy)}⚡`;
+    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergyPerSecond).call(this);
+}, _Game_displayEnergyPerSecond = function _Game_displayEnergyPerSecond() {
+    const divPerSec = document.querySelector("#energy-per-second");
+    if (!divPerSec)
+        return;
+    const totalGain = [...this.components, this.resources]
+        .filter((content) => content.level > 0)
+        .reduce((acc, content) => acc + content.gainPerSecond * content.level, 0);
+    divPerSec.innerHTML = `Energy / second: +${totalGain.toFixed(1)}`;
 }, _Game_displayCurrentCharacter = function _Game_displayCurrentCharacter() {
-    var _a, _b, _c;
-    const divDisplayChar = document.getElementById(constants_1.IDS_GAME_DIVS.DISPLAY_CHAR);
-    divDisplayChar.innerHTML = `<span>Speed: ${(_a = this.character) === null || _a === void 0 ? void 0 : _a.speed}, Strength: ${(_b = this.character) === null || _b === void 0 ? void 0 : _b.strength}, Intelligence: ${(_c = this.character) === null || _c === void 0 ? void 0 : _c.intelligence}</span>`;
+    var _a, _b, _c, _d, _e, _f;
+    const strengthBar = document.querySelector("#strength-bar");
+    const intelligenceBar = document.querySelector("#intelligence-bar");
+    const speedBar = document.querySelector("#speed-bar");
+    strengthBar.style.width = `${!((_a = this.character) === null || _a === void 0 ? void 0 : _a.strength) ? 0 : (((_b = this.character) === null || _b === void 0 ? void 0 : _b.strength) / constants_1.CHARACTER_STATS.strength[1]) * 100}%`;
+    intelligenceBar.style.width = `${!((_c = this.character) === null || _c === void 0 ? void 0 : _c.intelligence) ? 0 : (((_d = this.character) === null || _d === void 0 ? void 0 : _d.intelligence) / constants_1.CHARACTER_STATS.intelligence[1]) * 100}%`;
+    speedBar.style.width = `${!((_e = this.character) === null || _e === void 0 ? void 0 : _e.speed) ? 0 : (((_f = this.character) === null || _f === void 0 ? void 0 : _f.speed) / constants_1.CHARACTER_STATS.speed[1]) * 100}%`;
 }, _Game_attachEvents = function _Game_attachEvents() {
     const all = [...this.components, ...this.resources];
     for (let i = 0; i < all.length; i++) {
@@ -182,7 +241,7 @@ _Game_minDelay = new WeakMap(), _Game_lastClickDate = new WeakMap(), _Game_insta
         });
     }
 }, _Game_attachAddOneEnergyBtn = function _Game_attachAddOneEnergyBtn() {
-    const buttonGame = document.getElementById("button-game");
+    const buttonGame = document.querySelector(".energy-circle");
     if (!buttonGame)
         throw new Error("No button to add one energy in the game");
     buttonGame.addEventListener("click", (e) => {

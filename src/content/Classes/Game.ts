@@ -7,7 +7,7 @@ import { GameContent, getOrCreateGameContent } from "./GameContent";
 import { launchGameScreen } from "../screens/playingScreen";
 import { launchGameStartScreen } from "../screens/startScreen";
 import { launchGameEndScreen } from "../screens/endScreen";
-import { CLASSES_GAME, GameStatus, IDS_GAME_DIVS, SESSIONS_KEYS } from "../utils/constants";
+import { CHARACTER_STATS, CLASSES_GAME, GameStatus, IDS_GAME_DIVS, SESSIONS_KEYS } from "../utils/constants";
 import {
 	displayRandomCharacters,
 	getCharacterGeneratedById,
@@ -174,7 +174,7 @@ export class Game implements IGame {
 			this.#displayEnergy(this.energy);
 			this.#displayAndAttachGameContents();
 			this.saveGame();
-		}, 1000 / ((this.character?.speed ?? 1) + (this.character?.intelligence ?? 1) - (this.character?.strength ?? 1)));
+		}, 1000); /// ((this.character?.speed ?? 1) + (this.character?.intelligence ?? 1) - (this.character?.strength ?? 1))
 	}
 
 	//#region Display
@@ -188,8 +188,9 @@ export class Game implements IGame {
 	#displayAndAttachGameContents(): void {
 		if (!!this._interval) clearInterval(this._interval);
 		this.saveGame();
-		this.#displayGameComponents(
-			[...this.components, ...this.resources].sort((a, b) => (a.upgradeCost ?? 0) - (b.upgradeCost ?? 0)),
+		this.#displayGameContents(
+			[...this.components].sort((a, b) => (a.upgradeCost ?? 0) - (b.upgradeCost ?? 0)),
+			[...this.resources].sort((a, b) => (a.upgradeCost ?? 0) - (b.upgradeCost ?? 0)),
 		);
 		this.#attachEvents();
 		if (this.config.status === "playing") this.#countEverySecond();
@@ -197,17 +198,68 @@ export class Game implements IGame {
 
 	/**
 	 * Display game contents
-	 * @param contents
+	 * @param components
+	 * @param resources
 	 * @returns {void}
 	 */
-	#displayGameComponents(contents: GameContent[]): void {
-		const div: HTMLDivElement = document.getElementById("div-game-contents-shop") as HTMLDivElement;
-		if (!div) return;
-		const display = contents.reduce(
-			(prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`,
-			``,
-		);
-		div.innerHTML = display;
+	#displayGameContents(components: GameContent[], resources: GameContent[]): void {
+		this.#displayBigContents(components, resources);
+		const divListComponents: HTMLDivElement = document.querySelector(".components-list") as HTMLDivElement;
+		if (!divListComponents) return;
+		divListComponents.innerHTML = "";
+		// Components
+		divListComponents.innerHTML += `<div class="mini-header">
+                <h3>Components</h3>
+                <div class="small">${components.filter((r) => r.upgradeCost! <= this.energy).length} available</div>
+            </div>`;
+		const displayComponents = components
+			.filter((c) => c.upgradeCost! <= this.energy)
+			.reduce(
+				(prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`,
+				``,
+			);
+		divListComponents.innerHTML += displayComponents;
+		const divListResources: HTMLDivElement = document.querySelector(".resources-list") as HTMLDivElement;
+		if (!divListResources) return;
+		// Resources
+		divListResources.innerHTML = "";
+		divListResources.innerHTML += `<div class="mini-header">
+                <h3>Resources</h3>
+                <div class="small">${resources.filter((r) => r.upgradeCost! <= this.energy).length} available</div>
+            </div>`;
+		const displayResources = resources
+			.filter((r) => r.upgradeCost! <= this.energy)
+			.reduce(
+				(prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`,
+				``,
+			);
+		divListResources.innerHTML += displayResources;
+		this.#displayBigContents(components, resources);
+	}
+
+	#displayBigContents(components: GameContent[], resources: GameContent[]): void {
+		const componentsOrderedBestLevel: GameContent[] = components
+			.filter((c) => c.level > 0)
+			.sort((a, b) => a.level - b.level);
+		const resourcesOrderedBestLevel: GameContent[] = resources
+			.filter((r) => r.level > 0)
+			.sort((a, b) => a.level - b.level);
+		const bottomCards: HTMLDivElement = document.querySelector(".bottom")!;
+		if (!bottomCards) return;
+		bottomCards.innerHTML = "";
+		const addContent = (content: GameContent, title: string) => {
+			bottomCards.innerHTML += content.getHtmlTemplateGameContentAsBig(this.energy, title);
+		};
+		if (componentsOrderedBestLevel.length > 0) {
+			addContent(componentsOrderedBestLevel[0], "Highest Level Component");
+			if (componentsOrderedBestLevel.length > 1)
+				addContent(componentsOrderedBestLevel[1], "Second highest Level Component");
+		}
+		if (resourcesOrderedBestLevel.length > 0) {
+			addContent(resourcesOrderedBestLevel[0], "Highest Level Resource");
+			if (resourcesOrderedBestLevel.length > 1)
+				addContent(resourcesOrderedBestLevel[1], "Second highest Level Resource");
+		}
 	}
 
 	/**
@@ -218,14 +270,38 @@ export class Game implements IGame {
 		const energyCounter = document.getElementById("lbl-energy-counter");
 		if (!energyCounter) return;
 		energyCounter.textContent = `${formatEnergy(ernegy)}⚡`;
+		this.#displayEnergyPerSecond();
+	}
+
+	/**
+	 * Display the number of energy per second generated
+	 * @returns {void}
+	 */
+	#displayEnergyPerSecond(): void {
+		const divPerSec: HTMLDivElement = document.querySelector("#energy-per-second") as HTMLDivElement;
+		if (!divPerSec) return;
+		const totalGain: number = ([...this.components, this.resources] as GameContent[])
+			.filter((content) => content.level > 0)
+			.reduce((acc, content) => acc + content.gainPerSecond * content.level, 0);
+		divPerSec.innerHTML = `Energy / second: +${totalGain.toFixed(1)}`;
 	}
 
 	/**
 	 * Display the current character
 	 */
 	#displayCurrentCharacter(): void {
-		const divDisplayChar: HTMLDivElement = document.getElementById(IDS_GAME_DIVS.DISPLAY_CHAR) as HTMLDivElement;
-		divDisplayChar.innerHTML = `<span>Speed: ${this.character?.speed}, Strength: ${this.character?.strength}, Intelligence: ${this.character?.intelligence}</span>`;
+		const strengthBar: HTMLElement = document.querySelector("#strength-bar") as HTMLElement;
+		const intelligenceBar: HTMLElement = document.querySelector("#intelligence-bar") as HTMLElement;
+		const speedBar: HTMLElement = document.querySelector("#speed-bar") as HTMLElement;
+		strengthBar.style.width = `${
+			!this.character?.strength ? 0 : (this.character?.strength / CHARACTER_STATS.strength[1]) * 100
+		}%`;
+		intelligenceBar.style.width = `${
+			!this.character?.intelligence ? 0 : (this.character?.intelligence / CHARACTER_STATS.intelligence[1]) * 100
+		}%`;
+		speedBar.style.width = `${
+			!this.character?.speed ? 0 : (this.character?.speed / CHARACTER_STATS.speed[1]) * 100
+		}%`;
 	}
 
 	//#endregion
@@ -257,7 +333,7 @@ export class Game implements IGame {
 	 * Attach the button game and adds one energy every click
 	 */
 	#attachAddOneEnergyBtn() {
-		const buttonGame: HTMLButtonElement = document.getElementById("button-game") as HTMLButtonElement;
+		const buttonGame: HTMLDivElement = document.querySelector(".energy-circle") as HTMLDivElement;
 		if (!buttonGame) throw new Error("No button to add one energy in the game");
 		buttonGame.addEventListener("click", (e) => {
 			if (!e.isTrusted) return;
