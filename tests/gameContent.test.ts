@@ -1,4 +1,4 @@
-import { GameContent } from "../src/content/Classes/GameContent";
+import GameContent from "../src/content/Classes/GameContent";
 import { getCostUpgraded } from "../src/content/utils/formulas/formulas";
 import IGameContent from "../src/interfaces/IGameContent";
 

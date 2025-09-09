@@ -8,9 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameStartScreen = void 0;
-const Game_1 = require("../Classes/Game");
+const GameStateManager_1 = __importDefault(require("../Classes/GameStateManager"));
 const constants_1 = require("../utils/constants");
 const startScreenUrl = "./screens/start.html";
 /**
@@ -38,6 +41,6 @@ function attachEventStartScreen() {
     if (!gameStartDiv)
         return;
     gameStartDiv.addEventListener("click", () => {
-        Game_1.game.changeStatus(constants_1.GameStatus.characterCreation);
+        GameStateManager_1.default.changeStatus(constants_1.GameStatus.characterCreation);
     });
 }

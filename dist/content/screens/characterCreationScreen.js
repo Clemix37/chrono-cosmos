@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCharacterGeneratedById = exports.displayRandomCharacters = exports.launchGameCharacterCreationScreen = void 0;
+exports.generateRandomStat = exports.getCharacterGeneratedById = exports.generateThreeRandomCharacters = exports.displayRandomCharacters = exports.launchGameCharacterCreationScreen = void 0;
 const Character_1 = __importDefault(require("../Classes/Character"));
 const constants_1 = require("../utils/constants");
 const formulas_1 = require("../utils/formulas/formulas");
@@ -27,6 +27,7 @@ function generateRandomStat(keyStat) {
     }
     return (0, formulas_1.toDecimal)(probas[Math.floor(Math.random() * probas.length)], 2);
 }
+exports.generateRandomStat = generateRandomStat;
 function generateThreeRandomCharacters() {
     charactersGenerated = [];
     for (let i = 0; i < constants_1.NB_RANDOM_CHARACTER; i++) {
@@ -40,13 +41,13 @@ function generateThreeRandomCharacters() {
     }
     return charactersGenerated;
 }
+exports.generateThreeRandomCharacters = generateThreeRandomCharacters;
 //#endregion
 /**
  * Returns the character generated from its id
  * @returns {Character}
  */
 function getCharacterGeneratedById(id) {
-    console.log(charactersGenerated);
     return charactersGenerated.find((char) => char.id === id);
 }
 exports.getCharacterGeneratedById = getCharacterGeneratedById;
@@ -60,6 +61,8 @@ function getRandomCharacters() {
 function displayRandomCharacters() {
     const display = getRandomCharacters();
     const listCharacters = document.getElementById(constants_1.IDS_GAME_DIVS.LIST_CHARACTERS);
+    if (!listCharacters)
+        return void 0;
     listCharacters.innerHTML = display;
 }
 exports.displayRandomCharacters = displayRandomCharacters;

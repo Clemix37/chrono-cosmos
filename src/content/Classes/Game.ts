@@ -1,47 +1,25 @@
 import IGame from "../../interfaces/IGame";
-import IGameConfig from "../../interfaces/IGameConfig";
 import { getDataFromLocalStorage } from "../utils/data/data";
-import { formatEnergy, toDecimal } from "../utils/formulas/formulas";
+import { toDecimal } from "../utils/formulas/formulas";
 import { getOrCreateConfig } from "../utils/utils";
-import { GameContent, getOrCreateGameContent } from "./GameContent";
+import GameContent from "./GameContent";
 import { launchGameScreen } from "../screens/playingScreen";
 import { launchGameStartScreen } from "../screens/startScreen";
 import { launchGameEndScreen } from "../screens/endScreen";
-import { CHARACTER_STATS, CLASSES_GAME, GameStatus, IDS_GAME_DIVS, SESSIONS_KEYS } from "../utils/constants";
+import { CHARACTER_STATS, CLASSES_GAME, GameStatus, SESSIONS_KEYS } from "../utils/constants";
 import {
 	displayRandomCharacters,
 	getCharacterGeneratedById,
 	launchGameCharacterCreationScreen,
 } from "../screens/characterCreationScreen";
 import Character from "./Character";
+import DisplayManager from "./DisplayManager";
+import GameStateManager from "./GameStateManager";
+import Spaceship from "./Spaceship";
 
 export class Game implements IGame {
 	//#region Properties
 
-	/**
-	 * The level of the current spaceship
-	 */
-	spaceshipLevel: number;
-	/**
-	 * Energy counter
-	 */
-	energy: number;
-	/**
-	 * Game config
-	 */
-	config: IGameConfig;
-	/**
-	 * Game components
-	 */
-	components: GameContent[];
-	/**
-	 * Game resources
-	 */
-	resources: GameContent[];
-	/**
-	 * Character the player is playing
-	 */
-	character?: Character;
 	/**
 	 * Game passed as the player traveled through time
 	 */
@@ -64,15 +42,16 @@ export class Game implements IGame {
 	//#region Constructor
 
 	constructor() {
-		this.spaceshipLevel = getDataFromLocalStorage(SESSIONS_KEYS.SPACESHIP_LEVEL);
-		this.energy = getDataFromLocalStorage(SESSIONS_KEYS.ENERGY) ?? 3;
-		this.config = getOrCreateConfig();
-		this.character = getDataFromLocalStorage(SESSIONS_KEYS.GAME_CHAR) ?? null;
-		const gameContent = getOrCreateGameContent();
-		this.components = gameContent.components;
-		this.resources = gameContent.resources;
+		GameStateManager.spaceship = new Spaceship(getDataFromLocalStorage(SESSIONS_KEYS.SPACESHIP) ?? {});
+		GameStateManager.energy = getDataFromLocalStorage(SESSIONS_KEYS.ENERGY) ?? 3;
+		GameStateManager.config = getOrCreateConfig();
+		GameStateManager.character = getDataFromLocalStorage(SESSIONS_KEYS.GAME_CHAR) ?? null;
+		const gameContent = GameContent.getOrCreateGameContent();
+		GameStateManager.components = gameContent.components;
+		GameStateManager.resources = gameContent.resources;
 		this.#lastClickDate = new Date();
-		this.#displayEnergy(this.energy);
+		DisplayManager.displayEnergy();
+		GameStateManager.game = this;
 	}
 
 	//#endregion
@@ -90,16 +69,16 @@ export class Game implements IGame {
 	 * Saves the energy, the config, and the contents in the localStorage
 	 */
 	saveGame() {
-		localStorage.setItem(SESSIONS_KEYS.ENERGY, JSON.stringify(this.energy));
-		localStorage.setItem(SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(this.config));
+		localStorage.setItem(SESSIONS_KEYS.ENERGY, JSON.stringify(GameStateManager.energy));
+		localStorage.setItem(SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(GameStateManager.config));
 		localStorage.setItem(
 			SESSIONS_KEYS.GAME_CONTENT,
 			JSON.stringify({
-				components: this.components,
-				resources: this.resources,
+				components: GameStateManager.components,
+				resources: GameStateManager.resources,
 			}),
 		);
-		localStorage.setItem(SESSIONS_KEYS.GAME_CHAR, JSON.stringify(this.character));
+		localStorage.setItem(SESSIONS_KEYS.GAME_CHAR, JSON.stringify(GameStateManager.character));
 	}
 
 	/**
@@ -118,7 +97,7 @@ export class Game implements IGame {
 	 * 	Launch the screen necessary
 	 */
 	async launchActualScreen() {
-		switch (this.config.status) {
+		switch (GameStateManager.config.status) {
 			case GameStatus.notStarted:
 				await launchGameStartScreen();
 				break;
@@ -128,7 +107,7 @@ export class Game implements IGame {
 				this.#attachCharacterSelectEvent();
 				break;
 			case GameStatus.playing:
-				await launchGameScreen(this.config);
+				await launchGameScreen(GameStateManager.config);
 				this.#displayAndAttachGameContents();
 				this.#attachAddOneEnergyBtn();
 				this.#displayCurrentCharacter();
@@ -137,20 +116,6 @@ export class Game implements IGame {
 				await launchGameEndScreen();
 				break;
 		}
-	}
-
-	/**
-	 * Change the current game status
-	 * @param newStatus
-	 */
-	changeStatus(newStatus: string) {
-		this.config.status = newStatus;
-		this.launchActualScreen();
-	}
-
-	upgradeSpaceship() {
-		this.spaceshipLevel++;
-		// TODO: update some stuff
 	}
 
 	//#endregion
@@ -166,12 +131,18 @@ export class Game implements IGame {
 	 */
 	#countEverySecond() {
 		if (!!this._interval) clearInterval(this._interval);
-		this.#displayEnergy(this.energy);
+		DisplayManager.displayEnergy();
 		this._interval = setInterval(() => {
-			const gainComponents = this.components.reduce((acc, comp) => acc + comp.level * comp.gainPerSecond, 0);
-			const gainResources = this.resources.reduce((acc, res) => acc + res.level * res.gainPerSecond, 0);
-			this.energy = toDecimal(this.energy + gainComponents + gainResources);
-			this.#displayEnergy(this.energy);
+			const gainComponents = GameStateManager.components.reduce(
+				(acc, comp) => acc + comp.level * comp.gainPerSecond,
+				0,
+			);
+			const gainResources = GameStateManager.resources.reduce(
+				(acc, res) => acc + res.level * res.gainPerSecond,
+				0,
+			);
+			GameStateManager.energy = toDecimal(GameStateManager.energy + gainComponents + gainResources);
+			DisplayManager.displayEnergy();
 			this.#displayAndAttachGameContents();
 			this.saveGame();
 		}, 1000); /// ((this.character?.speed ?? 1) + (this.character?.intelligence ?? 1) - (this.character?.strength ?? 1))
@@ -188,102 +159,9 @@ export class Game implements IGame {
 	#displayAndAttachGameContents(): void {
 		if (!!this._interval) clearInterval(this._interval);
 		this.saveGame();
-		this.#displayGameContents(
-			[...this.components].sort((a, b) => (a.upgradeCost ?? 0) - (b.upgradeCost ?? 0)),
-			[...this.resources].sort((a, b) => (a.upgradeCost ?? 0) - (b.upgradeCost ?? 0)),
-		);
+		DisplayManager.display();
 		this.#attachEvents();
-		if (this.config.status === "playing") this.#countEverySecond();
-	}
-
-	/**
-	 * Display game contents
-	 * @param components
-	 * @param resources
-	 * @returns {void}
-	 */
-	#displayGameContents(components: GameContent[], resources: GameContent[]): void {
-		this.#displayBigContents(components, resources);
-		const divListComponents: HTMLDivElement = document.querySelector(".components-list") as HTMLDivElement;
-		if (!divListComponents) return;
-		divListComponents.innerHTML = "";
-		// Components
-		divListComponents.innerHTML += `<div class="mini-header">
-                <h3>Components</h3>
-                <div class="small">${components.filter((r) => r.upgradeCost! <= this.energy).length} available</div>
-            </div>`;
-		const displayComponents = components
-			.filter((c) => c.upgradeCost! <= this.energy)
-			.reduce(
-				(prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`,
-				``,
-			);
-		divListComponents.innerHTML += displayComponents;
-		const divListResources: HTMLDivElement = document.querySelector(".resources-list") as HTMLDivElement;
-		if (!divListResources) return;
-		// Resources
-		divListResources.innerHTML = "";
-		divListResources.innerHTML += `<div class="mini-header">
-                <h3>Resources</h3>
-                <div class="small">${resources.filter((r) => r.upgradeCost! <= this.energy).length} available</div>
-            </div>`;
-		const displayResources = resources
-			.filter((r) => r.upgradeCost! <= this.energy)
-			.reduce(
-				(prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`,
-				``,
-			);
-		divListResources.innerHTML += displayResources;
-		this.#displayBigContents(components, resources);
-	}
-
-	#displayBigContents(components: GameContent[], resources: GameContent[]): void {
-		const componentsOrderedBestLevel: GameContent[] = components
-			.filter((c) => c.level > 0)
-			.sort((a, b) => a.level - b.level);
-		const resourcesOrderedBestLevel: GameContent[] = resources
-			.filter((r) => r.level > 0)
-			.sort((a, b) => a.level - b.level);
-		const bottomCards: HTMLDivElement = document.querySelector(".bottom")!;
-		if (!bottomCards) return;
-		bottomCards.innerHTML = "";
-		const addContent = (content: GameContent, title: string) => {
-			bottomCards.innerHTML += content.getHtmlTemplateGameContentAsBig(this.energy, title);
-		};
-		if (componentsOrderedBestLevel.length > 0) {
-			addContent(componentsOrderedBestLevel[0], "Highest Level Component");
-			if (componentsOrderedBestLevel.length > 1)
-				addContent(componentsOrderedBestLevel[1], "Second highest Level Component");
-		}
-		if (resourcesOrderedBestLevel.length > 0) {
-			addContent(resourcesOrderedBestLevel[0], "Highest Level Resource");
-			if (resourcesOrderedBestLevel.length > 1)
-				addContent(resourcesOrderedBestLevel[1], "Second highest Level Resource");
-		}
-	}
-
-	/**
-	 * Display the energy given
-	 * @param ernegy number of energy
-	 */
-	#displayEnergy(ernegy: number): void {
-		const energyCounter = document.getElementById("lbl-energy-counter");
-		if (!energyCounter) return;
-		energyCounter.textContent = `${formatEnergy(ernegy)}⚡`;
-		this.#displayEnergyPerSecond();
-	}
-
-	/**
-	 * Display the number of energy per second generated
-	 * @returns {void}
-	 */
-	#displayEnergyPerSecond(): void {
-		const divPerSec: HTMLDivElement = document.querySelector("#energy-per-second") as HTMLDivElement;
-		if (!divPerSec) return;
-		const totalGain: number = ([...this.components, this.resources] as GameContent[])
-			.filter((content) => content.level > 0)
-			.reduce((acc, content) => acc + content.gainPerSecond * content.level, 0);
-		divPerSec.innerHTML = `Energy / second: +${totalGain.toFixed(1)}`;
+		if (GameStateManager.config.status === "playing") this.#countEverySecond();
 	}
 
 	/**
@@ -294,13 +172,19 @@ export class Game implements IGame {
 		const intelligenceBar: HTMLElement = document.querySelector("#intelligence-bar") as HTMLElement;
 		const speedBar: HTMLElement = document.querySelector("#speed-bar") as HTMLElement;
 		strengthBar.style.width = `${
-			!this.character?.strength ? 0 : (this.character?.strength / CHARACTER_STATS.strength[1]) * 100
+			!GameStateManager.character?.strength
+				? 0
+				: (GameStateManager.character?.strength / CHARACTER_STATS.strength[1]) * 100
 		}%`;
 		intelligenceBar.style.width = `${
-			!this.character?.intelligence ? 0 : (this.character?.intelligence / CHARACTER_STATS.intelligence[1]) * 100
+			!GameStateManager.character?.intelligence
+				? 0
+				: (GameStateManager.character?.intelligence / CHARACTER_STATS.intelligence[1]) * 100
 		}%`;
 		speedBar.style.width = `${
-			!this.character?.speed ? 0 : (this.character?.speed / CHARACTER_STATS.speed[1]) * 100
+			!GameStateManager.character?.speed
+				? 0
+				: (GameStateManager.character?.speed / CHARACTER_STATS.speed[1]) * 100
 		}%`;
 	}
 
@@ -312,7 +196,7 @@ export class Game implements IGame {
 	 * Attach every event on the DOM
 	 */
 	#attachEvents() {
-		const all: GameContent[] = [...this.components, ...this.resources];
+		const all: GameContent[] = [...GameStateManager.components, ...GameStateManager.resources];
 		for (let i = 0; i < all.length; i++) {
 			const content = all[i];
 			if (!content.idBtn) continue;
@@ -320,9 +204,9 @@ export class Game implements IGame {
 			if (!btn) continue;
 			btn.addEventListener("click", () => {
 				const cost = content.upgradeCost || content.baseCost;
-				if (cost > this.energy) return;
-				this.energy = toDecimal(this.energy - cost);
-				this.#displayEnergy(this.energy);
+				if (cost > GameStateManager.energy) return;
+				GameStateManager.energy = toDecimal(GameStateManager.energy - cost);
+				DisplayManager.displayEnergy();
 				content.upgrade();
 				this.#displayAndAttachGameContents();
 			});
@@ -340,8 +224,8 @@ export class Game implements IGame {
 			const delay: number = new Date().getTime() - this.#lastClickDate.getTime();
 			if (delay < this.#minDelay) return;
 			this.#lastClickDate = new Date();
-			this.energy += 1;
-			this.#displayEnergy(this.energy);
+			GameStateManager.energy += 1;
+			DisplayManager.displayEnergy();
 		});
 	}
 
@@ -353,10 +237,10 @@ export class Game implements IGame {
 		const auClic = (e: any) => {
 			const id = e.target.dataset.id;
 			const char: Character = getCharacterGeneratedById(id);
-			this.character = char;
+			GameStateManager.character = char;
 			// Saves the current character selected
 			this.saveGame();
-			this.changeStatus(GameStatus.playing);
+			GameStateManager.changeStatus(GameStatus.playing);
 		};
 		for (let i = 0; i < btnSelectChar.length; i++) {
 			const btn = btnSelectChar[i];

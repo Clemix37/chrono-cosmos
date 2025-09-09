@@ -37,7 +37,6 @@ function generateThreeRandomCharacters(): Character[] {
  * @returns {Character}
  */
 function getCharacterGeneratedById(id: string): Character {
-	console.log(charactersGenerated);
 	return charactersGenerated.find((char) => char.id === id) as Character;
 }
 
@@ -52,9 +51,10 @@ function getRandomCharacters(): string {
 /**
  * Display characters randomly generated
  */
-function displayRandomCharacters() {
+function displayRandomCharacters(): void {
 	const display = getRandomCharacters();
 	const listCharacters: HTMLDivElement = document.getElementById(IDS_GAME_DIVS.LIST_CHARACTERS) as HTMLDivElement;
+	if (!listCharacters) return void 0;
 	listCharacters.innerHTML = display;
 }
 
@@ -67,4 +67,10 @@ async function launchGameCharacterCreationScreen(): Promise<void> {
 	document.body.innerHTML = htmlContent;
 }
 
-export { launchGameCharacterCreationScreen, displayRandomCharacters, getCharacterGeneratedById };
+export {
+	launchGameCharacterCreationScreen,
+	displayRandomCharacters,
+	generateThreeRandomCharacters,
+	getCharacterGeneratedById,
+	generateRandomStat,
+};

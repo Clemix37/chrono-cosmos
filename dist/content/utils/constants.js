@@ -41,7 +41,7 @@ exports.SESSIONS_KEYS = {
     GAME_CONTENT: "ccGameContent",
     ENERGY: "ccEnergyCounter",
     GAME_CHAR: "ccGameChar",
-    SPACESHIP_LEVEL: "ccSpaceshipLevel",
+    SPACESHIP: "ccSpaceship",
 };
 exports.NUMBERS = {
     THOUSAND: 1e3,

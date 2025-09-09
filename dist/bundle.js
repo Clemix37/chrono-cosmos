@@ -31,7 +31,124 @@ class Character {
 }
 exports.default = Character;
 
-},{"../utils/constants":10,"../utils/utils":15}],2:[function(require,module,exports){
+},{"../utils/constants":13,"../utils/utils":18}],2:[function(require,module,exports){
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const formulas_1 = require("../utils/formulas/formulas");
+const GameStateManager_1 = __importDefault(require("./GameStateManager"));
+class DisplayManager {
+    /**
+     * Display game contents
+     * Display energy
+     */
+    static display() {
+        DisplayManager.displayGameContents();
+        DisplayManager.displayMostUsedContents();
+        DisplayManager.displayEnergy();
+        DisplayManager.displayEnergyPerSecond();
+    }
+    //#region Game Content
+    /**
+     * Display game contents available
+     * Display most used contents
+     * @param components
+     * @param resources
+     * @returns {void}
+     */
+    static displayGameContents() {
+        DisplayManager.displayMostUsedContents();
+        const divListComponents = document.querySelector(".components-list");
+        if (!divListComponents)
+            return void 0;
+        divListComponents.innerHTML = "";
+        // Components
+        const components = GameStateManager_1.default.components;
+        divListComponents.innerHTML += `<div class="mini-header">
+                    <h3>Components</h3>
+                    <div class="small">${components.filter((c) => c.upgradeCost <= GameStateManager_1.default.energy).length} available</div>
+                </div>`;
+        const displayComponents = components
+            .sort((a, b) => { var _a, _b; return ((_a = a.upgradeCost) !== null && _a !== void 0 ? _a : 0) - ((_b = b.upgradeCost) !== null && _b !== void 0 ? _b : 0); })
+            .filter((c) => c.upgradeCost <= GameStateManager_1.default.energy)
+            .reduce((prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(GameStateManager_1.default.energy)}`, ``);
+        divListComponents.innerHTML += displayComponents;
+        const divListResources = document.querySelector(".resources-list");
+        if (!divListResources)
+            return void 0;
+        // Resources
+        const resources = GameStateManager_1.default.resources;
+        divListResources.innerHTML = "";
+        divListResources.innerHTML += `<div class="mini-header">
+                    <h3>Resources</h3>
+                    <div class="small">${resources.filter((r) => r.upgradeCost <= GameStateManager_1.default.energy).length} available</div>
+                </div>`;
+        const displayResources = resources
+            .sort((a, b) => { var _a, _b; return ((_a = a.upgradeCost) !== null && _a !== void 0 ? _a : 0) - ((_b = b.upgradeCost) !== null && _b !== void 0 ? _b : 0); })
+            .filter((r) => r.upgradeCost <= GameStateManager_1.default.energy)
+            .reduce((prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(GameStateManager_1.default.energy)}`, ``);
+        divListResources.innerHTML += displayResources;
+    }
+    /***
+     * Display most used contents
+     * @param components
+     * @param resources
+     */
+    static displayMostUsedContents() {
+        const componentsOrderedBestLevel = GameStateManager_1.default.components
+            .filter((c) => c.level > 0)
+            .sort((a, b) => a.level - b.level);
+        const resourcesOrderedBestLevel = GameStateManager_1.default.resources
+            .filter((r) => r.level > 0)
+            .sort((a, b) => a.level - b.level);
+        const bottomCards = document.querySelector(".bottom");
+        if (!bottomCards)
+            return void 0;
+        bottomCards.innerHTML = "";
+        const addContent = (content, title) => {
+            bottomCards.innerHTML += content.getHtmlTemplateGameContentAsBig(GameStateManager_1.default.energy, title);
+        };
+        if (componentsOrderedBestLevel.length > 0) {
+            addContent(componentsOrderedBestLevel[0], "Highest Level Component");
+            if (componentsOrderedBestLevel.length > 1)
+                addContent(componentsOrderedBestLevel[1], "Second highest Level Component");
+        }
+        if (resourcesOrderedBestLevel.length > 0) {
+            addContent(resourcesOrderedBestLevel[0], "Highest Level Resource");
+            if (resourcesOrderedBestLevel.length > 1)
+                addContent(resourcesOrderedBestLevel[1], "Second highest Level Resource");
+        }
+    }
+    //#endregion
+    //#region Energy
+    /**
+     * Display the energy given
+     */
+    static displayEnergy() {
+        const energyCounter = document.getElementById("lbl-energy-counter");
+        if (!energyCounter)
+            return void 0;
+        energyCounter.textContent = `${(0, formulas_1.formatEnergy)(GameStateManager_1.default.energy)}⚡`;
+    }
+    /**
+     * Display the number of energy per second generated
+     * @returns {void}
+     */
+    static displayEnergyPerSecond() {
+        const divPerSec = document.querySelector("#energy-per-second");
+        if (!divPerSec)
+            return void 0;
+        const totalGain = [...GameStateManager_1.default.components, GameStateManager_1.default.resources]
+            .filter((content) => content.level > 0)
+            .reduce((acc, content) => acc + content.gainPerSecond * content.level, 0);
+        divPerSec.innerHTML = `Energy / second: +${totalGain.toFixed(1)}`;
+    }
+}
+exports.default = DisplayManager;
+
+},{"../utils/formulas/formulas":17,"./GameStateManager":5}],3:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -53,23 +170,29 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _Game_instances, _Game_minDelay, _Game_lastClickDate, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayGameContents, _Game_displayBigContents, _Game_displayEnergy, _Game_displayEnergyPerSecond, _Game_displayCurrentCharacter, _Game_attachEvents, _Game_attachAddOneEnergyBtn, _Game_attachCharacterSelectEvent;
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var _Game_instances, _Game_minDelay, _Game_lastClickDate, _Game_countEverySecond, _Game_displayAndAttachGameContents, _Game_displayCurrentCharacter, _Game_attachEvents, _Game_attachAddOneEnergyBtn, _Game_attachCharacterSelectEvent;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.recreateGame = exports.game = exports.Game = void 0;
 const data_1 = require("../utils/data/data");
 const formulas_1 = require("../utils/formulas/formulas");
 const utils_1 = require("../utils/utils");
-const GameContent_1 = require("./GameContent");
+const GameContent_1 = __importDefault(require("./GameContent"));
 const playingScreen_1 = require("../screens/playingScreen");
 const startScreen_1 = require("../screens/startScreen");
 const endScreen_1 = require("../screens/endScreen");
 const constants_1 = require("../utils/constants");
 const characterCreationScreen_1 = require("../screens/characterCreationScreen");
+const DisplayManager_1 = __importDefault(require("./DisplayManager"));
+const GameStateManager_1 = __importDefault(require("./GameStateManager"));
+const Spaceship_1 = __importDefault(require("./Spaceship"));
 class Game {
     //#endregion
     //#region Constructor
     constructor() {
-        var _a, _b;
+        var _a, _b, _c;
         _Game_instances.add(this);
         /**
          * Min delay before next click
@@ -79,15 +202,16 @@ class Game {
          * Date of last click
          */
         _Game_lastClickDate.set(this, void 0);
-        this.spaceshipLevel = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.SPACESHIP_LEVEL);
-        this.energy = (_a = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.ENERGY)) !== null && _a !== void 0 ? _a : 3;
-        this.config = (0, utils_1.getOrCreateConfig)();
-        this.character = (_b = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.GAME_CHAR)) !== null && _b !== void 0 ? _b : null;
-        const gameContent = (0, GameContent_1.getOrCreateGameContent)();
-        this.components = gameContent.components;
-        this.resources = gameContent.resources;
+        GameStateManager_1.default.spaceship = new Spaceship_1.default((_a = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.SPACESHIP)) !== null && _a !== void 0 ? _a : {});
+        GameStateManager_1.default.energy = (_b = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.ENERGY)) !== null && _b !== void 0 ? _b : 3;
+        GameStateManager_1.default.config = (0, utils_1.getOrCreateConfig)();
+        GameStateManager_1.default.character = (_c = (0, data_1.getDataFromLocalStorage)(constants_1.SESSIONS_KEYS.GAME_CHAR)) !== null && _c !== void 0 ? _c : null;
+        const gameContent = GameContent_1.default.getOrCreateGameContent();
+        GameStateManager_1.default.components = gameContent.components;
+        GameStateManager_1.default.resources = gameContent.resources;
         __classPrivateFieldSet(this, _Game_lastClickDate, new Date(), "f");
-        __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
+        DisplayManager_1.default.displayEnergy();
+        GameStateManager_1.default.game = this;
     }
     //#endregion
     //#region Public methods
@@ -101,13 +225,13 @@ class Game {
      * Saves the energy, the config, and the contents in the localStorage
      */
     saveGame() {
-        localStorage.setItem(constants_1.SESSIONS_KEYS.ENERGY, JSON.stringify(this.energy));
-        localStorage.setItem(constants_1.SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(this.config));
+        localStorage.setItem(constants_1.SESSIONS_KEYS.ENERGY, JSON.stringify(GameStateManager_1.default.energy));
+        localStorage.setItem(constants_1.SESSIONS_KEYS.GAME_CONFIG, JSON.stringify(GameStateManager_1.default.config));
         localStorage.setItem(constants_1.SESSIONS_KEYS.GAME_CONTENT, JSON.stringify({
-            components: this.components,
-            resources: this.resources,
+            components: GameStateManager_1.default.components,
+            resources: GameStateManager_1.default.resources,
         }));
-        localStorage.setItem(constants_1.SESSIONS_KEYS.GAME_CHAR, JSON.stringify(this.character));
+        localStorage.setItem(constants_1.SESSIONS_KEYS.GAME_CHAR, JSON.stringify(GameStateManager_1.default.character));
     }
     /**
      * Remove every item in the local storage
@@ -125,7 +249,7 @@ class Game {
      */
     launchActualScreen() {
         return __awaiter(this, void 0, void 0, function* () {
-            switch (this.config.status) {
+            switch (GameStateManager_1.default.config.status) {
                 case constants_1.GameStatus.notStarted:
                     yield (0, startScreen_1.launchGameStartScreen)();
                     break;
@@ -135,7 +259,7 @@ class Game {
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachCharacterSelectEvent).call(this);
                     break;
                 case constants_1.GameStatus.playing:
-                    yield (0, playingScreen_1.launchGameScreen)(this.config);
+                    yield (0, playingScreen_1.launchGameScreen)(GameStateManager_1.default.config);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachAddOneEnergyBtn).call(this);
                     __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayCurrentCharacter).call(this);
@@ -146,29 +270,17 @@ class Game {
             }
         });
     }
-    /**
-     * Change the current game status
-     * @param newStatus
-     */
-    changeStatus(newStatus) {
-        this.config.status = newStatus;
-        this.launchActualScreen();
-    }
-    upgradeSpaceship() {
-        this.spaceshipLevel++;
-        // TODO: update some stuff
-    }
 }
 exports.Game = Game;
 _Game_minDelay = new WeakMap(), _Game_lastClickDate = new WeakMap(), _Game_instances = new WeakSet(), _Game_countEverySecond = function _Game_countEverySecond() {
     if (!!this._interval)
         clearInterval(this._interval);
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
+    DisplayManager_1.default.displayEnergy();
     this._interval = setInterval(() => {
-        const gainComponents = this.components.reduce((acc, comp) => acc + comp.level * comp.gainPerSecond, 0);
-        const gainResources = this.resources.reduce((acc, res) => acc + res.level * res.gainPerSecond, 0);
-        this.energy = (0, formulas_1.toDecimal)(this.energy + gainComponents + gainResources);
-        __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
+        const gainComponents = GameStateManager_1.default.components.reduce((acc, comp) => acc + comp.level * comp.gainPerSecond, 0);
+        const gainResources = GameStateManager_1.default.resources.reduce((acc, res) => acc + res.level * res.gainPerSecond, 0);
+        GameStateManager_1.default.energy = (0, formulas_1.toDecimal)(GameStateManager_1.default.energy + gainComponents + gainResources);
+        DisplayManager_1.default.displayEnergy();
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         this.saveGame();
     }, 1000); /// ((this.character?.speed ?? 1) + (this.character?.intelligence ?? 1) - (this.character?.strength ?? 1))
@@ -176,87 +288,26 @@ _Game_minDelay = new WeakMap(), _Game_lastClickDate = new WeakMap(), _Game_insta
     if (!!this._interval)
         clearInterval(this._interval);
     this.saveGame();
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayGameContents).call(this, [...this.components].sort((a, b) => { var _a, _b; return ((_a = a.upgradeCost) !== null && _a !== void 0 ? _a : 0) - ((_b = b.upgradeCost) !== null && _b !== void 0 ? _b : 0); }), [...this.resources].sort((a, b) => { var _a, _b; return ((_a = a.upgradeCost) !== null && _a !== void 0 ? _a : 0) - ((_b = b.upgradeCost) !== null && _b !== void 0 ? _b : 0); }));
+    DisplayManager_1.default.display();
     __classPrivateFieldGet(this, _Game_instances, "m", _Game_attachEvents).call(this);
-    if (this.config.status === "playing")
+    if (GameStateManager_1.default.config.status === "playing")
         __classPrivateFieldGet(this, _Game_instances, "m", _Game_countEverySecond).call(this);
-}, _Game_displayGameContents = function _Game_displayGameContents(components, resources) {
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayBigContents).call(this, components, resources);
-    const divListComponents = document.querySelector(".components-list");
-    if (!divListComponents)
-        return;
-    divListComponents.innerHTML = "";
-    // Components
-    divListComponents.innerHTML += `<div class="mini-header">
-                <h3>Components</h3>
-                <div class="small">${components.filter((r) => r.upgradeCost <= this.energy).length} available</div>
-            </div>`;
-    const displayComponents = components
-        .filter((c) => c.upgradeCost <= this.energy)
-        .reduce((prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`, ``);
-    divListComponents.innerHTML += displayComponents;
-    const divListResources = document.querySelector(".resources-list");
-    if (!divListResources)
-        return;
-    // Resources
-    divListResources.innerHTML = "";
-    divListResources.innerHTML += `<div class="mini-header">
-                <h3>Resources</h3>
-                <div class="small">${resources.filter((r) => r.upgradeCost <= this.energy).length} available</div>
-            </div>`;
-    const displayResources = resources
-        .filter((r) => r.upgradeCost <= this.energy)
-        .reduce((prevDisplay, currContent) => `${prevDisplay}${currContent.getHtmlTemplateGameContent(this.energy)}`, ``);
-    divListResources.innerHTML += displayResources;
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayBigContents).call(this, components, resources);
-}, _Game_displayBigContents = function _Game_displayBigContents(components, resources) {
-    const componentsOrderedBestLevel = components
-        .filter((c) => c.level > 0)
-        .sort((a, b) => a.level - b.level);
-    const resourcesOrderedBestLevel = resources
-        .filter((r) => r.level > 0)
-        .sort((a, b) => a.level - b.level);
-    const bottomCards = document.querySelector(".bottom");
-    if (!bottomCards)
-        return;
-    bottomCards.innerHTML = "";
-    const addContent = (content, title) => {
-        bottomCards.innerHTML += content.getHtmlTemplateGameContentAsBig(this.energy, title);
-    };
-    if (componentsOrderedBestLevel.length > 0) {
-        addContent(componentsOrderedBestLevel[0], "Highest Level Component");
-        if (componentsOrderedBestLevel.length > 1)
-            addContent(componentsOrderedBestLevel[1], "Second highest Level Component");
-    }
-    if (resourcesOrderedBestLevel.length > 0) {
-        addContent(resourcesOrderedBestLevel[0], "Highest Level Resource");
-        if (resourcesOrderedBestLevel.length > 1)
-            addContent(resourcesOrderedBestLevel[1], "Second highest Level Resource");
-    }
-}, _Game_displayEnergy = function _Game_displayEnergy(ernegy) {
-    const energyCounter = document.getElementById("lbl-energy-counter");
-    if (!energyCounter)
-        return;
-    energyCounter.textContent = `${(0, formulas_1.formatEnergy)(ernegy)}⚡`;
-    __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergyPerSecond).call(this);
-}, _Game_displayEnergyPerSecond = function _Game_displayEnergyPerSecond() {
-    const divPerSec = document.querySelector("#energy-per-second");
-    if (!divPerSec)
-        return;
-    const totalGain = [...this.components, this.resources]
-        .filter((content) => content.level > 0)
-        .reduce((acc, content) => acc + content.gainPerSecond * content.level, 0);
-    divPerSec.innerHTML = `Energy / second: +${totalGain.toFixed(1)}`;
 }, _Game_displayCurrentCharacter = function _Game_displayCurrentCharacter() {
     var _a, _b, _c, _d, _e, _f;
     const strengthBar = document.querySelector("#strength-bar");
     const intelligenceBar = document.querySelector("#intelligence-bar");
     const speedBar = document.querySelector("#speed-bar");
-    strengthBar.style.width = `${!((_a = this.character) === null || _a === void 0 ? void 0 : _a.strength) ? 0 : (((_b = this.character) === null || _b === void 0 ? void 0 : _b.strength) / constants_1.CHARACTER_STATS.strength[1]) * 100}%`;
-    intelligenceBar.style.width = `${!((_c = this.character) === null || _c === void 0 ? void 0 : _c.intelligence) ? 0 : (((_d = this.character) === null || _d === void 0 ? void 0 : _d.intelligence) / constants_1.CHARACTER_STATS.intelligence[1]) * 100}%`;
-    speedBar.style.width = `${!((_e = this.character) === null || _e === void 0 ? void 0 : _e.speed) ? 0 : (((_f = this.character) === null || _f === void 0 ? void 0 : _f.speed) / constants_1.CHARACTER_STATS.speed[1]) * 100}%`;
+    strengthBar.style.width = `${!((_a = GameStateManager_1.default.character) === null || _a === void 0 ? void 0 : _a.strength)
+        ? 0
+        : (((_b = GameStateManager_1.default.character) === null || _b === void 0 ? void 0 : _b.strength) / constants_1.CHARACTER_STATS.strength[1]) * 100}%`;
+    intelligenceBar.style.width = `${!((_c = GameStateManager_1.default.character) === null || _c === void 0 ? void 0 : _c.intelligence)
+        ? 0
+        : (((_d = GameStateManager_1.default.character) === null || _d === void 0 ? void 0 : _d.intelligence) / constants_1.CHARACTER_STATS.intelligence[1]) * 100}%`;
+    speedBar.style.width = `${!((_e = GameStateManager_1.default.character) === null || _e === void 0 ? void 0 : _e.speed)
+        ? 0
+        : (((_f = GameStateManager_1.default.character) === null || _f === void 0 ? void 0 : _f.speed) / constants_1.CHARACTER_STATS.speed[1]) * 100}%`;
 }, _Game_attachEvents = function _Game_attachEvents() {
-    const all = [...this.components, ...this.resources];
+    const all = [...GameStateManager_1.default.components, ...GameStateManager_1.default.resources];
     for (let i = 0; i < all.length; i++) {
         const content = all[i];
         if (!content.idBtn)
@@ -266,10 +317,10 @@ _Game_minDelay = new WeakMap(), _Game_lastClickDate = new WeakMap(), _Game_insta
             continue;
         btn.addEventListener("click", () => {
             const cost = content.upgradeCost || content.baseCost;
-            if (cost > this.energy)
+            if (cost > GameStateManager_1.default.energy)
                 return;
-            this.energy = (0, formulas_1.toDecimal)(this.energy - cost);
-            __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
+            GameStateManager_1.default.energy = (0, formulas_1.toDecimal)(GameStateManager_1.default.energy - cost);
+            DisplayManager_1.default.displayEnergy();
             content.upgrade();
             __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayAndAttachGameContents).call(this);
         });
@@ -285,18 +336,18 @@ _Game_minDelay = new WeakMap(), _Game_lastClickDate = new WeakMap(), _Game_insta
         if (delay < __classPrivateFieldGet(this, _Game_minDelay, "f"))
             return;
         __classPrivateFieldSet(this, _Game_lastClickDate, new Date(), "f");
-        this.energy += 1;
-        __classPrivateFieldGet(this, _Game_instances, "m", _Game_displayEnergy).call(this, this.energy);
+        GameStateManager_1.default.energy += 1;
+        DisplayManager_1.default.displayEnergy();
     });
 }, _Game_attachCharacterSelectEvent = function _Game_attachCharacterSelectEvent() {
     const btnSelectChar = document.querySelectorAll(`.${constants_1.CLASSES_GAME.SELECT_CHARACTER}`);
     const auClic = (e) => {
         const id = e.target.dataset.id;
         const char = (0, characterCreationScreen_1.getCharacterGeneratedById)(id);
-        this.character = char;
+        GameStateManager_1.default.character = char;
         // Saves the current character selected
         this.saveGame();
-        this.changeStatus(constants_1.GameStatus.playing);
+        GameStateManager_1.default.changeStatus(constants_1.GameStatus.playing);
     };
     for (let i = 0; i < btnSelectChar.length; i++) {
         const btn = btnSelectChar[i];
@@ -312,48 +363,15 @@ function recreateGame() {
 exports.recreateGame = recreateGame;
 recreateGame();
 
-},{"../screens/characterCreationScreen":4,"../screens/endScreen":5,"../screens/playingScreen":6,"../screens/startScreen":7,"../utils/constants":10,"../utils/data/data":12,"../utils/formulas/formulas":14,"../utils/utils":15,"./GameContent":3}],3:[function(require,module,exports){
+},{"../screens/characterCreationScreen":7,"../screens/endScreen":8,"../screens/playingScreen":9,"../screens/startScreen":10,"../utils/constants":13,"../utils/data/data":15,"../utils/formulas/formulas":17,"../utils/utils":18,"./DisplayManager":2,"./GameContent":4,"./GameStateManager":5,"./Spaceship":6}],4:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOrCreateGameContent = exports.GameContent = void 0;
 const components_json_1 = __importDefault(require("../utils/data/components.json"));
 const components_1 = require("../utils/components/components");
 const formulas_1 = require("../utils/formulas/formulas");
-/**
- * Gets the components and returns them as GameContent array
- * @returns {object}
- */
-function getOrCreateGameContent() {
-    const gameContent = (0, components_1.getOrCreateComponents)();
-    return {
-        components: gameContent.components.map((comp) => {
-            const compJson = components_json_1.default.components.find((compJson) => compJson.id === comp.id);
-            if (!compJson)
-                return new GameContent(comp);
-            comp.baseCost = compJson.baseCost;
-            comp.exponent = compJson.exponent;
-            comp.gainPerSecond = compJson.gainPerSecond;
-            comp.img = compJson.img;
-            comp.maxLevel = compJson.maxLevel;
-            return new GameContent(comp);
-        }),
-        resources: gameContent.resources.map((res) => {
-            const resJson = components_json_1.default.components.find((resJson) => resJson.id === res.id);
-            if (!resJson)
-                return new GameContent(res);
-            res.baseCost = resJson.baseCost;
-            res.exponent = resJson.exponent;
-            res.gainPerSecond = resJson.gainPerSecond;
-            res.img = resJson.img;
-            res.maxLevel = resJson.maxLevel;
-            return new GameContent(res);
-        }),
-    };
-}
-exports.getOrCreateGameContent = getOrCreateGameContent;
 class GameContent {
     // btn: HTMLButtonElement | null;
     //#endregion
@@ -386,39 +404,6 @@ class GameContent {
         this.upgradeCost = (0, formulas_1.getCostUpgraded)(this.baseCost, this.exponent, this.level);
     }
     getHtmlTemplateGameContent(energy) {
-        // TODO: display IMAGES
-        // return `
-        // 	<div class="flex card colonne">
-        // 		<div class="flex card-header justify-content-space-around align-items-center">
-        // 			<button class="button"
-        // 				style="cursor: default; width: 30px; height: 30px; border-radius: 50%; border: none; background-color: var(--bg); color: var(--accent);">
-        // 				<i class="fas fa-star"></i></button>
-        // 			<h2 style="text-align: center;">${this.name}</h2>
-        // 			<button class="button"
-        // 				style="cursor: default; width: 30px; height: 30px; border-radius: 50%; border: none; background-color: var(--bg); color: var(--accent);">
-        // 				<i class="fas fa-star"></i>
-        // 			</button>
-        // 		</div>
-        // 		<div class="flex card-content colonne align-items-center height-100 justify-content-center">
-        // 			<div class="flex card-image-content">
-        // 				<!-- <img src="https://github.com/Clemix37/chrono-cosmos/blob/main/img/maquette_dall_e_chatgpt.png?raw=true"
-        // 					width="50" height="50" /> -->
-        // 			</div>
-        // 			<div class="flex card-content-description">
-        // 				<h3 style="text-align: center;"><em>${this.gainPerSecond}/s.</em> - <em>Level ${this.level}</em></h3>
-        // 			</div>
-        // 		</div>
-        // 		<div class="flex card-footer width-100">
-        // 			<button title="Add one" id="${this.idBtn}" class="btn-game-content ${
-        // 	energy < (this.upgradeCost as number) ? "not-enough" : ""
-        // }">
-        // 				<i class="fas fa-star"></i>
-        // 				<em style="font-size: 2em;">${this.upgradeCost}</em>
-        // 				<i class="fas fa-star"></i>
-        // 			</button>
-        // 		</div>
-        // 	</div>
-        // `;
         return `
             <div class="item-card">
                 <div class="item-left">
@@ -446,10 +431,91 @@ class GameContent {
             </div>
         `;
     }
+    /**
+     * Gets the components and returns them as GameContent array
+     * @returns {object}
+     */
+    static getOrCreateGameContent() {
+        const gameContent = (0, components_1.getOrCreateComponents)();
+        return {
+            components: gameContent.components.map((comp) => {
+                const compJson = components_json_1.default.components.find((compJson) => compJson.id === comp.id);
+                if (!compJson)
+                    return new GameContent(comp);
+                comp.baseCost = compJson.baseCost;
+                comp.exponent = compJson.exponent;
+                comp.gainPerSecond = compJson.gainPerSecond;
+                comp.img = compJson.img;
+                comp.maxLevel = compJson.maxLevel;
+                return new GameContent(comp);
+            }),
+            resources: gameContent.resources.map((res) => {
+                const resJson = components_json_1.default.components.find((resJson) => resJson.id === res.id);
+                if (!resJson)
+                    return new GameContent(res);
+                res.baseCost = resJson.baseCost;
+                res.exponent = resJson.exponent;
+                res.gainPerSecond = resJson.gainPerSecond;
+                res.img = resJson.img;
+                res.maxLevel = resJson.maxLevel;
+                return new GameContent(res);
+            }),
+        };
+    }
 }
-exports.GameContent = GameContent;
+exports.default = GameContent;
 
-},{"../utils/components/components":8,"../utils/data/components.json":11,"../utils/formulas/formulas":14}],4:[function(require,module,exports){
+},{"../utils/components/components":11,"../utils/data/components.json":14,"../utils/formulas/formulas":17}],5:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const utils_1 = require("../utils/utils");
+class GameStateManager {
+    //#endregion
+    /**
+     * Change the current game status
+     * @param newStatus
+     */
+    static changeStatus(newStatus) {
+        var _a;
+        GameStateManager.config.status = newStatus;
+        (_a = GameStateManager.game) === null || _a === void 0 ? void 0 : _a.launchActualScreen();
+    }
+    /**
+     * Upgrade the spaceship
+     */
+    static upgradeSpaceship() {
+        GameStateManager.spaceship.upgrade();
+    }
+}
+//#region Properties
+// Configuration of the game
+GameStateManager.config = (0, utils_1.getDefaultConfig)();
+// Energy of user
+GameStateManager.energy = 3;
+// Components
+GameStateManager.components = [];
+// Resources
+GameStateManager.resources = [];
+exports.default = GameStateManager;
+
+},{"../utils/utils":18}],6:[function(require,module,exports){
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Spaceship {
+    //#endregion
+    //#region Constructor
+    constructor({ level = 0 }) {
+        this.level = level;
+    }
+    //#endregion
+    //#region Methods
+    upgrade() {
+        this.level++;
+    }
+}
+exports.default = Spaceship;
+
+},{}],7:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -464,7 +530,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCharacterGeneratedById = exports.displayRandomCharacters = exports.launchGameCharacterCreationScreen = void 0;
+exports.generateRandomStat = exports.getCharacterGeneratedById = exports.generateThreeRandomCharacters = exports.displayRandomCharacters = exports.launchGameCharacterCreationScreen = void 0;
 const Character_1 = __importDefault(require("../Classes/Character"));
 const constants_1 = require("../utils/constants");
 const formulas_1 = require("../utils/formulas/formulas");
@@ -479,6 +545,7 @@ function generateRandomStat(keyStat) {
     }
     return (0, formulas_1.toDecimal)(probas[Math.floor(Math.random() * probas.length)], 2);
 }
+exports.generateRandomStat = generateRandomStat;
 function generateThreeRandomCharacters() {
     charactersGenerated = [];
     for (let i = 0; i < constants_1.NB_RANDOM_CHARACTER; i++) {
@@ -492,13 +559,13 @@ function generateThreeRandomCharacters() {
     }
     return charactersGenerated;
 }
+exports.generateThreeRandomCharacters = generateThreeRandomCharacters;
 //#endregion
 /**
  * Returns the character generated from its id
  * @returns {Character}
  */
 function getCharacterGeneratedById(id) {
-    console.log(charactersGenerated);
     return charactersGenerated.find((char) => char.id === id);
 }
 exports.getCharacterGeneratedById = getCharacterGeneratedById;
@@ -512,6 +579,8 @@ function getRandomCharacters() {
 function displayRandomCharacters() {
     const display = getRandomCharacters();
     const listCharacters = document.getElementById(constants_1.IDS_GAME_DIVS.LIST_CHARACTERS);
+    if (!listCharacters)
+        return void 0;
     listCharacters.innerHTML = display;
 }
 exports.displayRandomCharacters = displayRandomCharacters;
@@ -527,7 +596,7 @@ function launchGameCharacterCreationScreen() {
 }
 exports.launchGameCharacterCreationScreen = launchGameCharacterCreationScreen;
 
-},{"../Classes/Character":1,"../utils/constants":10,"../utils/formulas/formulas":14}],5:[function(require,module,exports){
+},{"../Classes/Character":1,"../utils/constants":13,"../utils/formulas/formulas":17}],8:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -553,7 +622,7 @@ function launchGameEndScreen() {
 }
 exports.launchGameEndScreen = launchGameEndScreen;
 
-},{}],6:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -598,7 +667,7 @@ function attachEventClearData() {
     });
 }
 
-},{"../Classes/Game":2,"../utils/constants":10}],7:[function(require,module,exports){
+},{"../Classes/Game":3,"../utils/constants":13}],10:[function(require,module,exports){
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -609,9 +678,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.launchGameStartScreen = void 0;
-const Game_1 = require("../Classes/Game");
+const GameStateManager_1 = __importDefault(require("../Classes/GameStateManager"));
 const constants_1 = require("../utils/constants");
 const startScreenUrl = "./screens/start.html";
 /**
@@ -639,18 +711,18 @@ function attachEventStartScreen() {
     if (!gameStartDiv)
         return;
     gameStartDiv.addEventListener("click", () => {
-        Game_1.game.changeStatus(constants_1.GameStatus.characterCreation);
+        GameStateManager_1.default.changeStatus(constants_1.GameStatus.characterCreation);
     });
 }
 
-},{"../Classes/Game":2,"../utils/constants":10}],8:[function(require,module,exports){
+},{"../Classes/GameStateManager":5,"../utils/constants":13}],11:[function(require,module,exports){
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDefaultsComponents = exports.getOrCreateComponents = void 0;
-const GameContent_1 = require("../../Classes/GameContent");
+const GameContent_1 = __importDefault(require("../../Classes/GameContent"));
 const data_1 = require("../data/data");
 const resources_json_1 = __importDefault(require("../../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../../utils/data/components.json"));
@@ -673,8 +745,8 @@ exports.getOrCreateComponents = getOrCreateComponents;
  * @returns {{ components: GameContent[], resources: GameContent[] }}
  */
 function getDefaultsComponents() {
-    const everyComponents = components_json_1.default.components.map((comp) => new GameContent_1.GameContent(comp));
-    const everyResources = resources_json_1.default.resources.map((comp) => new GameContent_1.GameContent(comp));
+    const everyComponents = components_json_1.default.components.map((comp) => new GameContent_1.default(comp));
+    const everyResources = resources_json_1.default.resources.map((comp) => new GameContent_1.default(comp));
     const content = {
         components: everyComponents,
         resources: everyResources,
@@ -683,7 +755,7 @@ function getDefaultsComponents() {
 }
 exports.getDefaultsComponents = getDefaultsComponents;
 
-},{"../../Classes/GameContent":3,"../../utils/data/components.json":11,"../../utils/data/resources.json":13,"../constants":10,"../data/data":12}],9:[function(require,module,exports){
+},{"../../Classes/GameContent":4,"../../utils/data/components.json":14,"../../utils/data/resources.json":16,"../constants":13,"../data/data":15}],12:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDefaultConfig = exports.getOrCreateConfig = void 0;
@@ -725,7 +797,7 @@ function saveConfigInLocalStorage(gameConfig) {
     localStorage.setItem("gameConfig", JSON.stringify(gameConfig));
 }
 
-},{"../constants":10,"../data/data":12}],10:[function(require,module,exports){
+},{"../constants":13,"../data/data":15}],13:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CHARACTER_PROPS = exports.CHARACTER_STATS = exports.CHARACTER_PROPS_STATS = exports.NB_RANDOM_CHARACTER = exports.NUMBERS = exports.SESSIONS_KEYS = exports.COLORS = exports.IDS_BTNS_SCREENS = exports.GameStatus = exports.CLASSES_GAME = exports.IDS_GAME_DIVS = void 0;
@@ -769,7 +841,7 @@ exports.SESSIONS_KEYS = {
     GAME_CONTENT: "ccGameContent",
     ENERGY: "ccEnergyCounter",
     GAME_CHAR: "ccGameChar",
-    SPACESHIP_LEVEL: "ccSpaceshipLevel",
+    SPACESHIP: "ccSpaceship",
 };
 exports.NUMBERS = {
     THOUSAND: 1e3,
@@ -796,7 +868,7 @@ exports.CHARACTER_PROPS = {
     NAME: "Jack",
 };
 
-},{}],11:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports={
     "components": [
         {
@@ -917,7 +989,7 @@ module.exports={
     ]
 }
 
-},{}],12:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getRandomFromArray = exports.getDataFromLocalStorage = void 0;
@@ -944,7 +1016,7 @@ function getRandomFromArray(arr) {
 }
 exports.getRandomFromArray = getRandomFromArray;
 
-},{}],13:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 module.exports={
     "resources": [
         {
@@ -1060,7 +1132,7 @@ module.exports={
     ]
 }
 
-},{}],14:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCostUpgraded = exports.formatEnergy = exports.toDecimal = void 0;
@@ -1106,7 +1178,7 @@ function getCostUpgraded(baseCost, exponent, level) {
 }
 exports.getCostUpgraded = getCostUpgraded;
 
-},{"../constants":10}],15:[function(require,module,exports){
+},{"../constants":13}],18:[function(require,module,exports){
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -1150,4 +1222,4 @@ function generateRandomId() {
 exports.generateRandomId = generateRandomId;
 __exportStar(require("./configs/configs"), exports);
 
-},{"./configs/configs":9,"./constants":10}]},{},[2]);
+},{"./configs/configs":12,"./constants":13}]},{},[3]);

@@ -1,9 +1,8 @@
 import { toDecimal, formatEnergy } from "../src/content/utils/formulas/formulas";
 import { getRandomFromArray } from "../src/content/utils/data/data";
 import { getDefaultConfig } from "../src/content/utils/configs/configs";
-import { getDefaultsComponents } from "../src/content/utils/components/components";
+import { generateRandomId } from "../src/content/utils/utils";
 import IGameConfig from "../src/interfaces/IGameConfig";
-import { GameContent } from "../src/content/Classes/GameContent";
 
 //#region Formulas
 
@@ -57,6 +56,15 @@ test("it should return random element from array", () => {
 	expect(getRandomFromArray(arr)).not.toBeNull();
 	expect(getRandomFromArray(arr)).toBeGreaterThanOrEqual(0);
 	expect(getRandomFromArray(arr)).toBeLessThan(arr.length);
+});
+
+test("it should generate random ids", () => {
+	const nbIds = 10000;
+	const allIds: string[] = [];
+	for (let i = 0; i < nbIds; i++) {
+		allIds.push(generateRandomId());
+	}
+	expect(new Set([...allIds]).size).toBe(allIds.length);
 });
 
 //#endregion

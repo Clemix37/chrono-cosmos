@@ -1,4 +1,5 @@
 import { game } from "../Classes/Game";
+import GameStateManager from "../Classes/GameStateManager";
 import { IDS_BTNS_SCREENS, GameStatus } from "../utils/constants";
 
 const startScreenUrl = "./screens/start.html";
@@ -27,7 +28,7 @@ function attachEventStartScreen(): void {
 	const gameStartDiv = document.getElementById(IDS_BTNS_SCREENS.GAME_START.SELECT_CHARACTER);
 	if (!gameStartDiv) return;
 	gameStartDiv.addEventListener("click", () => {
-		game.changeStatus(GameStatus.characterCreation);
+		GameStateManager.changeStatus(GameStatus.characterCreation);
 	});
 }
 

@@ -1,5 +1,5 @@
 import IGameContent from "../../../interfaces/IGameContent";
-import { GameContent } from "../../Classes/GameContent";
+import GameContent from "../../Classes/GameContent";
 import { getDataFromLocalStorage } from "../data/data";
 import resourceFile from "../../utils/data/resources.json";
 import componentFile from "../../utils/data/components.json";

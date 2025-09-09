@@ -43,7 +43,7 @@ export const SESSIONS_KEYS = {
 	GAME_CONTENT: "ccGameContent",
 	ENERGY: "ccEnergyCounter",
 	GAME_CHAR: "ccGameChar",
-	SPACESHIP_LEVEL: "ccSpaceshipLevel",
+	SPACESHIP: "ccSpaceship",
 } as const;
 
 export const NUMBERS = {

@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getDefaultsComponents = exports.getOrCreateComponents = void 0;
-const GameContent_1 = require("../../Classes/GameContent");
+const GameContent_1 = __importDefault(require("../../Classes/GameContent"));
 const data_1 = require("../data/data");
 const resources_json_1 = __importDefault(require("../../utils/data/resources.json"));
 const components_json_1 = __importDefault(require("../../utils/data/components.json"));
@@ -27,8 +27,8 @@ exports.getOrCreateComponents = getOrCreateComponents;
  * @returns {{ components: GameContent[], resources: GameContent[] }}
  */
 function getDefaultsComponents() {
-    const everyComponents = components_json_1.default.components.map((comp) => new GameContent_1.GameContent(comp));
-    const everyResources = resources_json_1.default.resources.map((comp) => new GameContent_1.GameContent(comp));
+    const everyComponents = components_json_1.default.components.map((comp) => new GameContent_1.default(comp));
+    const everyResources = resources_json_1.default.resources.map((comp) => new GameContent_1.default(comp));
     const content = {
         components: everyComponents,
         resources: everyResources,
