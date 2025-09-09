@@ -1,4 +1,4 @@
-# chrono-cosmos
+# ChronoCosmos
 
 🕹️ Idle Web game about traveling through space & time 🚀
 ![ChronoCosmos](https://github.com/Clemix37/chrono-cosmos/blob/main/img/chrono_cosmos_v0.5.png?raw=true)
@@ -7,6 +7,10 @@
 
 You are Jack, a time-traveler and space explorer. Your main objective is to restore life on this planet, that once was destroyed because of Humans' space programs.  
 Take great care, you could die outside of your base ...
+
+## Game loop
+
+Collect energy => Buy / upgrade components => unlock resources => travel further => upgrade spaceship => repeat
 
 ## Design
 
@@ -64,6 +68,37 @@ Ex:
 ### Game Content
 
 `upgrade` should add a level to the current one, and update the upgrade cost
+
+## Installation
+
+```bash
+git clone https://github.com/Clemix37/chrono-cosmos.git
+cd chrono-cosmos
+npm install # install dependencies
+npm run build # build typescript files
+```
+
+The `npm run build` phase will compile TS files into JS and bundle them into a unique one.  
+Then, you'll have to launch the `index.html` file with [LiveServer](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension for example and tadaaaa.
+
+## Roadmap
+
+-   [x] First UI design
+-   [x] Create a GameStateManager
+-   [x] Create a ScreenManager
+-   [x] Create a DisplayManager
+-   [x] Add tests for formulas, data and config
+-   [x] Add tests for game state
+-   [ ] Remake the UI of character selection
+-   [ ] Change persistence data inside localstorage using string (like [Cookie Clicker](https://orteil.dashnet.org/cookieclicker/))
+-   [ ] Add more components / resources (maybe through AI for infinite ideas ?)
+-   [ ] Random events like meteorites or anomalies
+-   [ ] Add animations
+
+## Contributing
+
+PRs welcome !  
+If necessary, create issues for ideas, bugs etc.
 
 ## License
 
