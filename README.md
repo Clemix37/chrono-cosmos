@@ -1,3 +1,11 @@
+![Version](https://img.shields.io/badge/version-v0.5--alpha-purple)
+![License](https://img.shields.io/github/license/Clemix37/chrono-cosmos)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![Made with](https://img.shields.io/badge/made%20with-TypeScript-blue)
+![Contributions](https://img.shields.io/badge/contributions-welcome-orange)
+![GitHub Repo stars](https://img.shields.io/github/stars/Clemix37/chrono-cosmos?style=social)
+![Tests](https://github.com/Clemix37/chrono-cosmos/actions/workflows/tests.yml/badge.svg)
+
 # ChronoCosmos
 
 🕹️ Idle Web game about traveling through space & time 🚀
@@ -76,10 +84,8 @@ git clone https://github.com/Clemix37/chrono-cosmos.git
 cd chrono-cosmos
 npm install # install dependencies
 npm run build # build typescript files
+npm run dev # launch live-server on index.html file
 ```
-
-The `npm run build` phase will compile TS files into JS and bundle them into a unique one.  
-Then, you'll have to launch the `index.html` file with [LiveServer](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) extension for example and tadaaaa.
 
 ## Roadmap
 
