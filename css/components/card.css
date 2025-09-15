@@ -1,36 +1,74 @@
-.card {
-    min-width: 250px;
-    padding: 10px;
-    margin: 10px;
-    background-color: var(--cards);
-    border-radius: 10px;
-}
-
-.card .card-content {
-    border-left: 2px solid black;
-    border-radius: 8px;
-    padding: 5px;
-    border-right: 2px solid black;
-}
-
-.card .card-footer {
-    margin-top: 10px;
-}
-
-.card .card-footer button.btn-game-content {
-    height: 40px;
-    width: 100%;
-    border: none;
-    border-radius: 20px;
-    background-color: var(--bg);
-    color: var(--accent);
+.item-card {
     display: flex;
-    justify-content: space-around;
     align-items: center;
-    box-shadow: 0 0 5px 1px;
+    justify-content: space-between;
+    padding: 10px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), rgba(0, 0, 0, 0.12));
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
-.card .card-footer button.btn-game-content.not-enough {
-    opacity: 0.5;
-    cursor: not-allowed;
+.item-card .item-left {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.item-card .item-left .ico {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.12));
+    display: grid;
+    place-items: center;
+    color: var(--primary);
+    font-weight: 800;
+    box-shadow: 0 6px 18px rgba(62, 78, 214, 0.06);
+}
+
+/* Bottom: big cards */
+.bottom {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.big-card {
+    flex: 1;
+    padding: 16px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.12));
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.big-card h4 {
+    color: #E8F1FF;
+    margin: 0;
+}
+
+.big-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.big-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+}
+
+.cta {
+    background: var(--primary);
+    color: white;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 800;
 }
