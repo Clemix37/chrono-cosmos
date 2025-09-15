@@ -53,7 +53,10 @@ function getCharacterGeneratedById(id) {
 exports.getCharacterGeneratedById = getCharacterGeneratedById;
 function getRandomCharacters() {
     const characters = generateThreeRandomCharacters();
-    return characters.reduce((previousDisplay, actualChar) => `${previousDisplay}${actualChar.getDisplayTemplate()}`, "");
+    const maxSpeed = Math.max(...characters.map((c) => c.speed));
+    const maxStrength = Math.max(...characters.map((c) => c.strength));
+    const maxIntelligence = Math.max(...characters.map((c) => c.intelligence));
+    return characters.reduce((previousDisplay, actualChar, index) => `${previousDisplay}${actualChar.getDisplayTemplate(`Random #${index + 1}`, maxSpeed === actualChar.speed, maxStrength === actualChar.strength, maxIntelligence === actualChar.intelligence)}`, "");
 }
 /**
  * Display characters randomly generated

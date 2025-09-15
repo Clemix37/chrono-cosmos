@@ -18,22 +18,22 @@ class Character {
     //#region Accessors
     //#endregion
     //#region Public methods
-    getDisplayTemplate() {
+    getDisplayTemplate(title = "", emphasizeSpeed = false, emphasizeStrength = false, emphasizeIntelligence = false) {
         return `
             <div class="big-card" aria-label="Character selection">
-                <h4>Character</h4>
+                <h4>${title}</h4>
                 <div class="big-row">
                     <div>
                         <div style="font-size:13px;color:#A8C9FF">Speed</div>
-                        <div class="big-value">${this.speed}</div>
+                        <div class="big-value${emphasizeSpeed ? " emphasized" : ""}">${this.speed}</div>
                     </div>
                     <div>
                         <div style="font-size:13px;color:#A8C9FF">Strength</div>
-                        <div class="big-value">${this.strength}</div>
+                        <div class="big-value${emphasizeStrength ? " emphasized" : ""}">${this.strength}</div>
                     </div>
                     <div>
                         <div style="font-size:13px;color:#A8C9FF">Intelligence</div>
-                        <div class="big-value">${this.intelligence}</div>
+                        <div class="big-value${emphasizeIntelligence ? " emphasized" : ""}">${this.intelligence}</div>
                     </div>
 				    <button data-id="${this.id}" class="${constants_1.CLASSES_GAME.SELECT_CHARACTER} cta">Select</button>
                 </div>
@@ -583,7 +583,10 @@ function getCharacterGeneratedById(id) {
 exports.getCharacterGeneratedById = getCharacterGeneratedById;
 function getRandomCharacters() {
     const characters = generateThreeRandomCharacters();
-    return characters.reduce((previousDisplay, actualChar) => `${previousDisplay}${actualChar.getDisplayTemplate()}`, "");
+    const maxSpeed = Math.max(...characters.map((c) => c.speed));
+    const maxStrength = Math.max(...characters.map((c) => c.strength));
+    const maxIntelligence = Math.max(...characters.map((c) => c.intelligence));
+    return characters.reduce((previousDisplay, actualChar, index) => `${previousDisplay}${actualChar.getDisplayTemplate(`Random #${index + 1}`, maxSpeed === actualChar.speed, maxStrength === actualChar.strength, maxIntelligence === actualChar.intelligence)}`, "");
 }
 /**
  * Display characters randomly generated

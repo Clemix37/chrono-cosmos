@@ -42,8 +42,17 @@ function getCharacterGeneratedById(id: string): Character {
 
 function getRandomCharacters(): string {
 	const characters: Character[] = generateThreeRandomCharacters();
+	const maxSpeed: number = Math.max(...characters.map((c) => c.speed));
+	const maxStrength: number = Math.max(...characters.map((c) => c.strength));
+	const maxIntelligence: number = Math.max(...characters.map((c) => c.intelligence));
 	return characters.reduce(
-		(previousDisplay, actualChar) => `${previousDisplay}${actualChar.getDisplayTemplate()}`,
+		(previousDisplay, actualChar, index) =>
+			`${previousDisplay}${actualChar.getDisplayTemplate(
+				`Random #${index + 1}`,
+				maxSpeed === actualChar.speed,
+				maxStrength === actualChar.strength,
+				maxIntelligence === actualChar.intelligence,
+			)}`,
 		"",
 	);
 }

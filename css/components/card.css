@@ -63,6 +63,10 @@
     color: var(--accent);
 }
 
+.big-value.emphasized {
+    color: var(--success);
+}
+
 .cta {
     background: var(--primary);
     color: white;
