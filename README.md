@@ -95,7 +95,7 @@ npm run dev # launch live-server on index.html file
 -   [x] Create a DisplayManager
 -   [x] Add tests for formulas, data and config
 -   [x] Add tests for game state
--   [ ] Remake the UI of character selection
+-   [x] Remake the UI of character selection
 -   [ ] Change persistence data inside localstorage using string (like [Cookie Clicker](https://orteil.dashnet.org/cookieclicker/))
 -   [ ] Add more components / resources (maybe through AI for infinite ideas ?)
 -   [ ] Random events like meteorites or anomalies

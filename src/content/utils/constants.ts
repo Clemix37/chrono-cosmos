@@ -1,7 +1,7 @@
 export const IDS_GAME_DIVS = {
 	GAME_START: "div-game-start-screen",
 	CHARACTER_CREATION: "div-character-creation-screen",
-	LIST_CHARACTERS: "div-list-characters",
+	LIST_CHARACTERS: "list-characters-generated",
 	DISPLAY_CHAR: "div-display-character",
 	GAME_END: "div-game-end-screen",
 	GAME: "div-game-content",

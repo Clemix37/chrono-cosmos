@@ -8,3 +8,10 @@
     font-weight: 700;
     box-shadow: 0 8px 18px rgba(62, 78, 214, 0.18);
 }
+
+#list-characters-generated {
+    padding: 10%;
+    gap: 12px;
+    display: flex;
+    flex-direction: column;
+}

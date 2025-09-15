@@ -20,12 +20,24 @@ class Character {
     //#region Public methods
     getDisplayTemplate() {
         return `
-			<div class="colonne" style="padding: 5px; width: 200px; border: 1px solid red; border-radius: 8px; margin: 0 10px;">
-				<h3>Speed: <em>${this.speed}</em></h3>
-				<h3>Strength: <em>${this.strength}</em></h3>
-				<h3>Intelligence: <em>${this.intelligence}</em></h3>
-				<button data-id="${this.id}" class="${constants_1.CLASSES_GAME.SELECT_CHARACTER}">Select</button>
-			</div>
+            <div class="big-card" aria-label="Character selection">
+                <h4>Character</h4>
+                <div class="big-row">
+                    <div>
+                        <div style="font-size:13px;color:#A8C9FF">Speed</div>
+                        <div class="big-value">${this.speed}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:13px;color:#A8C9FF">Strength</div>
+                        <div class="big-value">${this.strength}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:13px;color:#A8C9FF">Intelligence</div>
+                        <div class="big-value">${this.intelligence}</div>
+                    </div>
+				    <button data-id="${this.id}" class="${constants_1.CLASSES_GAME.SELECT_CHARACTER} cta">Select</button>
+                </div>
+            </div>
 		`;
     }
 }
@@ -804,7 +816,7 @@ exports.CHARACTER_PROPS = exports.CHARACTER_STATS = exports.CHARACTER_PROPS_STAT
 exports.IDS_GAME_DIVS = {
     GAME_START: "div-game-start-screen",
     CHARACTER_CREATION: "div-character-creation-screen",
-    LIST_CHARACTERS: "div-list-characters",
+    LIST_CHARACTERS: "list-characters-generated",
     DISPLAY_CHAR: "div-display-character",
     GAME_END: "div-game-end-screen",
     GAME: "div-game-content",
